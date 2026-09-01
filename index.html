@@ -1,85 +1,256 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Aura Kingdom Online — a new adventure begins." />
-    <title>Aura Kingdom Online — Begin Your Legend</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="noise" aria-hidden="true"></div>
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="Aura Kingdom Online home"><span>AK</span> AURA KINGDOM <i>ONLINE</i></a>
-      <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false">☰</button>
-      <nav class="nav" aria-label="Main navigation">
-        <a href="#world">The world</a><a href="#classes">Classes</a><a href="#news">News</a><a href="#community">Community</a>
-      </nav>
-      <a class="header-cta" href="#download">Play free <span>↗</span></a>
-    </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Aura Kingdom Online — enter the realm.">
+  <meta name="theme-color" content="#14120f">
+  <title>Aura Kingdom Online — The Realm Awaits</title>
 
-    <main id="top">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow"><span></span> Season 01 · The Emberfall</p>
-          <h1>Forge your<br /><em>own legend.</em></h1>
-          <p class="hero-text">The gates are open. Choose your Eidolon, rally your guild, and take back a kingdom suspended between light and flame.</p>
-          <div class="hero-actions" id="download">
-            <a class="button primary" href="#community">Begin your adventure <b>→</b></a>
-            <a class="button ghost" href="#world"><span class="play">▶</span> Discover the world</a>
+  <meta property="og:title" content="Aura Kingdom Online — The Realm Awaits">
+  <meta property="og:description" content="Find your Eidolon, gather your party, and venture beyond the ancient gates.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aurakingdom.online/">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/knight.webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="animations.css">
+
+  <!-- If JavaScript is unavailable, show every section immediately
+       instead of leaving the reveal animations stuck at opacity 0. -->
+  <noscript>
+    <style>
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+      h1 .line > * { transform: none !important; }
+      .ember-canvas, .scroll-progress { display: none; }
+      .class-detail { height: auto !important; opacity: 1 !important; }
+    </style>
+  </noscript>
+</head>
+
+<body>
+  <a class="skip-link" href="#top">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="embers" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="crest" href="#top">
+      <span aria-hidden="true">✦</span><b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><span>☰</span></button>
+    <nav class="nav" aria-label="Main">
+      <a class="active" href="#top">Home</a>
+      <a href="#adventure">Adventure</a>
+      <a href="#classes">Classes</a>
+      <a href="#chronicles">Chronicles</a>
+    </nav>
+    <a class="discord" href="#join"><span aria-hidden="true">◈</span> Join Discord</a>
+  </header>
+
+  <main id="top">
+
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="moon"></div>
+        <div class="ruins r-one"></div>
+        <div class="ruins r-two"></div>
+        <div class="mist"></div>
+      </div>
+      <canvas class="ember-canvas" aria-hidden="true"></canvas>
+
+      <div class="hero-copy">
+        <p class="chapter" data-reveal="fade" data-reveal-now data-delay="120">✦ &nbsp; THE EMBERFALL SEASON &nbsp; ✦</p>
+        <h1>
+          <span class="line"><span>YOUR LEGEND</span></span>
+          <span class="line"><em>BEGINS HERE</em></span>
+        </h1>
+        <p class="lead" data-reveal data-reveal-now data-delay="620">
+          The kingdom is calling. Find your Eidolon, gather your party, and venture beyond the ancient gates.
+        </p>
+        <div class="hero-buttons" data-reveal data-reveal-now data-delay="760">
+          <a class="medieval-btn gold" href="#join"><span aria-hidden="true">⚔</span> PLAY FREE <b aria-hidden="true">→</b></a>
+          <a class="watch" href="#adventure"><span aria-hidden="true">▶</span> Watch the trailer</a>
+        </div>
+      </div>
+
+      <div class="character-frame" data-reveal="fade" data-reveal-now data-delay="240">
+        <div class="rune-ring" aria-hidden="true"></div>
+        <img src="assets/knight.webp" alt="Aura Kingdom heroine" fetchpriority="high" decoding="async">
+        <span class="character-name">THE EIDOLON'S CHOSEN</span>
+      </div>
+
+      <div class="realm-status" data-reveal data-reveal-now data-delay="900">
+        <span class="online-dot" aria-hidden="true"></span><b>REALMS ONLINE</b>
+        <small>Jakarta · <span data-count="1284">0</span> adventurers</small>
+      </div>
+
+      <div class="hero-scroll" data-reveal="fade" data-reveal-now data-delay="1100">
+        SCROLL TO ENTER <span aria-hidden="true">⌄</span>
+      </div>
+    </section>
+
+    <!-- ================= NOTICE ================= -->
+    <section class="notice">
+      <span aria-hidden="true">✦</span> NEW SEASON IS LIVE <i>—</i>
+      Claim your founder's rewards before the gates close.
+      <a href="#join">ENTER NOW →</a>
+    </section>
+
+    <!-- ================= ADVENTURE ================= -->
+    <section class="adventure section" id="adventure">
+      <div class="section-kicker" data-reveal="fade">CHAPTER I · THE CALLING</div>
+      <div class="split-heading">
+        <div data-reveal="left" data-delay="80">
+          <h2>A WORLD WORTH<br><em>FIGHTING FOR.</em></h2>
+        </div>
+        <p data-reveal="right" data-delay="180">
+          Build a story that belongs only to you. Explore forgotten cities, face colossal
+          guardians, and make a home among fellow adventurers.
+        </p>
+      </div>
+
+      <div class="quest-grid">
+        <article class="quest main-quest" data-reveal data-delay="0">
+          <div class="quest-icon" aria-hidden="true">♜</div>
+          <span>01 / EXPLORE</span>
+          <h3>Ancient<br>frontiers</h3>
+          <p>Seven lands. Endless stories.</p>
+        </article>
+        <article class="quest" data-reveal data-delay="120">
+          <div class="quest-icon" aria-hidden="true">✧</div>
+          <span>02 / BOND</span>
+          <h3>Awaken<br>Eidolons</h3>
+          <p>Legends are stronger together.</p>
+        </article>
+        <article class="quest" data-reveal data-delay="240">
+          <div class="quest-icon" aria-hidden="true">⚔</div>
+          <span>03 / CONQUER</span>
+          <h3>Rise with<br>your guild</h3>
+          <p>Claim glory for your banner.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= CLASSES ================= -->
+    <section class="classes" id="classes">
+      <div class="classes-art" data-reveal="scale">
+        <img src="assets/mage.webp" alt="Aura Kingdom warrior" loading="lazy" decoding="async">
+      </div>
+      <div class="class-copy">
+        <div class="section-kicker" data-reveal="fade">CHAPTER II · CHOOSE YOUR ARMS</div>
+        <h2 data-reveal="right" data-delay="80">THE PATH IS<br><em>YOURS TO TAKE.</em></h2>
+        <p data-reveal="right" data-delay="160">
+          Every weapon tells a different story. Find the calling that feels like it was
+          forged just for you.
+        </p>
+
+        <div class="class-list" data-reveal data-delay="240">
+          <div class="class-item">
+            <button class="class active" aria-expanded="true">
+              <b>01</b><span>AEGIS</span><i>Guardian of the realm</i><strong aria-hidden="true">+</strong>
+            </button>
+            <div class="class-detail">
+              <p>Tower shield and oathbound steel. The Aegis holds the line while the party
+                carves its way through — the first to enter a fight and the last to leave it.</p>
+            </div>
+          </div>
+
+          <div class="class-item">
+            <button class="class" aria-expanded="false">
+              <b>02</b><span>ARCANIST</span><i>Keeper of the unseen</i><strong aria-hidden="true">+</strong>
+            </button>
+            <div class="class-detail">
+              <p>Reads the old script in the ruins and turns it into fire, frost, and open
+                gates. Fragile up close, devastating from the back line.</p>
+            </div>
+          </div>
+
+          <div class="class-item">
+            <button class="class" aria-expanded="false">
+              <b>03</b><span>RAVAGER</span><i>Fury made steel</i><strong aria-hidden="true">+</strong>
+            </button>
+            <div class="class-detail">
+              <p>No shield, no hesitation. The Ravager trades every scrap of defense for
+                momentum, and gets stronger the longer the fight drags on.</p>
+            </div>
+          </div>
+
+          <div class="class-item">
+            <button class="class" aria-expanded="false">
+              <b>04</b><span>RANGER</span><i>Swift as the wild</i><strong aria-hidden="true">+</strong>
+            </button>
+            <div class="class-detail">
+              <p>Scouts the frontier days ahead of the party. Marks the target, thins the
+                pack, and is gone before anything closes the distance.</p>
+            </div>
           </div>
         </div>
-        <div class="hero-art" aria-label="Stylized fantasy sunrise over a floating kingdom">
-          <div class="sun"></div><div class="cloud cloud-a"></div><div class="cloud cloud-b"></div>
-          <div class="mountain mountain-back"></div><div class="mountain mountain-front"></div>
-          <div class="floating-isle"><span></span><span></span><span></span></div>
-          <div class="hero-rune">✦</div>
-          <p class="art-caption">EIDOLON AWAKENING<br /><b>NOW LIVE</b></p>
+      </div>
+    </section>
+
+    <!-- ================= CHRONICLES ================= -->
+    <section class="chronicles section" id="chronicles">
+      <div class="chronicles-head">
+        <div data-reveal="left">
+          <div class="section-kicker">CHAPTER III · ROYAL DISPATCHES</div>
+          <h2>FROM THE<br><em>CHRONICLES.</em></h2>
         </div>
-        <div class="scroll-cue"><span></span> SCROLL TO EXPLORE</div>
-      </section>
+        <a href="#chronicles" data-reveal="right" data-delay="120">VIEW ALL NEWS →</a>
+      </div>
 
-      <section class="status-strip" aria-label="Server status">
-        <div><span class="status-dot"></span><b>ALL REALMS ONLINE</b><small> Jakarta · Singapore · Global</small></div>
-        <div class="status-metrics"><span><b>12,842</b> adventurers online</span><span><b>99.98%</b> realm uptime</span></div>
-      </section>
+      <div class="news-grid">
+        <article data-reveal data-delay="0">
+          <img src="assets/news-ember.webp" alt="Season announcement" loading="lazy" decoding="async">
+          <span>SEPT 02 · UPDATE</span>
+          <h3>The Emberfall season has begun</h3>
+          <a href="#chronicles">Read dispatch →</a>
+        </article>
+        <article data-reveal data-delay="120">
+          <img src="assets/news-market.webp" alt="Festival announcement" loading="lazy" decoding="async">
+          <span>AUG 27 · EVENT</span>
+          <h3>The Moonlit Market returns</h3>
+          <a href="#chronicles">Read dispatch →</a>
+        </article>
+        <article data-reveal data-delay="240">
+          <img src="assets/news-guild.webp" alt="Guild news" loading="lazy" decoding="async">
+          <span>AUG 19 · COMMUNITY</span>
+          <h3>Meet the guilds of the frontier</h3>
+          <a href="#chronicles">Read dispatch →</a>
+        </article>
+      </div>
+    </section>
 
-      <section class="world section" id="world">
-        <div class="section-label">01 / YOUR NEXT CHAPTER</div>
-        <div class="world-heading"><h2>Not just a world.<br /><em>Your world.</em></h2><p>Every choice leaves a mark. Build a home, uncover ancient secrets, and create memories worth coming back to.</p></div>
-        <div class="feature-grid">
-          <article class="feature feature-large"><div class="feature-mark">✦</div><p>01</p><h3>Boundless<br />adventure</h3><span>Seven regions · Hundreds of stories</span></article>
-          <article class="feature"><p>02</p><h3>Find your<br />Eidolon</h3><span>More than companions. Legends at your side.</span></article>
-          <article class="feature"><p>03</p><h3>Made for<br />your guild</h3><span>Fight together. Build something lasting.</span></article>
-        </div>
-      </section>
+    <!-- ================= JOIN ================= -->
+    <section class="join" id="join">
+      <div class="join-card" data-reveal="scale">
+        <p>✦ &nbsp; THE GATES ARE OPEN &nbsp; ✦</p>
+        <h2>ANSWER THE<br><em>CALLING.</em></h2>
+        <span class="join-line" aria-hidden="true"></span>
+        <p class="join-text">Your next adventure is waiting on the other side.</p>
+        <a class="medieval-btn gold" href="mailto:hello@aurakingdom.online">
+          <span aria-hidden="true">⚔</span> BEGIN YOUR QUEST <b aria-hidden="true">→</b>
+        </a>
+      </div>
+    </section>
 
-      <section class="classes section" id="classes">
-        <div class="section-label">02 / CHOOSE YOUR PATH</div>
-        <h2>Power has<br /><em>many faces.</em></h2>
-        <div class="class-list">
-          <button class="class-card active" data-class="Aegis"><span>01</span><b>Aegis</b><i>Shield of the realm</i><strong>↗</strong></button>
-          <button class="class-card" data-class="Ravager"><span>02</span><b>Ravager</b><i>Fury without end</i><strong>↗</strong></button>
-          <button class="class-card" data-class="Arcanist"><span>03</span><b>Arcanist</b><i>Master of the unseen</i><strong>↗</strong></button>
-          <button class="class-card" data-class="Ranger"><span>04</span><b>Ranger</b><i>Swift and relentless</i><strong>↗</strong></button>
-        </div>
-      </section>
+  </main>
 
-      <section class="news section" id="news">
-        <div class="news-top"><div><div class="section-label">03 / FROM THE KINGDOM</div><h2>Latest <em>dispatches.</em></h2></div><a href="#news">All news <span>→</span></a></div>
-        <div class="news-grid">
-          <article><div class="news-image ember"></div><p>SEPT 02, 2026 · UPDATE</p><h3>The Emberfall arrives: Season 01 is live</h3><a href="#news">Read story →</a></article>
-          <article><div class="news-image gold"></div><p>AUG 27, 2026 · EVENT</p><h3>Moonlit Market returns for one magical week</h3><a href="#news">Read story →</a></article>
-          <article><div class="news-image ash"></div><p>AUG 19, 2026 · COMMUNITY</p><h3>Meet the guilds shaping the new frontier</h3><a href="#news">Read story →</a></article>
-        </div>
-      </section>
+  <footer>
+    <a class="crest" href="#top">
+      <span aria-hidden="true">✦</span><b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <p>© 2026 Aura Kingdom Online · Fan community project</p>
+    <div>
+      <a href="#top">Terms</a>
+      <a href="#top">Privacy</a>
+      <a href="mailto:hello@aurakingdom.online">Contact</a>
+    </div>
+  </footer>
 
-      <section class="join" id="community"><div class="join-rune">✦</div><p class="eyebrow">YOUR STORY STARTS HERE</p><h2>Ready to rise?</h2><p>Join an ever-growing community of adventurers and write the next page of Aura Kingdom Online.</p><a class="button primary" href="mailto:hello@aurakingdom.online">Join the community <b>→</b></a></section>
-    </main>
-    <footer><a class="brand" href="#top"><span>AK</span> AURA KINGDOM <i>ONLINE</i></a><p>© 2026 Aura Kingdom Online. Fan community project.</p><div><a href="#top">Terms</a><a href="#top">Privacy</a><a href="mailto:hello@aurakingdom.online">Contact</a></div></footer>
-    <script src="script.js"></script>
-  </body>
+  <script src="script.js"></script>
+</body>
 </html>
