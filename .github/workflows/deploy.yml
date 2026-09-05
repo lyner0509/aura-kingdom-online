@@ -1,0 +1,62 @@
+name: Deploy to VPS
+
+# Every push to main ships the site. You can also run it by hand from
+# the Actions tab (Run workflow) without pushing anything.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# If you push twice quickly, cancel the older run so the newest commit
+# is always the one that ends up live.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Ship to aurakingdom.online
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Load the deploy key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync files to the web root
+        run: |
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.gitignore' \
+            --exclude 'README.md' \
+            --exclude 'server/node_modules/' \
+            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes" \
+            ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/aurakingdom.online/"
+
+      # Static files need nothing. The Node service does: new server code
+      # only takes effect after a restart, and new dependencies after an
+      # install. Needs one NOPASSWD sudoers line — see deploy/SETUP.md.
+      - name: Refresh the news service
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -se <<'REMOTE'
+            set -e
+            cd /var/www/aurakingdom.online/server
+            npm ci --omit=dev
+            sudo /usr/bin/systemctl restart aurakingdom-api
+            sleep 2
+            systemctl is-active aurakingdom-api
+          REMOTE
+
+      - name: Check the site is actually up
+        run: |
+          code=$(curl -fsS -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 3 https://aurakingdom.online/)
+          echo "aurakingdom.online responded $code"
+          test "$code" = "200"
