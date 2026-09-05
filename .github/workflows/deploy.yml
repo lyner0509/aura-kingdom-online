@@ -47,7 +47,7 @@ jobs:
           mkdir site-stage
           cp index.html article.html styles.css animations.css script.js site-stage/
           cp -r assets server deploy site-stage/
-          printf '%s\n' "$GITHUB_SHA" > site-stage/deployed-revision.txt
+          printf '%s\n' "$GITHUB_SHA" > site-stage/revision.txt
       - name: Deploy site and news API
         run: |
           rsync -az --delete --exclude 'server/node_modules/' --exclude 'server/data/' --exclude '.env' site-stage/ "$VPS_USER@$VPS_HOST:/var/www/aurakingdom.online/"
@@ -61,4 +61,4 @@ jobs:
           curl --fail --retry 5 --retry-delay 3 https://aurakingdom.online/ops/api/health
           curl --fail --retry 5 --retry-delay 3 https://www.aurakingdom.online/ -o /tmp/live.html
           grep -q 'DOWNLOAD LAUNCHER' /tmp/live.html
-          test "$(curl -fsS https://aurakingdom.online/deployed-revision.txt)" = "$GITHUB_SHA"
+          test "$(curl -fsS https://aurakingdom.online/revision.txt)" = "$GITHUB_SHA"

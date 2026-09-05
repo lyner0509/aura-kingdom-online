@@ -2,7 +2,7 @@
 
 Edit this checkout, commit, and push main.
 GitHub Actions verifies and deploys the landing page/news API and dashboard.
-The deployed SHA is available at /deployed-revision.txt.
+The deployed SHA is available at /revision.txt.
 Only staged public web files reach the web root; dashboard and launcher source stay out.
 
 Windows launcher changes produce an Actions artifact with the executable and video.
