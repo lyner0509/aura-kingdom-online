@@ -15,6 +15,6 @@ server/data/
 *.mp4
 *.log
 .deploy-key*
-client/
-_release/
-_maintenance/
+/client/
+/_release/
+/_maintenance/
