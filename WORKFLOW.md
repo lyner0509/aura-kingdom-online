@@ -7,7 +7,8 @@ Only staged public web files reach the web root; dashboard and launcher source s
 
 Windows launcher changes produce an Actions artifact with the executable and video.
 The pinned baseline package supplies the video asset; game assets and secrets are not in Git.
-Publishing a launcher artifact as the public download is a separate release operation.
+The launcher workflow also uploads the artifact to the VPS and replaces the public
+/updates/launcher.zip download. The landing page uses this stable link.
 Client patch releases remain explicit, versioned uploads documented in tools/UPDATE-RELEASE.md.
 
 The sibling landing-page, aura-dashboard and launcher directories are previous working copies.

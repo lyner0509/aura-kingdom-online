@@ -29,3 +29,32 @@ jobs:
         with:
           name: AuraLauncher-Windows
           path: AuraLauncher.zip
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: launcher-download-production
+      cancel-in-progress: false
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: AuraLauncher-Windows
+      - name: Configure SSH
+        env:
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST_KEY: ${{ secrets.VPS_HOST_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$HOST_KEY" > ~/.ssh/known_hosts
+      - name: Publish launcher atomically
+        run: |
+          sha256sum AuraLauncher.zip > AuraLauncher.zip.sha256
+          scp AuraLauncher.zip "$VPS_USER@$VPS_HOST:/var/www/aura-launcher-download/AuraLauncher.pending.zip"
+          scp AuraLauncher.zip.sha256 "$VPS_USER@$VPS_HOST:/var/www/aura-launcher-download/AuraLauncher.zip.sha256"
+          ssh "$VPS_USER@$VPS_HOST" 'cd /var/www/aura-launcher-download && mv AuraLauncher.pending.zip AuraLauncher.zip && sha256sum -c AuraLauncher.zip.sha256'
+          curl --fail --head https://aurakingdom.online/updates/launcher.zip
