@@ -1,0 +1,31 @@
+name: Build Windows launcher
+on:
+  push:
+    branches: [main]
+    paths: ['launcher/**', '.github/workflows/launcher.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet publish launcher/AuraLauncher.csproj -c Release -o package
+      - name: Package assets
+        shell: pwsh
+        run: |
+          Copy-Item launcher/logo.png,launcher/launcher.json,launcher/README-WPF.txt package/
+          Invoke-WebRequest https://aurakingdom.online/updates/releases/launcher-4.1.0/AuraLauncher-4.1.0-WPF.zip -OutFile baseline.zip
+          if ((Get-FileHash baseline.zip).Hash -ne '3C4DBBD37610589F0D7BF3881CEB5E1DCC3F9AFAFBA9783F6C9E4BA668E77006') { throw 'Baseline hash mismatch' }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip=[IO.Compression.ZipFile]::OpenRead((Resolve-Path baseline.zip))
+          try { [IO.Compression.ZipFileExtensions]::ExtractToFile($zip.GetEntry('launcher-bg.mp4'), (Join-Path (Resolve-Path package) 'launcher-bg.mp4')) } finally { $zip.Dispose() }
+          Compress-Archive -Path package/* -DestinationPath AuraLauncher.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AuraLauncher-Windows
+          path: AuraLauncher.zip

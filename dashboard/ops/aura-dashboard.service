@@ -1,0 +1,18 @@
+[Unit]
+Description=Aura Kingdom Operations Dashboard
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=akdashboard
+Group=akdashboard
+WorkingDirectory=/opt/aura-dashboard/current
+EnvironmentFile=/etc/aura-dashboard.env
+ExecStart=/usr/bin/node dist-server/index.js
+Restart=on-failure
+RestartSec=3
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

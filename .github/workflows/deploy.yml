@@ -1,62 +1,64 @@
 name: Deploy to VPS
-
-# Every push to main ships the site. You can also run it by hand from
-# the Actions tab (Run workflow) without pushing anything.
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
-# If you push twice quickly, cancel the older run so the newest commit
-# is always the one that ends up live.
+permissions:
+  contents: read
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
-
+  cancel-in-progress: false
 jobs:
   deploy:
-    name: Ship to aurakingdom.online
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 15
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-
-      - name: Load the deploy key
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Verify and build dashboard
+        working-directory: dashboard
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          npm ci
+          npm run check
+          npm run build
+          tar -czf ../aura-dashboard-release.tgz dist dist-server ops package.json package-lock.json
+      - name: Validate site scripts
+        run: |
+          node --check script.js
+          node --check server/server.js
+      - name: Configure verified SSH host
+        env:
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST_KEY: ${{ secrets.VPS_HOST_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
-
-      - name: Sync files to the web root
+          printf '%s\n' "$HOST_KEY" > ~/.ssh/known_hosts
+      - name: Stage public website only
         run: |
-          rsync -az --delete \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude '.gitignore' \
-            --exclude 'README.md' \
-            --exclude 'server/node_modules/' \
-            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes" \
-            ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/aurakingdom.online/"
-
-      # Static files need nothing. The Node service does: new server code
-      # only takes effect after a restart, and new dependencies after an
-      # install. Needs one NOPASSWD sudoers line — see deploy/SETUP.md.
-      - name: Refresh the news service
+          mkdir site-stage
+          cp index.html article.html styles.css animations.css script.js site-stage/
+          cp -r assets server deploy site-stage/
+          printf '%s\n' "$GITHUB_SHA" > site-stage/deployed-revision.txt
+      - name: Deploy site and news API
         run: |
-          ssh -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -se <<'REMOTE'
-            set -e
-            cd /var/www/aurakingdom.online/server
-            npm ci --omit=dev
-            sudo /usr/bin/systemctl restart aurakingdom-api
-            sleep 2
-            systemctl is-active aurakingdom-api
-          REMOTE
-
-      - name: Check the site is actually up
+          rsync -az --delete --exclude 'server/node_modules/' --exclude 'server/data/' --exclude '.env' site-stage/ "$VPS_USER@$VPS_HOST:/var/www/aurakingdom.online/"
+          ssh "$VPS_USER@$VPS_HOST" 'cd /var/www/aurakingdom.online/server && npm ci --omit=dev && sudo /usr/bin/systemctl restart aurakingdom-api && systemctl is-active aurakingdom-api'
+      - name: Deploy dashboard
         run: |
-          code=$(curl -fsS -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 3 https://aurakingdom.online/)
-          echo "aurakingdom.online responded $code"
-          test "$code" = "200"
+          scp aura-dashboard-release.tgz "$VPS_USER@$VPS_HOST:/tmp/aura-dashboard-release.tgz"
+          ssh "$VPS_USER@$VPS_HOST" 'sudo /usr/local/sbin/aura-dashboard-deploy /tmp/aura-dashboard-release.tgz'
+      - name: Verify production
+        run: |
+          curl --fail --retry 5 --retry-delay 3 https://aurakingdom.online/ops/api/health
+          curl --fail --retry 5 --retry-delay 3 https://www.aurakingdom.online/ -o /tmp/live.html
+          grep -q 'DOWNLOAD LAUNCHER' /tmp/live.html
+          test "$(curl -fsS https://aurakingdom.online/deployed-revision.txt)" = "$GITHUB_SHA"

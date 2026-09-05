@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+GAME_DIR=/root/hxsy
+SERVICES=(TicketServer GatewayServer LoginServer MissionServer WorldServer ZoneServer)
+
+pid_for() {
+  local service="$1" pid_file="$GAME_DIR/Logs/run/$service.pid" pid=""
+  if [[ -r "$pid_file" ]]; then
+    read -r pid < "$pid_file" || true
+    [[ "$pid" =~ ^[0-9]+$ && -d "/proc/$pid" ]] && { printf '%s' "$pid"; return 0; }
+  fi
+  pid=$(pgrep -o -f "(^|/)${service}(\.bin)?( |$)" || true)
+  [[ -n "$pid" ]] && { printf '%s' "$pid"; return 0; }
+  return 1
+}
+
+status_json() {
+  local first=1 service pid child cpu rss elapsed online
+  printf '['
+  for service in "${SERVICES[@]}"; do
+    (( first == 0 )) && printf ','
+    first=0
+    if pid=$(pid_for "$service"); then
+      while child=$(pgrep -P "$pid" | head -n 1) && [[ -n "$child" ]]; do pid="$child"; done
+      read -r cpu rss elapsed < <(ps -p "$pid" -o %cpu=,rss=,etimes=)
+      online=true
+    else
+      pid=null; cpu=0; rss=0; elapsed=null; online=false
+    fi
+    [[ "$elapsed" == null ]] || elapsed=${elapsed:-0}
+    printf '{"name":"%s","online":%s,"pid":%s,"cpu":%s,"memoryMb":%.2f,"uptimeSeconds":%s}' \
+      "$service" "$online" "$pid" "${cpu:-0}" "$(awk -v kb="${rss:-0}" 'BEGIN { print kb / 1024 }')" "$elapsed"
+  done
+  printf ']\n'
+}
+
+start_realm() {
+  mkdir -p "$GAME_DIR/Logs"
+  nohup "$GAME_DIR/start" --no-dashboard >"$GAME_DIR/Logs/dashboard-start.out" 2>&1 </dev/null &
+  printf 'Startup dijalankan dengan PID %s.\n' "$!"
+}
+
+case "${1:-}" in
+  status)
+    [[ "${2:-}" == --json ]] || { echo 'status requires --json' >&2; exit 2; }
+    status_json
+    ;;
+  logs)
+    service="${2:-}"; lines="${3:-120}"
+    [[ " ${SERVICES[*]} " == *" $service "* ]] || { echo 'Unknown service' >&2; exit 2; }
+    [[ "$lines" =~ ^[0-9]+$ ]] && (( lines >= 20 && lines <= 500 )) || { echo 'Invalid line count' >&2; exit 2; }
+    log_file="$GAME_DIR/Logs/$service.out"
+    [[ -r "$log_file" ]] || log_file="$GAME_DIR/_qlogs/$service.out"
+    [[ -r "$log_file" ]] || { echo "Belum ada log untuk $service."; exit 0; }
+    tail -n "$lines" -- "$log_file"
+    ;;
+  start)
+    start_realm
+    ;;
+  stop)
+    "$GAME_DIR/stop" --keep-logs
+    ;;
+  restart)
+    "$GAME_DIR/stop" --keep-logs
+    start_realm
+    ;;
+  *)
+    echo 'Usage: aura-dashboard-ctl {status --json|logs SERVICE LINES|start|stop|restart}' >&2
+    exit 2
+    ;;
+esac

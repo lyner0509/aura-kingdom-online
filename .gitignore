@@ -7,3 +7,14 @@ server/data/
 *.db-wal
 *.db-shm
 .env
+**/bin/
+**/obj/
+**/publish*/
+*.zip
+*.tgz
+*.mp4
+*.log
+.deploy-key*
+client/
+_release/
+_maintenance/
