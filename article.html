@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#14120f">
+  <title>Dispatch — Aura Kingdom Online</title>
+
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="animations.css">
+</head>
+
+<body class="article-page">
+  <a class="skip-link" href="#dispatch">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <header class="topbar is-stuck">
+    <a class="crest" href="/" aria-label="Aura Kingdom Online — home">
+      <img class="crest-mark" src="assets/logo-mark.webp" alt="" aria-hidden="true">
+      <b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><span>☰</span></button>
+    <nav class="nav" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/#adventure">Adventure</a>
+      <a href="/#classes">Classes</a>
+      <a class="active" href="/#chronicles">Chronicles</a>
+    </nav>
+    <a class="discord" href="/#join"><span aria-hidden="true">◈</span> Join Discord</a>
+  </header>
+
+  <main id="dispatch">
+    <article class="dispatch" id="dispatch-body">
+      <p class="dispatch-loading">Retrieving the dispatch…</p>
+    </article>
+
+    <nav class="dispatch-foot" aria-label="Back to the chronicles">
+      <a class="medieval-btn gold" href="/#chronicles">
+        <span aria-hidden="true">⚔</span> ALL DISPATCHES <b aria-hidden="true">→</b>
+      </a>
+    </nav>
+  </main>
+
+  <footer>
+    <a class="crest" href="/" aria-label="Aura Kingdom Online — home">
+      <img class="crest-mark" src="assets/logo-mark.webp" alt="" aria-hidden="true" loading="lazy">
+      <b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <p>© 2026 Aura Kingdom Online · Fan community project</p>
+    <div>
+      <a href="/">Terms</a>
+      <a href="/">Privacy</a>
+      <a href="mailto:hello@aurakingdom.online">Contact</a>
+    </div>
+  </footer>
+
+  <script src="assets/md.js"></script>
+  <script src="script.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    const md = window.AKMarkdown;
+    const root = document.getElementById("dispatch-body");
+
+    // /news/<slug>, or ?slug=<slug> as a fallback.
+    const fromPath = location.pathname.replace(/^\/news\/?/, "").replace(/\/$/, "");
+    const slug = decodeURIComponent(
+      fromPath || new URLSearchParams(location.search).get("slug") || ""
+    );
+
+    if (!slug) {
+      root.innerHTML = '<p class="dispatch-loading">No dispatch was named in the link.</p>';
+      return;
+    }
+
+    fetch("/api/posts/" + encodeURIComponent(slug), { headers: { Accept: "application/json" } })
+      .then((res) => {
+        if (res.status === 404) throw new Error("That dispatch could not be found. It may have been unpublished.");
+        if (!res.ok) throw new Error("The chronicles are unreachable right now. Try again shortly.");
+        return res.json();
+      })
+      .then((post) => {
+        document.title = post.title + " — Aura Kingdom Online";
+
+        const head = document.createElement("div");
+        head.className = "dispatch-head";
+        head.innerHTML =
+          `<p class="section-kicker"></p>
+           <h1></h1>
+           <p class="dispatch-lead"></p>`;
+        head.querySelector(".section-kicker").textContent =
+          `${md.formatDate(post.created_at)} · ${post.category}`;
+        head.querySelector("h1").textContent = post.title;
+        const lead = head.querySelector(".dispatch-lead");
+        if (post.excerpt) lead.textContent = post.excerpt; else lead.remove();
+
+        root.innerHTML = "";
+        root.appendChild(head);
+
+        if (post.image) {
+          const figure = document.createElement("img");
+          figure.className = "dispatch-hero";
+          figure.src = md.safeUrl(post.image);
+          figure.alt = "";
+          root.appendChild(figure);
+        }
+
+        const bodyEl = document.createElement("div");
+        bodyEl.className = "dispatch-text";
+        bodyEl.innerHTML = md.render(post.body);
+        root.appendChild(bodyEl);
+      })
+      .catch((err) => {
+        root.innerHTML = '<div class="dispatch-head"><h1>Dispatch unavailable</h1></div>';
+        const p = document.createElement("p");
+        p.className = "dispatch-loading";
+        p.textContent = err.message;
+        root.appendChild(p);
+      });
+  })();
+  </script>
+</body>
+</html>

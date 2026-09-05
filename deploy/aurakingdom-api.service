@@ -1,0 +1,31 @@
+[Unit]
+Description=Aura Kingdom Online — news API and admin panel
+Documentation=https://github.com/lyner0509/aura-kingdom-online
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/aurakingdom.online/server
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=AK_DATA_DIR=/var/lib/aurakingdom
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+# The service only ever needs to write to its own data directory.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aurakingdom
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aurakingdom-api
+
+[Install]
+WantedBy=multi-user.target

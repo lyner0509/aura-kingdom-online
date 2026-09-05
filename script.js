@@ -438,6 +438,67 @@
     nodes.forEach(function (el) { io.observe(el); });
   }
 
+  /* ---------- 11. Chronicles (loaded from the API) -------- */
+
+  function initChronicles() {
+    var grid = $("#news-grid");
+    if (!grid) return;
+
+    var md = window.AKMarkdown;
+    var esc = md ? md.escapeHtml : function (s) { return String(s); };
+    var fmt = md ? md.formatDate : function (s) { return String(s).slice(0, 10); };
+
+    function empty(message) {
+      grid.innerHTML = "";
+      var p = document.createElement("p");
+      p.className = "news-empty";
+      p.textContent = message;
+      grid.appendChild(p);
+    }
+
+    fetch("/api/posts?limit=3", { headers: { Accept: "application/json" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error("unreachable");
+        return res.json();
+      })
+      .then(function (data) {
+        var posts = (data && data.posts) || [];
+        if (!posts.length) {
+          empty("The chronicles are being written. The first dispatch arrives soon.");
+          return;
+        }
+
+        grid.innerHTML = "";
+        posts.forEach(function (post, i) {
+          var card = document.createElement("article");
+          card.setAttribute("data-reveal", "");
+          card.innerHTML =
+            (post.image
+              ? '<img src="' + esc(post.image) + '" alt="" loading="lazy" decoding="async">'
+              : '<div class="news-noimage" aria-hidden="true">✦</div>') +
+            "<span></span><h3></h3>" +
+            '<a href="/news/' + encodeURIComponent(post.slug) + '">Read dispatch →</a>';
+          card.querySelector("span").textContent = fmt(post.created_at) + " · " + post.category;
+          card.querySelector("h3").textContent = post.title;
+          grid.appendChild(card);
+
+          // Cards arrive after the observer has already run, so reveal
+          // them here with the same stagger the rest of the page uses.
+          if (reduced) {
+            card.classList.add("is-in");
+          } else {
+            setTimeout(function () { card.classList.add("is-in"); }, 60 + i * 120);
+          }
+        });
+
+        var more = $("#news-more");
+        if (more && data.total > posts.length) more.hidden = false;
+      })
+      .catch(function () {
+        empty("The chronicles are unreachable right now. Try again shortly.");
+      });
+  }
+
   /* ---------- Go ------------------------------------------ */
 
   function init() {
@@ -450,6 +511,7 @@
     initMenu();
     initClasses();
     initCounters();
+    initChronicles();
     boot();
   }
 

@@ -208,28 +208,13 @@
           <div class="section-kicker">CHAPTER III · ROYAL DISPATCHES</div>
           <h2>FROM THE<br><em>CHRONICLES.</em></h2>
         </div>
-        <a href="#chronicles" data-reveal="right" data-delay="120">VIEW ALL NEWS →</a>
+        <a href="#chronicles" id="news-more" data-reveal="right" data-delay="120" hidden>VIEW ALL NEWS →</a>
       </div>
 
-      <div class="news-grid">
-        <article data-reveal data-delay="0">
-          <img src="assets/news-ember.webp" alt="Season announcement" loading="lazy" decoding="async">
-          <span>SEPT 02 · UPDATE</span>
-          <h3>The Emberfall season has begun</h3>
-          <a href="#chronicles">Read dispatch →</a>
-        </article>
-        <article data-reveal data-delay="120">
-          <img src="assets/news-market.webp" alt="Festival announcement" loading="lazy" decoding="async">
-          <span>AUG 27 · EVENT</span>
-          <h3>The Moonlit Market returns</h3>
-          <a href="#chronicles">Read dispatch →</a>
-        </article>
-        <article data-reveal data-delay="240">
-          <img src="assets/news-guild.webp" alt="Guild news" loading="lazy" decoding="async">
-          <span>AUG 19 · COMMUNITY</span>
-          <h3>Meet the guilds of the frontier</h3>
-          <a href="#chronicles">Read dispatch →</a>
-        </article>
+      <!-- Filled from /api/posts by script.js. The empty state below is
+           what visitors see until the first dispatch is published. -->
+      <div class="news-grid" id="news-grid" data-reveal>
+        <p class="news-empty">The chronicles are being written. The first dispatch arrives soon.</p>
       </div>
     </section>
 

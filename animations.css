@@ -422,6 +422,111 @@ h1 .line:nth-child(2) > * { transition-delay: 0.12s; }
   border-color: var(--gold);
 }
 
+/* ---------- 8b. Chronicles: empty state + article page ----- */
+
+.news-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 54px 24px;
+  text-align: center;
+  border: 1px dashed #b69a70;
+  color: #7d6a52;
+  font: 17px/1.7 "IM Fell English", Georgia, serif;
+}
+
+.news-noimage {
+  height: 210px;
+  display: grid;
+  place-items: center;
+  font: 46px Cinzel, Georgia, serif;
+  color: #c9a061;
+  background: linear-gradient(150deg, #e6dccb, #cfbb96);
+}
+
+/* --- The single-dispatch page --- */
+
+.article-page { background: var(--paper); }
+.article-page .topbar { position: fixed; }
+
+.dispatch {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 148px 24px 40px;
+}
+.dispatch-head .section-kicker { margin-bottom: 14px; }
+.dispatch h1 {
+  font-size: clamp(32px, 4.4vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin: 0 0 18px;
+  text-shadow: none;
+  text-wrap: balance;
+}
+.dispatch-lead {
+  font: 19px/1.7 "IM Fell English", Georgia, serif;
+  color: #58493a;
+  margin: 0;
+}
+.dispatch-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 34px 0 8px;
+  border: 1px solid #b69a70;
+  box-shadow: inset 0 0 0 4px #f3ecdf;
+}
+.dispatch-text {
+  font-size: 16px;
+  line-height: 1.85;
+  color: #3f362c;
+}
+.dispatch-text h2,
+.dispatch-text h3,
+.dispatch-text h4 {
+  font-family: Cinzel, Georgia, serif;
+  line-height: 1.25;
+  margin: 38px 0 12px;
+}
+.dispatch-text h2 { font-size: 27px; }
+.dispatch-text h3 { font-size: 21px; }
+.dispatch-text h4 { font-size: 17px; }
+.dispatch-text p { margin: 0 0 18px; }
+.dispatch-text a { color: #8c3e20; text-underline-offset: 3px; }
+.dispatch-text img { max-width: 100%; height: auto; border: 1px solid #b69a70; }
+.dispatch-text ul,
+.dispatch-text ol { padding-left: 22px; margin: 0 0 18px; }
+.dispatch-text li { margin-bottom: 7px; }
+.dispatch-text blockquote {
+  margin: 26px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--gold);
+  font: italic 18px/1.75 "IM Fell English", Georgia, serif;
+  color: #5c4d3c;
+}
+.dispatch-text code {
+  background: #ded3bf;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 14px;
+}
+.dispatch-text hr { border: 0; border-top: 1px solid #b69a70; margin: 34px 0; }
+
+.dispatch-loading {
+  font: 17px/1.7 "IM Fell English", Georgia, serif;
+  color: #7d6a52;
+}
+
+.dispatch-foot {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 24px 96px;
+}
+
+@media (max-width: 800px) {
+  .dispatch { padding-top: 108px; }
+  .news-empty { padding: 40px 18px; font-size: 15px; }
+}
+
 /* ---------- 9. Join card ----------------------------------- */
 
 .join-card {

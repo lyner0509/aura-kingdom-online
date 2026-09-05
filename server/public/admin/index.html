@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Chronicles Desk — Aura Kingdom Online</title>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14120f;
+    --panel: #1c1815;
+    --panel-2: #241f1a;
+    --line: #3d332a;
+    --gold: #e8af45;
+    --light: #ffdc83;
+    --text: #ece2d2;
+    --muted: #9c8d78;
+    --danger: #d8674a;
+    --ok: #73dc79;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font: 14px/1.6 Inter, system-ui, sans-serif;
+  }
+  h1, h2, h3 { font-family: Cinzel, Georgia, serif; margin: 0; }
+  a { color: var(--gold); }
+
+  /* ---- Login ---- */
+  .login {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+  .login form {
+    width: 100%;
+    max-width: 380px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 34px 30px;
+    display: grid;
+    gap: 14px;
+  }
+  .login h1 { font-size: 20px; letter-spacing: .5px; }
+  .login p { color: var(--muted); margin: 0 0 6px; font-size: 13px; }
+
+  /* ---- Shell ---- */
+  .shell { display: none; min-height: 100vh; grid-template-columns: 330px 1fr; }
+  .shell.on { display: grid; }
+
+  .side {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+  }
+  .side header {
+    padding: 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .side header img { width: 34px; height: auto; }
+  .side header b { font: 700 12px Cinzel, serif; letter-spacing: 1px; display: block; }
+  .side header small { color: var(--muted); font-size: 10px; letter-spacing: 2px; }
+  .side .actions { padding: 14px 20px; display: flex; gap: 8px; border-bottom: 1px solid var(--line); }
+  .list { overflow-y: auto; flex: 1; }
+
+  .item {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    padding: 14px 20px;
+    cursor: pointer;
+    display: grid;
+    gap: 5px;
+    font: inherit;
+  }
+  .item:hover { background: #ffffff08; }
+  .item.on { background: #ffffff10; box-shadow: inset 3px 0 0 var(--gold); }
+  .item b { font: 600 14px Inter; }
+  .item .meta { color: var(--muted); font-size: 11px; letter-spacing: .4px; display: flex; gap: 8px; align-items: center; }
+  .tag { font-size: 9px; letter-spacing: 1px; padding: 3px 7px; border: 1px solid; border-radius: 2px; }
+  .tag.live { color: var(--ok); border-color: #3f6c43; }
+  .tag.draft { color: var(--muted); border-color: var(--line); }
+
+  /* ---- Editor ---- */
+  .main { padding: 26px 30px 60px; overflow-y: auto; max-height: 100vh; }
+  .empty { color: var(--muted); display: grid; place-items: center; height: 60vh; text-align: center; }
+
+  .row { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+  .field { display: grid; gap: 6px; margin-bottom: 16px; }
+  label { font: 600 10px Inter; letter-spacing: 1.4px; color: var(--muted); text-transform: uppercase; }
+  input, textarea, select {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 11px 12px;
+    font: inherit;
+    border-radius: 2px;
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px #e8af4522;
+  }
+  textarea { resize: vertical; min-height: 90px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+  #body { min-height: 340px; }
+
+  button {
+    font: 600 11px Inter;
+    letter-spacing: .8px;
+    padding: 10px 15px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+  button:hover { border-color: var(--gold); transform: translateY(-1px); }
+  button.primary { background: linear-gradient(135deg, #f3c865, #cb8129); color: #2a190b; border-color: #f3c865; font-weight: 700; }
+  button.danger:hover { border-color: var(--danger); color: var(--danger); }
+  button:disabled { opacity: .5; cursor: default; transform: none; }
+
+  .bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 16px 0 22px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .bar h2 { font-size: 17px; margin-right: auto; }
+  .switch { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+  .switch input { width: auto; }
+
+  .thumb {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px dashed var(--line); padding: 12px; border-radius: 2px;
+  }
+  .thumb img { width: 116px; height: 74px; object-fit: cover; background: #000; border: 1px solid var(--line); }
+  .thumb .hint { color: var(--muted); font-size: 12px; }
+
+  .note { padding: 11px 14px; border-radius: 2px; font-size: 13px; margin-bottom: 18px; display: none; }
+  .note.on { display: block; }
+  .note.err { background: #3a1d16; border: 1px solid #7d3a28; color: #ffb9a4; }
+  .note.ok { background: #1b2f1d; border: 1px solid #3f6c43; color: #b6e9b9; }
+
+  .preview {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 20px 24px;
+    border-radius: 2px;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  .preview h2, .preview h3, .preview h4 { font-family: Cinzel, serif; margin: 20px 0 8px; }
+  .preview img { max-width: 100%; height: auto; }
+  .preview blockquote { border-left: 2px solid var(--gold); margin: 0; padding-left: 14px; color: var(--muted); }
+  .preview code { background: #0f0d0b; padding: 2px 5px; border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    .shell.on { grid-template-columns: 1fr; }
+    .side { max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+    .list { max-height: 260px; }
+    .main { max-height: none; padding: 20px; }
+    .row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="login">
+  <form id="login-form">
+    <h1>Chronicles Desk</h1>
+    <p>Sign in to post dispatches to aurakingdom.online.</p>
+    <div class="note err" id="login-note"></div>
+    <div class="field">
+      <label for="password">Admin password</label>
+      <input type="password" id="password" autocomplete="current-password" required>
+    </div>
+    <button class="primary" type="submit">Sign in</button>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="shell" id="shell">
+  <aside class="side">
+    <header>
+      <img src="/assets/logo-mark.webp" alt="">
+      <span><b>CHRONICLES DESK</b><small>AURA KINGDOM ONLINE</small></span>
+    </header>
+    <div class="actions">
+      <button class="primary" id="new-post">+ New dispatch</button>
+      <button id="logout">Sign out</button>
+    </div>
+    <div class="list" id="list"></div>
+  </aside>
+
+  <main class="main">
+    <div class="empty" id="empty">
+      <div>
+        <p>No dispatch selected.</p>
+        <p>Pick one on the left, or write a new one.</p>
+      </div>
+    </div>
+
+    <form id="editor" style="display:none">
+      <div class="bar">
+        <h2 id="editor-title">New dispatch</h2>
+        <label class="switch"><input type="checkbox" id="published"> Published</label>
+        <button type="button" id="view" style="display:none">View live</button>
+        <button type="button" class="danger" id="delete" style="display:none">Delete</button>
+        <button type="submit" class="primary" id="save">Save</button>
+      </div>
+
+      <div class="note" id="note"></div>
+
+      <div class="field">
+        <label for="title">Title</label>
+        <input id="title" required maxlength="140" placeholder="The Emberfall season has begun">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="category">Category</label>
+          <input id="category" maxlength="24" placeholder="UPDATE / EVENT / COMMUNITY" list="categories">
+          <datalist id="categories">
+            <option value="UPDATE"><option value="EVENT"><option value="COMMUNITY"><option value="PATCH NOTES">
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" type="date">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="slug">Link (leave blank to build it from the title)</label>
+        <input id="slug" maxlength="70" placeholder="the-emberfall-season-has-begun">
+      </div>
+
+      <div class="field">
+        <label>Card image</label>
+        <div class="thumb">
+          <img id="thumb" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+          <div style="display:grid;gap:8px">
+            <div>
+              <button type="button" id="pick-image">Upload image</button>
+              <button type="button" id="clear-image">Remove</button>
+            </div>
+            <span class="hint">WebP, JPEG, PNG or GIF · up to 6 MB · shown at 3:2</span>
+          </div>
+        </div>
+        <input type="file" id="file" accept="image/webp,image/jpeg,image/png,image/gif" hidden>
+      </div>
+
+      <div class="field">
+        <label for="excerpt">Card summary <span id="excerpt-count"></span></label>
+        <textarea id="excerpt" maxlength="400" rows="2"
+          placeholder="One or two sentences shown on the Chronicles card."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="body">Article — Markdown: ## heading, **bold**, *italic*, - list, &gt; quote, [text](link)</label>
+        <textarea id="body" placeholder="Write the dispatch here."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Preview</label>
+        <div class="preview" id="preview"></div>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script src="/assets/md.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const md = window.AKMarkdown;
+
+  let posts = [];
+  let current = null;   // null = new dispatch
+
+  /* ---------- fetch helper ---------- */
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: "same-origin",
+      headers: options.body && !(options.body instanceof FormData)
+        ? { "Content-Type": "application/json" } : undefined,
+      ...options
+    });
+    let data = null;
+    try { data = await res.json(); } catch { /* empty body */ }
+    if (!res.ok) throw new Error((data && data.error) || `Request failed (${res.status}).`);
+    return data;
+  }
+
+  function flash(el, message, kind) {
+    el.textContent = message;
+    el.className = "note " + kind + " on";
+    if (kind === "ok") setTimeout(() => { el.className = "note"; }, 3500);
+  }
+
+  /* ---------- login ---------- */
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      await api("/api/login", { method: "POST", body: JSON.stringify({ password: $("password").value }) });
+      $("password").value = "";
+      start();
+    } catch (err) {
+      flash($("login-note"), err.message, "err");
+    }
+  });
+
+  $("logout").addEventListener("click", async () => {
+    await api("/api/logout", { method: "POST" }).catch(() => {});
+    location.reload();
+  });
+
+  /* ---------- list ---------- */
+  function renderList() {
+    const list = $("list");
+    list.innerHTML = "";
+    if (!posts.length) {
+      list.innerHTML = '<p style="padding:20px;color:var(--muted)">Nothing written yet.</p>';
+      return;
+    }
+    for (const post of posts) {
+      const button = document.createElement("button");
+      button.className = "item" + (current && current.id === post.id ? " on" : "");
+      button.innerHTML =
+        `<b></b><span class="meta">
+           <span class="tag ${post.published ? "live" : "draft"}">${post.published ? "LIVE" : "DRAFT"}</span>
+           <span>${md.escapeHtml(post.category)}</span>
+           <span>${md.formatDate(post.created_at)}</span>
+         </span>`;
+      button.querySelector("b").textContent = post.title;
+      button.addEventListener("click", () => open(post.id));
+      list.appendChild(button);
+    }
+  }
+
+  async function refresh() {
+    posts = (await api("/api/admin/posts")).posts;
+    renderList();
+  }
+
+  /* ---------- editor ---------- */
+  function showEditor(on) {
+    $("editor").style.display = on ? "" : "none";
+    $("empty").style.display = on ? "none" : "";
+  }
+
+  function fill(post) {
+    current = post;
+    $("editor-title").textContent = post ? "Edit dispatch" : "New dispatch";
+    $("title").value = post?.title || "";
+    $("category").value = post?.category || "UPDATE";
+    $("slug").value = post?.slug || "";
+    $("excerpt").value = post?.excerpt || "";
+    $("body").value = post?.body || "";
+    $("published").checked = !!post?.published;
+    $("date").value = (post?.created_at || new Date().toISOString()).slice(0, 10);
+    setImage(post?.image || "");
+    $("delete").style.display = post ? "" : "none";
+    $("view").style.display = post && post.published ? "" : "none";
+    $("note").className = "note";
+    updatePreview();
+    renderList();
+    showEditor(true);
+  }
+
+  function setImage(url) {
+    $("thumb").dataset.url = url || "";
+    $("thumb").src = url || "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  }
+
+  function updatePreview() {
+    $("preview").innerHTML = md.render($("body").value) ||
+      '<p style="color:var(--muted)">Nothing to preview yet.</p>';
+    $("excerpt-count").textContent = `(${$("excerpt").value.length}/400)`;
+  }
+
+  $("body").addEventListener("input", updatePreview);
+  $("excerpt").addEventListener("input", updatePreview);
+
+  async function open(id) {
+    try {
+      fill(await api("/api/admin/posts/" + id));
+    } catch (err) {
+      flash($("note"), err.message, "err");
+    }
+  }
+
+  $("new-post").addEventListener("click", () => fill(null));
+
+  $("view").addEventListener("click", () => {
+    if (current) window.open("/news/" + current.slug, "_blank", "noopener");
+  });
+
+  /* ---------- image upload ---------- */
+  $("pick-image").addEventListener("click", () => $("file").click());
+  $("clear-image").addEventListener("click", () => setImage(""));
+
+  $("file").addEventListener("change", async () => {
+    const file = $("file").files[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append("image", file);
+    $("pick-image").disabled = true;
+    try {
+      const { url } = await api("/api/admin/upload", { method: "POST", body: form });
+      setImage(url);
+      flash($("note"), "Image uploaded.", "ok");
+    } catch (err) {
+      flash($("note"), err.message, "err");
+    } finally {
+      $("pick-image").disabled = false;
+      $("file").value = "";
+    }
+  });
+
+  /* ---------- save / delete ---------- */
+  $("editor").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      title: $("title").value,
+      category: $("category").value,
+      slug: $("slug").value,
+      excerpt: $("excerpt").value,
+      body: $("body").value,
+      image: $("thumb").dataset.url || null,
+      published: $("published").checked,
+      created_at: $("date").value
+        ? new Date($("date").value + "T09:00:00Z").toISOString()
+        : undefined
+    };
+
+    $("save").disabled = true;
+    try {
+      if (current) {
+        await api("/api/admin/posts/" + current.id, { method: "PUT", body: JSON.stringify(payload) });
+      } else {
+        const created = await api("/api/admin/posts", { method: "POST", body: JSON.stringify(payload) });
+        current = { id: created.id };
+      }
+      await refresh();
+      await open(current.id);
+      flash($("note"), "Saved. The site updates immediately.", "ok");
+    } catch (err) {
+      flash($("note"), err.message, "err");
+    } finally {
+      $("save").disabled = false;
+    }
+  });
+
+  $("delete").addEventListener("click", async () => {
+    if (!current) return;
+    // A plain inline confirm row instead of a blocking dialog.
+    if ($("delete").dataset.armed !== "1") {
+      $("delete").dataset.armed = "1";
+      $("delete").textContent = "Click again to delete";
+      setTimeout(() => {
+        $("delete").dataset.armed = "0";
+        $("delete").textContent = "Delete";
+      }, 4000);
+      return;
+    }
+    try {
+      await api("/api/admin/posts/" + current.id, { method: "DELETE" });
+      current = null;
+      await refresh();
+      showEditor(false);
+    } catch (err) {
+      flash($("note"), err.message, "err");
+    }
+  });
+
+  /* ---------- boot ---------- */
+  async function start() {
+    $("login").style.display = "none";
+    $("shell").classList.add("on");
+    await refresh();
+    if (posts.length) open(posts[0].id); else fill(null);
+  }
+
+  api("/api/me").then(start).catch(() => { /* stay on the login screen */ });
+})();
+</script>
+</body>
+</html>
