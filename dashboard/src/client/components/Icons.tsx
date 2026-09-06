@@ -26,6 +26,7 @@ export const ShopIcon = (props: Props) => (
     <path d="M16 10a4 4 0 0 1-8 0" />
   </Base>
 );
+export const LevelIcon = (props: Props) => <Base {...props}><path d="M4 20V13M10 20V8M16 20v-9M22 20V4"/></Base>;
 export const PlusIcon = (props: Props) => <Base {...props}><path d="M12 5v14M5 12h14"/></Base>;
 export const TrashIcon = (props: Props) => <Base {...props}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></Base>;
 export const GiftIcon = (props: Props) => (
@@ -123,3 +124,18 @@ export const DatabaseIcon = (props: Props) => (
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
   </Base>
 );
+
+export const MailIcon = (props: Props) => (
+  <Base {...props}>
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </Base>
+);
+
+export const SendIcon = (props: Props) => (
+  <Base {...props}>
+    <path d="m22 2-7 20-4-9-9-4Z" />
+    <path d="M22 2 11 13" />
+  </Base>
+);
+

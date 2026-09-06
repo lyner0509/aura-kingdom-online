@@ -15,6 +15,9 @@ const schema = z.object({
   ZONE_CGI_HOST: z.string().default('10.11.18.118'),
   ZONE_CGI_PORT: z.coerce.number().int().min(1).max(65535).default(20060),
   ZONE_CGI_KEY: z.string().default('0KjaM85BjfqjA'),
+  // Highest level an operator may assign from the dashboard. Raise it
+  // here when the server's own cap moves.
+  PLAYER_LEVEL_CAP: z.coerce.number().int().min(1).max(255).default(99),
 });
 
 const developmentDefaults = {

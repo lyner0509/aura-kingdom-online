@@ -23,6 +23,13 @@ import { ItemMallError, readItemMall, saveItemMall } from './itemmall.js';
 import { LoyaltyError, readLoyalty, saveLoyalty } from './loyalty.js';
 import { itemNames, itemIconCatalog, itemIcons, readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
+  readPlayerLevels,
+  assignPlayerLevel,
+  cancelPlayerLevel,
+  retryPlayerLevel,
+  startPlayerLevelSweep,
+} from './player-level.js';
+import {
   RedeemCodeError,
   readRedeemCodes,
   createRedeemCode,
@@ -329,6 +336,23 @@ app.post('/ops/api/vip/dispatch-mail', async (_req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/player-level', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readPlayerLevels()); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/player-level/assign', async (req, res, next) => {
+  try { res.json(await assignPlayerLevel(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/player-level/retry', async (req, res, next) => {
+  try { res.json(await retryPlayerLevel(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/player-level/cancel', async (req, res, next) => {
+  try { res.json(await cancelPlayerLevel(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.get('/ops/api/starter-pack', async (_req, res, next) => {
   try { res.set('Cache-Control', 'no-store').json(await readStarterPackData()); }
   catch (error) { next(error); }
@@ -434,4 +458,6 @@ if (existsSync(staticDir)) {
 
 app.listen(config.PORT, '127.0.0.1', () => {
   console.log(`Aura Kingdom Operations listening on http://127.0.0.1:${config.PORT}`);
+  // Queued level assignments land as soon as their character logs out.
+  startPlayerLevelSweep();
 });

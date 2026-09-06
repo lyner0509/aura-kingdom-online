@@ -12,17 +12,21 @@ import { VipSystemPage } from './components/VipSystemPage';
 import { StarterPackPage } from './components/StarterPackPage';
 import { ItemIndexPage } from './components/ItemIndexPage';
 import { PlayersPage } from './components/PlayersPage';
+import { PlayerLevelPage } from './components/PlayerLevelPage';
+import { GiftItemPage } from './components/GiftItemPage';
 import { LogsViewer } from './components/LogsViewer';
 import {
-  CartIcon, ChevronIcon, CloseIcon, CrownIcon, DatabaseIcon, GiftIcon, LogoutIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
+  CartIcon, ChevronIcon, CloseIcon, CrownIcon, DatabaseIcon, GiftIcon, LevelIcon, LogoutIcon, MailIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
   SearchIcon, ServerIcon, ShopIcon, SigilIcon, SparklesIcon, TicketIcon, TreasureIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack' | 'itemindex';
+type Page = 'overview' | 'services' | 'players' | 'playerlevel' | 'gift' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack' | 'itemindex';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
   { id: 'players', label: 'Pemain', icon: UsersIcon },
+  { id: 'playerlevel', label: 'Level Player', icon: LevelIcon },
+  { id: 'gift', label: 'Gift Item', icon: MailIcon },
   { id: 'paragon', label: 'Paragon Table', icon: SigilIcon },
   { id: 'loyalty', label: 'Loyalty Shop', icon: ShopIcon },
   { id: 'bonus', label: 'Bonus Mall', icon: GiftIcon },
@@ -149,6 +153,7 @@ export function App() {
   const [dropLootDirty, setDropLootDirty] = useState(false);
   const [vipDirty, setVipDirty] = useState(false);
   const [starterPackDirty, setStarterPackDirty] = useState(false);
+  const [giftDirty, setGiftDirty] = useState(false);
   const [user, setUser] = useState<string | null>(null); const [checking, setChecking] = useState(true); const [page, setPage] = useState<Page>('overview'); const [overview, setOverview] = useState<Overview | null>(null); const [error, setError] = useState(''); const [menuOpen, setMenuOpen] = useState(false); const [refreshing, setRefreshing] = useState(false);
   const refresh = useCallback(async () => { setRefreshing(true); try { setOverview(await api.overview()); setError(''); } catch (e) { if (e instanceof Error && e.message.includes('Sesi')) setUser(null); else setError(e instanceof Error ? e.message : 'Data tidak tersedia.'); } finally { setRefreshing(false); } }, []);
   useEffect(() => { api.session().then(s => setUser(s.user)).catch(() => setUser(null)).finally(() => setChecking(false)); }, []);
@@ -163,6 +168,7 @@ export function App() {
     if (dropLootDirty && !window.confirm('Keluar dan buang perubahan Drop Loot Bonus yang belum disimpan?')) return;
     if (vipDirty && !window.confirm('Keluar dan buang perubahan VIP System yang belum disimpan?')) return;
     if (starterPackDirty && !window.confirm('Keluar dan buang perubahan Starter Pack yang belum disimpan?')) return;
+    if (giftDirty && !window.confirm('Keluar dan buang perubahan template Gift Item yang belum disimpan?')) return;
     await api.logout();
     setUser(null);
   }
@@ -179,6 +185,7 @@ export function App() {
         if (page === 'droploot' && item.id !== page && dropLootDirty && !window.confirm('Buang perubahan Drop Loot Bonus yang belum disimpan?')) return;
         if (page === 'vip' && item.id !== page && vipDirty && !window.confirm('Buang perubahan VIP System yang belum disimpan?')) return;
         if (page === 'starterpack' && item.id !== page && starterPackDirty && !window.confirm('Buang perubahan Starter Pack yang belum disimpan?')) return;
+        if (page === 'gift' && item.id !== page && giftDirty && !window.confirm('Buang perubahan template Gift Item yang belum disimpan?')) return;
         setPage(item.id);
         setMenuOpen(false);
       }}><item.icon/><span>{item.label}</span>{page === item.id && <ChevronIcon className="chevron"/>}</button>)}</nav>
@@ -186,7 +193,7 @@ export function App() {
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>} {page === 'itemindex' && <ItemIndexPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'players' && <PlayersPage/>} {page === 'playerlevel' && <PlayerLevelPage/>} {page === 'gift' && <GiftItemPage onDirtyChange={setGiftDirty}/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>} {page === 'itemindex' && <ItemIndexPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }

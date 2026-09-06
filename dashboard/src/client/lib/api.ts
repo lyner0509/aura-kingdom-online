@@ -60,6 +60,46 @@ export type Player = {
 };
 export type PlayerDetail = { exp: number; lastLevelUp: string | null; family: { name: string; level: number; contribution: number } | null; currencies: Record<string, number>; equipment: { equipped: number; maxEnhance: number; avgEnhance: number }; inventory: { items: number; locked: number; expandedStorage: number }; unreadMail: number; friends: number; achievement: { points: number; coins: number }; classes: { classId: number; level: number; point: number; aaPoint: number }[]; skyTower: { highest: number; attempts: number } | null; weaponExpert: { type: number; level: number } | null; potential: { atk: number; def: number; total: number } | null; accountCharacters: { id: string; name: string; level: number }[] };
 
+export type PlayerLevelAssignment = {
+  player_id: string;
+  player_name: string;
+  target_level: number;
+  from_level: number | null;
+  status: 'pending' | 'applied' | 'failed' | 'cancelled';
+  attempts: number;
+  last_error: string | null;
+  requested_by: string;
+  requested_at: string;
+  applied_at: string | null;
+  online?: boolean;
+  current_level?: number | null;
+};
+
+export type PlayerLevelHistoryEntry = {
+  id: string;
+  player_id: string;
+  player_name: string;
+  from_level: number | null;
+  to_level: number;
+  action: string;
+  operator: string;
+  details: string | null;
+  created_at: string;
+};
+
+export type PlayerLevelData = {
+  levelCap: number;
+  assignments: PlayerLevelAssignment[];
+  history: PlayerLevelHistoryEntry[];
+};
+
+export type PlayerLevelResult = {
+  ok: boolean;
+  message: string;
+  plan?: { action: 'apply-now' | 'queue' | 'noop'; reason: string };
+  data: PlayerLevelData;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -718,4 +758,17 @@ export const api = {
     }),
   giftHistory: (limit = 50) =>
     request<GiftHistoryEntry[]>(`/ops/api/gifts/history?limit=${limit}`, { cache: 'no-store' }),
+  playerLevel: () => request<PlayerLevelData>('/ops/api/player-level', { cache: 'no-store' }),
+  assignPlayerLevel: (payload: { player_id: number; target_level: number; note?: string }) =>
+    request<PlayerLevelResult>('/ops/api/player-level/assign', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  retryPlayerLevel: (playerId: string) =>
+    request<PlayerLevelResult>('/ops/api/player-level/retry', {
+      method: 'POST', body: JSON.stringify({ player_id: Number(playerId) }),
+    }),
+  cancelPlayerLevel: (playerId: string) =>
+    request<PlayerLevelResult>('/ops/api/player-level/cancel', {
+      method: 'POST', body: JSON.stringify({ player_id: Number(playerId) }),
+    }),
 };
