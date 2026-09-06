@@ -1,6 +1,6 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api, type LoyaltyData, type LoyaltyItem } from '../lib/api';
-import { PlusIcon, SearchIcon, TrashIcon } from './Icons';
+import { PlusIcon, RefreshIcon, SearchIcon, TrashIcon } from './Icons';
 
 type Editable = 'item_id' | 'item_num' | 'point' | 'special_price' | 'num_limit' | 'sell';
 
@@ -218,15 +218,18 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
             <h3>Loyalty Shop</h3>
             <p>Kelola katalog barang, kategori tab, harga Loyalty Points (LP), diskon promo, dan batas pembelian.</p>
           </div>
-          <div className="actions">
+          <div className="loyalty-actions">
             <button
-              className="primary-button"
+              type="button"
+              className="loyalty-btn-primary"
               disabled={busy}
               onClick={() => setShowAddForm(prev => !prev)}
             >
               <PlusIcon /> {showAddForm ? 'Tutup Form' : 'Tambah Item'}
             </button>
             <button
+              type="button"
+              className="loyalty-btn-secondary"
               disabled={busy}
               onClick={() => {
                 if (!dirty || window.confirm('Buang perubahan yang belum disimpan dan muat ulang?')) {
@@ -235,7 +238,7 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
                 }
               }}
             >
-              Muat ulang
+              <RefreshIcon className={busy ? 'spin' : ''} /> Muat ulang
             </button>
           </div>
         </header>

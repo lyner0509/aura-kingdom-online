@@ -53,6 +53,14 @@
 .loyalty-editor > .panel { min-width: 0; }
 .loyalty-header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
 .loyalty-header p:last-child, .loyalty-save p { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
+.loyalty-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.loyalty-actions button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 500; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.2; margin: 0; }
+.loyalty-actions button svg { width: 15px; height: 15px; flex-shrink: 0; }
+.loyalty-btn-primary { border: 1px solid rgba(200, 157, 86, 0.4); background: var(--amber); color: #1b1a14; font-weight: 600; }
+.loyalty-btn-primary:hover:not(:disabled) { background: #d8aa63; }
+.loyalty-btn-secondary { border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); }
+.loyalty-btn-secondary:hover:not(:disabled) { border-color: #69705f; color: #ffffff; }
+.loyalty-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
 .loyalty-add-box { margin: 0 24px 20px; padding: 20px; background: #1a1e17; border: 1px solid var(--jade); border-radius: 4px; display: grid; gap: 16px; }
 .loyalty-add-box h4 { margin: 0; font: 20px var(--display); color: var(--jade-bright); }
 .loyalty-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: start; }
@@ -62,6 +70,10 @@
 .loyalty-form-grid .checkbox-label { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; padding-top: 24px; }
 .loyalty-form-grid .checkbox-label input { width: 18px; height: 18px; accent-color: var(--jade); cursor: pointer; }
 .loyalty-form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.loyalty-form-actions button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; border-radius: 3px; cursor: pointer; border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); margin: 0; width: auto; }
+.loyalty-form-actions button:hover:not(:disabled) { border-color: #69705f; color: #ffffff; }
+.loyalty-form-actions .primary-button { border: 1px solid rgba(200, 157, 86, 0.4); background: var(--amber); color: #1b1a14; font-weight: 600; }
+.loyalty-form-actions .primary-button:hover:not(:disabled) { background: #d8aa63; }
 .loyalty-toolbar { padding: 0 24px 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
 .loyalty-filters { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 .loyalty-filters label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
