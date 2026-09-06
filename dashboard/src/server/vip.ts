@@ -12,6 +12,7 @@ import {
   type VipTier,
 } from './vip-model.js';
 import { itemNames, itemIcons } from './paragon.js';
+import { sendCharacterMail } from './mail.js';
 
 export class VipError extends Error {
   public status: number;
@@ -469,18 +470,18 @@ export async function dispatchDailyVipMail(
       if (!charRes.rows.length) continue;
       const charId = charRes.rows[0].id;
 
-      // Insert item into sys_mail_queue if daily_item_id > 0
+      // Send item to player_mail + mailitem if daily_item_id > 0
       if (m.daily_item_id > 0) {
-        await gameDb.query(
-          `INSERT INTO public.sys_mail_queue (
-             receiver_id, state, sender_name, title, content, gold, item_id,
-             durability, identify, create_time, due_date
-           ) VALUES (
-             $1, 'New', 'Sistem VIP', $2, $3, 0, $4,
-             -1, 1, $5, 0
-           )`,
-          [charId, mailTitle, mailContent, m.daily_item_id, nowUnix]
-        );
+        await sendCharacterMail(gameDb, {
+          receiverCharId: charId,
+          senderName: 'Sistem VIP',
+          title: mailTitle,
+          content: mailContent,
+          itemId: m.daily_item_id,
+          itemCount: m.daily_item_count || 1,
+          isBound: true,
+          gold: 0,
+        });
       }
 
       // Add loyalty points if > 0

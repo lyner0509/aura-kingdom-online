@@ -12,6 +12,7 @@ import {
   type UpdateStarterPackSettingsInput,
 } from './starter-pack-model.js';
 import { itemNames, itemIcons } from './paragon.js';
+import { sendCharacterMail } from './mail.js';
 
 export class StarterPackError extends Error {
   public status: number;
@@ -354,28 +355,18 @@ export async function grantStarterPack(
     const item = items[i];
     const isFirst = i === 0;
     const goldToAttach = isFirst ? Math.max(0, settings.bonus_gold || 0) : 0;
-    const bindVal = item.is_bound ? 1 : 0;
+    const bindVal = item.is_bound ? true : false;
 
-    await gameDb.query(
-      `INSERT INTO public.sys_mail_queue (
-         receiver_id, state, sender_name, title, content, gold, item_id,
-         durability, identify, embedded_amount, bind, create_time, due_date
-       ) VALUES (
-         $1, 'New', $2, $3, $4, $5, $6,
-         -1, 1, $7, $8, $9, 0
-       )`,
-      [
-        charId,
-        senderName,
-        mailTitle,
-        mailContent,
-        goldToAttach,
-        item.item_id,
-        item.item_count,
-        bindVal,
-        nowUnix,
-      ]
-    );
+    await sendCharacterMail(gameDb, {
+      receiverCharId: charId,
+      senderName,
+      title: mailTitle,
+      content: mailContent,
+      itemId: item.item_id,
+      itemCount: item.item_count,
+      isBound: bindVal,
+      gold: goldToAttach,
+    });
     itemsSent++;
   }
 
@@ -498,28 +489,18 @@ export async function batchDispatchStarterPack(
         const item = items[i];
         const isFirst = i === 0;
         const goldToAttach = isFirst ? Math.max(0, settings.bonus_gold || 0) : 0;
-        const bindVal = item.is_bound ? 1 : 0;
+        const bindVal = item.is_bound ? true : false;
 
-        await gameDb.query(
-          `INSERT INTO public.sys_mail_queue (
-             receiver_id, state, sender_name, title, content, gold, item_id,
-             durability, identify, embedded_amount, bind, create_time, due_date
-           ) VALUES (
-             $1, 'New', $2, $3, $4, $5, $6,
-             -1, 1, $7, $8, $9, 0
-           )`,
-          [
-            c.id,
-            senderName,
-            mailTitle,
-            mailContent,
-            goldToAttach,
-            item.item_id,
-            item.item_count,
-            bindVal,
-            nowUnix,
-          ]
-        );
+        await sendCharacterMail(gameDb, {
+          receiverCharId: c.id,
+          senderName,
+          title: mailTitle,
+          content: mailContent,
+          itemId: item.item_id,
+          itemCount: item.item_count,
+          isBound: bindVal,
+          gold: goldToAttach,
+        });
       }
 
       if (settings.bonus_loyalty_points > 0) {
