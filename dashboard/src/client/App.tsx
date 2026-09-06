@@ -11,6 +11,7 @@ import { DropLootPage } from './components/DropLootPage';
 import { VipSystemPage } from './components/VipSystemPage';
 import { StarterPackPage } from './components/StarterPackPage';
 import { ItemIndexPage } from './components/ItemIndexPage';
+import { PlayersPage } from './components/PlayersPage';
 import {
   CartIcon, ChevronIcon, CloseIcon, CrownIcon, DatabaseIcon, GiftIcon, LogoutIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
   ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, SparklesIcon, TicketIcon, TreasureIcon, UsersIcon,
@@ -131,37 +132,6 @@ function LogsPage({ services }: { services: Overview['services'] }) {
   const load = useCallback(async () => { setLoading(true); try { setContent((await api.logs(selected)).content || 'Log kosong.'); } catch (e) { setContent(e instanceof Error ? e.message : 'Gagal memuat log.'); } finally { setLoading(false); } }, [selected]);
   useEffect(() => { void load(); }, [load]);
   return <section className="panel logs-panel"><header><div><p className="kicker">Runtime stream</p><h3>Log realm</h3></div><div className="log-tools"><select value={selected} onChange={(e) => setSelected(e.target.value)}>{services.map(s => <option key={s.name}>{s.name}</option>)}</select><button onClick={load} disabled={loading}><RefreshIcon/>{loading ? 'Memuat' : 'Segarkan'}</button></div></header><pre><code>{content}</code></pre></section>;
-}
-
-function PlayersPage() {
-  const [players, setPlayers] = useState<Player[]>([]); const [search, setSearch] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
-  useEffect(() => {
-    const controller = new AbortController();
-    let timer: ReturnType<typeof setTimeout>;
-    setLoading(true);
-    setPlayers([]);
-    setError('');
-    const load = async () => {
-      try {
-        const result = await api.players(search, controller.signal);
-        if (controller.signal.aborted) return;
-        setPlayers(result.players);
-        setError('');
-      } catch (e) {
-        if (controller.signal.aborted) return;
-        setPlayers([]);
-        setError(e instanceof Error ? e.message : 'Data pemain gagal dimuat.');
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-          timer = setTimeout(load, 5000);
-        }
-      }
-    };
-    timer = setTimeout(load, 280);
-    return () => { controller.abort(); clearTimeout(timer); };
-  }, [search]);
-  return <section className="panel table-panel"><header><div><p className="kicker">Character registry</p><h3>Direktori pemain</h3></div><label className="search-box"><SearchIcon/><input placeholder="Cari nama karakter…" value={search} onChange={(e) => setSearch(e.target.value)}/></label></header>{error && <div className="notice error">{error}</div>}<div className="table-wrap"><table><thead><tr><th>Karakter</th><th>Status</th><th>Level</th><th>Class ID</th><th>Terakhir terlihat</th></tr></thead><tbody>{players.map(player => <tr key={player.id}><td><div className="character"><span>{player.name.slice(0, 1).toUpperCase()}</span><div><strong>{player.name}</strong><small>#{player.id}</small></div></div></td><td><span className={`status-pill ${player.online ? 'online' : ''}`}><i/>{player.online ? 'Online' : 'Offline'}</span></td><td>{player.level}</td><td>{player.classId ?? '—'}</td><td>{player.online ? 'Sekarang' : player.lastSeen ? new Date(player.lastSeen).toLocaleString('id-ID') : '—'}</td></tr>)}</tbody></table>{!loading && !players.length && <div className="empty">Tidak ada karakter yang cocok.</div>}{loading && <div className="empty">Membaca registry…</div>}</div></section>;
 }
 
 export function App() {

@@ -369,6 +369,32 @@ for (const iconDir of iconDirs) {
   }
 }
 
+const classIconDirs = [
+  resolve(here, '../dist/class-icons'),
+  resolve(here, '../../src/client/public/class-icons'),
+  resolve(process.cwd(), 'src/client/public/class-icons'),
+  '/opt/aura-dashboard/current/dist/class-icons',
+];
+for (const classIconDir of classIconDirs) {
+  if (existsSync(classIconDir)) {
+    app.use('/ops/class-icons', express.static(classIconDir, { maxAge: '7d', immutable: true }));
+    break;
+  }
+}
+
+const avatarDirs = [
+  resolve(here, '../dist/avatars'),
+  resolve(here, '../../src/client/public/avatars'),
+  resolve(process.cwd(), 'src/client/public/avatars'),
+  '/opt/aura-dashboard/current/dist/avatars',
+];
+for (const avatarDir of avatarDirs) {
+  if (existsSync(avatarDir)) {
+    app.use('/ops/avatars', express.static(avatarDir, { maxAge: '7d', immutable: true }));
+    break;
+  }
+}
+
 if (existsSync(staticDir)) {
   app.use('/ops', express.static(staticDir, { maxAge: '1h', etag: true }));
   app.get('/ops/*splat', (_req, res) => res.sendFile(resolve(staticDir, 'index.html')));

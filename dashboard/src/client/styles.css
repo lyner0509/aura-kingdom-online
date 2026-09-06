@@ -1184,3 +1184,427 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), inset 0 0 6px rgba(0, 0, 0, 0.8);
 }
 
+/* =========================================================================
+   Character Registry & Player Stats Modal
+   ========================================================================= */
+
+.char-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.char-avatar-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  overflow: visible;
+  background: #0d131f;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.char-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.char-avatar-box.male .char-avatar-img {
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.35);
+}
+
+.char-avatar-box.female .char-avatar-img {
+  border-color: #ec4899;
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.35);
+}
+
+.char-weapon-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 1.5px solid #c89d56;
+  padding: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.char-weapon-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.char-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.char-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.char-name-row strong {
+  font-size: 14px;
+  color: var(--parchment);
+}
+
+.gender-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+}
+
+.gender-badge.male {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.gender-badge.female {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.char-acc-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Class Column Cell */
+.class-col-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.class-crest-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(200, 157, 86, 0.4);
+  padding: 2px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.class-crest-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.class-text-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.class-primary-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #f1f5f9;
+}
+
+.class-sub-name {
+  font-size: 11px;
+  color: #c89d56;
+}
+
+/* Action Button */
+.detail-stat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(200, 157, 86, 0.12);
+  color: #e2c082;
+  border: 1px solid rgba(200, 157, 86, 0.35);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-stat-btn:hover {
+  background: rgba(200, 157, 86, 0.25);
+  color: #ffffff;
+  border-color: #c89d56;
+  box-shadow: 0 0 8px rgba(200, 157, 86, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Modal Popup */
+.player-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 18, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.18s ease-out;
+}
+
+.player-modal-content {
+  background: linear-gradient(175deg, #131b2e 0%, #0c121e 100%);
+  border: 1px solid rgba(200, 157, 86, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(200, 157, 86, 0.12);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #e2e8f0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header-hero {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(90deg, rgba(200, 157, 86, 0.08) 0%, transparent 100%);
+}
+
+.modal-hero-avatar-box {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  border-radius: 50%;
+  background: #090e17;
+}
+
+.modal-hero-avatar-box .hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3b82f6;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+}
+
+.modal-hero-avatar-box.female .hero-avatar-img {
+  border-color: #ec4899;
+  box-shadow: 0 0 14px rgba(236, 72, 153, 0.4);
+}
+
+.modal-hero-weapon-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #0b111e;
+  border: 2px solid #c89d56;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.modal-hero-weapon-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modal-hero-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-hero-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.modal-hero-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.modal-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.modal-tag.class {
+  background: rgba(200, 157, 86, 0.15);
+  border-color: rgba(200, 157, 86, 0.35);
+  color: #e8caa4;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  align-self: flex-start;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Stat Grid */
+.stat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.stat-group-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.stat-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #c89d56;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.stat-label {
+  color: #94a3b8;
+}
+
+.stat-val {
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.stat-bar-container {
+  margin-top: 3px;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.stat-bar-fill.hp {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.stat-bar-fill.mp {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.modal-btn-close {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-btn-close:hover {
+  background: #334155;
+  color: #fff;
+}
+
+

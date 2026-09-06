@@ -24,9 +24,36 @@ export type Overview = {
 export type Player = {
   id: string;
   name: string;
+  accountName?: string;
   level: number;
   classId: number | null;
+  genderId?: number;
+  gender?: 'Male' | 'Female';
+  weapon1?: number;
+  weapon2?: number;
+  className?: string;
+  subClassName?: string | null;
+  classIcon?: string;
+  avatarIcon?: string;
   online: boolean;
+  hp?: number;
+  maxHp?: number;
+  mp?: number;
+  maxMp?: number;
+  gold?: number;
+  bindGold?: number;
+  skillPoint?: number;
+  nodeId?: number;
+  mapName?: string;
+  x?: number;
+  y?: number;
+  z?: number;
+  csKillNum?: number;
+  csWinNum?: number;
+  bfKillNum?: number;
+  bfWinNum?: number;
+  craftingScore?: number;
+  createTime?: string | null;
   lastSeen: string | null;
 };
 
