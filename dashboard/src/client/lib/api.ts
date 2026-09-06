@@ -237,6 +237,7 @@ export type UpdateExpBonusPayload = {
   event_quest_exp_rate: number;
   event_drop_rate: number;
   event_gold_rate: number;
+  event_np_rate: number;
   broadcast_event: boolean;
   apply_immediately?: boolean;
 };
