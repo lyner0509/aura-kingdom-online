@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { config } from './config.js';
 import { pool } from './database.js';
 import { paragonSaveSchema, revisionFor, sameSlots, type ParagonReward } from './paragon-model.js';
@@ -5,6 +6,17 @@ import { paragonSaveSchema, revisionFor, sameSlots, type ParagonReward } from '.
 const selectRows = `select lottery_id, category, weekday, drop_level, level_order,
   item_id, max_stack, drop_rate, notify, get_only, shining_hint, jack_pot
   from public.lottery order by category, weekday, drop_level, level_order`;
+let catalogPromise: Promise<Record<string, string>> | undefined;
+async function itemCatalog(): Promise<Record<string, string>> {
+  catalogPromise ??= readFile(process.env.ITEM_CATALOG_PATH ?? '/opt/aura-dashboard/current/data/item-names.json', 'utf8')
+    .then(value => JSON.parse(value) as Record<string, string>)
+    .catch(() => ({}));
+  return catalogPromise;
+}
+export async function itemNames(ids: number[]): Promise<Record<string, string>> {
+  const catalog = await itemCatalog();
+  return Object.fromEntries([...new Set(ids)].flatMap(id => catalog[String(id)] ? [[String(id), catalog[String(id)]]] : []));
+}
 export class ParagonError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
@@ -19,7 +31,7 @@ export async function readParagon() {
   const history = config.NODE_ENV === 'development' ? [] : (await pool(config.ACCOUNT_DB).query(
     `select id::text, actor, created_at as "createdAt" from dashboard.paragon_history order by id desc limit 10`,
   )).rows;
-  return { rows, revision: revisionFor(rows), history, readOnly: config.NODE_ENV === 'development' };
+  return { rows, itemNames: await itemNames(rows.map(row => row.item_id)), revision: revisionFor(rows), history, readOnly: config.NODE_ENV === 'development' };
 }
 export async function saveParagon(input: unknown, actor: string) {
   const parsed = paragonSaveSchema.safeParse(input);

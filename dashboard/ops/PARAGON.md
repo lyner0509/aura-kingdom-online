@@ -3,6 +3,9 @@
 The admin page edits existing reward slots in `FFAccount.public.lottery`.
 Category, schedule, tier and slot identities stay fixed. Item IDs, quantities,
 percentage rates and reward flags are editable. Each tier must total 100%.
+Item names are read from the game server's `Data/db/T_ItemMall.ini` during each
+dashboard deploy. The dashboard sends only names for Item IDs currently used in
+the table and looks up a replacement name after an Item ID is edited.
 
 `paragon.sql` creates the snapshot history and grants the dashboard role UPDATE
 on only the seven editable lottery columns. Deploy runs this migration before

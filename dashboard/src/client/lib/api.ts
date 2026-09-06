@@ -47,11 +47,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type { ParagonReward } from '../../server/paragon-model';
 export type ParagonData = {
   rows: import('../../server/paragon-model').ParagonReward[];
+  itemNames: Record<string, string>;
   revision: string;
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
 };
 export const api = {
+  itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
   saveParagon: (revision: string, rows: ParagonData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/paragon', {

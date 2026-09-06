@@ -18,7 +18,7 @@ import {
 } from './auth.js';
 import { config } from './config.js';
 import { databaseHealth, listPlayers, playerSummary } from './database.js';
-import { readParagon, saveParagon, ParagonError } from './paragon.js';
+import { itemNames, readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
   controlService,
   readServiceLog,
@@ -125,6 +125,16 @@ app.get('/ops/api/players', async (req, res, next) => {
 app.get('/ops/api/paragon', async (_req, res, next) => {
   try { res.set('Cache-Control', 'no-store').json(await readParagon()); }
   catch (error) { next(error); }
+});
+app.get('/ops/api/item-names', async (req, res, next) => {
+  try {
+    const raw = z.string().min(1).max(1600).parse(req.query.ids);
+    const ids = [...new Set(raw.split(',').map(value => Number(value)))];
+    if (!ids.length || ids.length > 150 || ids.some(id => !Number.isSafeInteger(id) || id < 1 || id > 2147483647)) {
+      throw new ParagonError(400, 'Daftar Item ID tidak valid.');
+    }
+    res.set('Cache-Control', 'no-store').json({ itemNames: await itemNames(ids) });
+  } catch (error) { next(error); }
 });
 app.put('/ops/api/paragon', async (req, res, next) => {
   try { res.json(await saveParagon(req.body, res.locals.session.user)); }

@@ -32,7 +32,8 @@
 .paragon-tier-heading h4 { font: 24px var(--display); margin: 0; }
 .paragon-tier-heading span { color: var(--jade-bright); font-size: 13px; }
 .paragon-tier-heading .invalid { color: var(--danger); }
-.paragon-table { min-width: 820px; }
+.paragon-table { min-width: 980px; }
+.paragon-table .item-name { min-width: 210px; color: var(--parchment); line-height: 1.35; }
 .paragon-table input[type=number] { width: 100%; min-width: 85px; max-width: 132px; padding: 10px; color: var(--parchment); background: var(--ink); border: 1px solid var(--line); border-radius: 3px; }
 .paragon-table input[type=checkbox] { width: 19px; height: 19px; accent-color: var(--jade); cursor: pointer; }
 .paragon-help { padding: 0 24px; color: var(--muted); font-size: 12px; line-height: 1.7; max-width: 780px; }
