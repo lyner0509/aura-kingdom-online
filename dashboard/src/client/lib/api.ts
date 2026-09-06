@@ -130,6 +130,83 @@ export type BatchGenerateRedeemCodePayload = {
   rewards: { item_id: number; item_num: number; rate?: number; set?: number }[];
 };
 
+export type ExpBonusSettings = {
+  id: number;
+  exp_rate: number;
+  quest_exp_rate: number;
+  drop_rate: number;
+  gold_rate: number;
+  np_rate: number;
+  is_event_active: boolean;
+  event_name: string | null;
+  event_start: string | null;
+  event_end: string | null;
+  event_exp_rate: number;
+  event_quest_exp_rate: number;
+  event_drop_rate: number;
+  event_gold_rate: number;
+  event_np_rate: number;
+  broadcast_event: boolean;
+  updated_at: string;
+  updated_by: string;
+  last_applied_at: string | null;
+  last_applied_status: string | null;
+};
+
+export type EffectiveRates = {
+  exp_rate: number;
+  quest_exp_rate: number;
+  drop_rate: number;
+  gold_rate: number;
+  np_rate: number;
+  isEventEffective: boolean;
+  eventName: string | null;
+  timeRemainingSeconds: number | null;
+};
+
+export type ExpBonusHistoryEntry = {
+  id: string;
+  operator: string;
+  action: string;
+  exp_rate: number;
+  drop_rate: number;
+  gold_rate: number;
+  np_rate: number;
+  is_event_active: boolean;
+  event_name: string | null;
+  applied_to_server: boolean;
+  note: string | null;
+  created_at: string;
+};
+
+export type ExpBonusData = {
+  settings: ExpBonusSettings;
+  effectiveRates: EffectiveRates;
+  revision: string;
+  history: ExpBonusHistoryEntry[];
+  readOnly: boolean;
+};
+
+export type UpdateExpBonusPayload = {
+  revision: string;
+  exp_rate: number;
+  quest_exp_rate: number;
+  drop_rate: number;
+  gold_rate: number;
+  np_rate: number;
+  is_event_active: boolean;
+  event_name?: string | null;
+  event_start?: string | null;
+  event_end?: string | null;
+  event_exp_rate: number;
+  event_quest_exp_rate: number;
+  event_drop_rate: number;
+  event_gold_rate: number;
+  event_np_rate: number;
+  broadcast_event: boolean;
+  apply_immediately?: boolean;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -168,6 +245,15 @@ export const api = {
   deleteRedeemCode: (pin: string) =>
     request<{ ok: boolean; pin: string }>(`/ops/api/redeem-codes/${encodeURIComponent(pin)}`, {
       method: 'DELETE',
+    }),
+  expBonus: () => request<ExpBonusData>('/ops/api/exp-bonus', { cache: 'no-store' }),
+  saveExpBonus: (payload: UpdateExpBonusPayload) =>
+    request<{ ok: boolean; revision: string; effectiveRates: EffectiveRates; applied: boolean; message: string }>('/ops/api/exp-bonus', {
+      method: 'PUT', body: JSON.stringify(payload),
+    }),
+  applyExpBonusNow: () =>
+    request<{ ok: boolean; effectiveRates: EffectiveRates; applied: boolean; message: string }>('/ops/api/exp-bonus/apply', {
+      method: 'POST',
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
   login: (username: string, password: string) =>

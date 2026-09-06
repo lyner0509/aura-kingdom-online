@@ -12,6 +12,9 @@ const schema = z.object({
   GAME_DB: z.string().default('FFDB1'),
   ACCOUNT_DB: z.string().default('FFAccount'),
   MEMBER_DB: z.string().default('FFMember'),
+  ZONE_CGI_HOST: z.string().default('10.11.18.118'),
+  ZONE_CGI_PORT: z.coerce.number().int().min(1).max(65535).default(20060),
+  ZONE_CGI_KEY: z.string().default('0KjaM85BjfqjA'),
 });
 
 const developmentDefaults = {

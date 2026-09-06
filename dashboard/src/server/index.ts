@@ -31,6 +31,12 @@ import {
   deleteRedeemCode,
 } from './redeem-code.js';
 import {
+  ExpBonusError,
+  readExpBonus,
+  saveExpBonus,
+  applyExpBonusNow,
+} from './exp-bonus.js';
+import {
   controlService,
   readServiceLog,
   SERVICE_NAMES,
@@ -200,8 +206,21 @@ app.delete('/ops/api/redeem-codes/:pin', async (req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/exp-bonus', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readExpBonus()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/exp-bonus', async (req, res, next) => {
+  try { res.json(await saveExpBonus(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/exp-bonus/apply', async (_req, res, next) => {
+  try { res.json(await applyExpBonusNow(res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (error instanceof ParagonError || error instanceof LoyaltyError || error instanceof BonusError || error instanceof ItemMallError || error instanceof RedeemCodeError) return res.status(error.status).json({ error: error.message });
+  if (error instanceof ParagonError || error instanceof LoyaltyError || error instanceof BonusError || error instanceof ItemMallError || error instanceof RedeemCodeError || error instanceof ExpBonusError) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
   return res.status(500).json({ error: 'Operasi gagal. Periksa log service dashboard.' });
