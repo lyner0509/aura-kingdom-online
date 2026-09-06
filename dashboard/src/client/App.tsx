@@ -5,12 +5,13 @@ import { BonusPage } from './components/BonusPage';
 import { ItemMallPage } from './components/ItemMallPage';
 import { LoyaltyPage } from './components/LoyaltyPage';
 import { ParagonPage } from './components/ParagonPage';
+import { RedeemCodePage } from './components/RedeemCodePage';
 import {
   CartIcon, ChevronIcon, CloseIcon, GiftIcon, LogoutIcon, MenuIcon, PulseIcon, RefreshIcon,
-  ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, UsersIcon,
+  ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, TicketIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall';
+type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
@@ -20,6 +21,7 @@ const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'loyalty', label: 'Loyalty Shop', icon: ShopIcon },
   { id: 'bonus', label: 'Bonus Mall', icon: GiftIcon },
   { id: 'itemmall', label: 'Item Mall', icon: CartIcon },
+  { id: 'redeem', label: 'Redeem Code', icon: TicketIcon },
 ];
 
 function formatBytes(value: number | string): string {
@@ -186,7 +188,7 @@ export function App() {
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }

@@ -80,6 +80,56 @@ export type ItemMallData = {
   readOnly: boolean;
 };
 
+export type RedeemCodeReward = {
+  item_id: number;
+  item_name?: string;
+  item_num: number;
+  rate: number;
+  set: number;
+};
+
+export type RedeemCodeItem = {
+  pin: string;
+  password: string;
+  rule_id: number;
+  description: string;
+  state: 'open' | 'used' | 'create' | 'disabled';
+  pin_set: number;
+  account_id: number;
+  account_name?: string | null;
+  character_id: number;
+  character_name?: string | null;
+  log_time: string | null;
+  rewards: RedeemCodeReward[];
+};
+
+export type RedeemCodeData = {
+  codes: RedeemCodeItem[];
+  itemNames: Record<string, string>;
+  revision: string;
+  history: { id: string; operator: string; action: string; pin?: string; rule_id?: number; details: string; createdAt: string }[];
+  readOnly: boolean;
+};
+
+export type CreateRedeemCodePayload = {
+  pin: string;
+  password?: string;
+  description: string;
+  pin_set?: number;
+  state?: 'open' | 'create' | 'disabled';
+  rewards: { item_id: number; item_num: number; rate?: number; set?: number }[];
+};
+
+export type BatchGenerateRedeemCodePayload = {
+  prefix?: string;
+  count: number;
+  password?: string;
+  description: string;
+  pin_set?: number;
+  state?: 'open' | 'create' | 'disabled';
+  rewards: { item_id: number; item_num: number; rate?: number; set?: number }[];
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -101,6 +151,23 @@ export const api = {
   saveItemMall: (revision: string, rows: ItemMallData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/item-mall', {
       method: 'PUT', body: JSON.stringify({ revision, rows }),
+    }),
+  redeemCodes: () => request<RedeemCodeData>('/ops/api/redeem-codes', { cache: 'no-store' }),
+  createRedeemCode: (payload: CreateRedeemCodePayload) =>
+    request<{ ok: boolean; pin: string; ruleId: number }>('/ops/api/redeem-codes', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  batchGenerateRedeemCodes: (payload: BatchGenerateRedeemCodePayload) =>
+    request<{ ok: boolean; count: number; ruleId: number; pins: string[] }>('/ops/api/redeem-codes/batch', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  updateRedeemCodeState: (pin: string, state: 'open' | 'create' | 'disabled') =>
+    request<{ ok: boolean; pin: string; state: string }>(`/ops/api/redeem-codes/${encodeURIComponent(pin)}`, {
+      method: 'PATCH', body: JSON.stringify({ state }),
+    }),
+  deleteRedeemCode: (pin: string) =>
+    request<{ ok: boolean; pin: string }>(`/ops/api/redeem-codes/${encodeURIComponent(pin)}`, {
+      method: 'DELETE',
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
   login: (username: string, password: string) =>
