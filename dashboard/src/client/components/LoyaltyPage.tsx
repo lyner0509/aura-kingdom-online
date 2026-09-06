@@ -342,6 +342,17 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
+            {search && (
+              <button
+                type="button"
+                className="search-clear"
+                onClick={() => setSearch('')}
+                title="Hapus pencarian"
+                aria-label="Hapus pencarian"
+              >
+                ×
+              </button>
+            )}
           </div>
 
           <div className="loyalty-filters">
