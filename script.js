@@ -499,6 +499,117 @@
       });
   }
 
+  /* ---------- 12. Pre-registration ------------------------ */
+
+  function initPreRegister() {
+    var form = $("#prereg-form");
+    if (!form) return;
+
+    var email = $("#prereg-email");
+    var name = $("#prereg-name");
+    var klass = $("#prereg-class");
+    var button = $("#prereg-submit");
+    var note = $("#prereg-note");
+    var counter = $("#prereg-count");
+    var total = $("#prereg-total");
+    var shown = 0;
+
+    function say(message, kind) {
+      note.textContent = message;
+      note.className = "prereg-note" + (kind ? " is-" + kind : "");
+    }
+
+    // The roll only ever grows, so count up to the new figure from
+    // whatever is on screen instead of restarting from zero.
+    function showTotal(value) {
+      if (typeof value !== "number" || value < 0) return;
+      counter.hidden = false;
+      if (reduced) {
+        total.textContent = value.toLocaleString("en-US");
+        shown = value;
+        return;
+      }
+      tween({
+        from: shown,
+        to: value,
+        duration: 1400,
+        easing: ease.outExpo,
+        onUpdate: function (v) {
+          total.textContent = Math.round(v).toLocaleString("en-US");
+        }
+      });
+      shown = value;
+    }
+
+    fetch("/api/pre-register", { headers: { Accept: "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) { if (data) showTotal(data.total); })
+      .catch(function () { /* The counter is decoration; the form still works. */ });
+
+    // Replaces the form once the visitor is on the roll, so the page
+    // cannot be submitted twice by accident.
+    function celebrate(already) {
+      var done = document.createElement("div");
+      done.className = "prereg-done";
+      done.innerHTML =
+        '<span class="prereg-sigil" aria-hidden="true">✦</span>' +
+        "<h2></h2><p></p>";
+      done.querySelector("h2").innerHTML = already
+        ? "ALREADY ON<br><em>THE ROLL.</em>"
+        : "YOUR NAME IS<br><em>ON THE ROLL.</em>";
+      done.querySelector("p").textContent = already
+        ? "This address was already enlisted. Nothing more to do — watch for the call."
+        : "Word reaches you the hour the gates open. Until then, the name is yours.";
+      form.parentNode.replaceChild(done, form);
+      done.setAttribute("tabindex", "-1");
+      done.focus();
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      var address = email.value.trim();
+      if (!address || address.indexOf("@") < 1) {
+        email.setAttribute("aria-invalid", "true");
+        email.focus();
+        say("Enter the email address we should call you at.", "err");
+        return;
+      }
+      email.removeAttribute("aria-invalid");
+
+      button.disabled = true;
+      say("Sending your oath…");
+
+      fetch("/api/pre-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          email: address,
+          character_name: name.value.trim(),
+          preferred_class: klass.value
+        })
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { ok: res.ok, data: data || {} };
+          });
+        })
+        .then(function (result) {
+          if (!result.ok) {
+            button.disabled = false;
+            say(result.data.error || "That did not go through. Try again shortly.", "err");
+            return;
+          }
+          showTotal(result.data.total);
+          celebrate(result.data.already);
+        })
+        .catch(function () {
+          button.disabled = false;
+          say("The heralds are unreachable right now. Try again shortly.", "err");
+        });
+    });
+  }
+
   /* ---------- Go ------------------------------------------ */
 
   function init() {
@@ -512,6 +623,7 @@
     initClasses();
     initCounters();
     initChronicles();
+    initPreRegister();
     boot();
   }
 

@@ -171,8 +171,140 @@ app.get("/api/posts/:slug", (req, res) => {
 });
 
 /* ------------------------------------------------------------------
+   Pre-registration
+   ------------------------------------------------------------------ */
+
+// Deliberately loose: the only thing worth rejecting here is a value
+// that plainly is not an address. Anything stricter turns away real
+// people with unusual but valid mailboxes.
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+const CLASSES = ["AEGIS", "ARCANIST", "RAVAGER", "RANGER"];
+
+// Signups are cheap to send and expensive to clean up again, so cap
+// how many one visitor can push through per hour.
+const signups = new Map();
+const SIGNUP_MAX = 5;
+const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
+
+// Only rows that actually reach the table count against the cap, so a
+// visitor mistyping their address a few times is never locked out.
+function signupsUsed(req) {
+  const record = signups.get(throttleKey(req));
+  if (!record || Date.now() - record.first > SIGNUP_WINDOW_MS) return 0;
+  return record.count;
+}
+
+function noteSignup(req) {
+  const key = throttleKey(req);
+  const record = signups.get(key);
+  if (!record || Date.now() - record.first > SIGNUP_WINDOW_MS) {
+    signups.set(key, { count: 1, first: Date.now() });
+  } else {
+    record.count += 1;
+  }
+}
+
+function preRegTotal() {
+  return db.prepare("SELECT COUNT(*) AS n FROM pre_registrations").get().n;
+}
+
+app.get("/api/pre-register", (_req, res) => {
+  res.json({ total: preRegTotal() });
+});
+
+app.post("/api/pre-register", (req, res) => {
+  if (signupsUsed(req) >= SIGNUP_MAX) {
+    return res.status(429).json({ error: "Too many sign-ups from here. Try again later." });
+  }
+
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: "That email address does not look right." });
+  }
+
+  const rawName = String(req.body?.character_name || "").trim();
+  if (rawName && !/^[A-Za-z0-9 '-]{2,24}$/.test(rawName)) {
+    return res.status(400).json({
+      error: "Names are 2–24 characters: letters, numbers, spaces, apostrophes or hyphens."
+    });
+  }
+  const characterName = rawName || null;
+
+  const rawClass = String(req.body?.preferred_class || "").trim().toUpperCase();
+  const preferredClass = CLASSES.includes(rawClass) ? rawClass : null;
+
+  const existing = db
+    .prepare("SELECT id FROM pre_registrations WHERE email = ?")
+    .get(email);
+  if (existing) {
+    return res.json({ ok: true, already: true, total: preRegTotal() });
+  }
+
+  if (characterName) {
+    const taken = db
+      .prepare("SELECT id FROM pre_registrations WHERE lower(character_name) = lower(?)")
+      .get(characterName);
+    if (taken) {
+      return res.status(409).json({ error: "That name is already reserved. Try another." });
+    }
+  }
+
+  try {
+    db.prepare(`
+      INSERT INTO pre_registrations (email, character_name, preferred_class, created_at)
+      VALUES (?, ?, ?, ?)
+    `).run(email, characterName, preferredClass, new Date().toISOString());
+  } catch (err) {
+    // Two requests can pass the checks above at the same time; the
+    // unique indexes are what actually decide the winner.
+    if (err && String(err.code).startsWith("SQLITE_CONSTRAINT")) {
+      return res.status(409).json({ error: "That email or name was just taken. Try again." });
+    }
+    throw err;
+  }
+
+  noteSignup(req);
+  res.status(201).json({ ok: true, already: false, total: preRegTotal() });
+});
+
+/* ------------------------------------------------------------------
    Admin API
    ------------------------------------------------------------------ */
+
+app.get("/api/admin/pre-registrations", requireAuth, (_req, res) => {
+  res.json({
+    total: preRegTotal(),
+    entries: db.prepare(`
+      SELECT id, email, character_name, preferred_class, created_at
+        FROM pre_registrations ORDER BY created_at DESC
+    `).all()
+  });
+});
+
+app.get("/api/admin/pre-registrations.csv", requireAuth, (_req, res) => {
+  const rows = db.prepare(`
+    SELECT email, character_name, preferred_class, created_at
+      FROM pre_registrations ORDER BY created_at ASC
+  `).all();
+
+  const cell = (value) => {
+    const text = value == null ? "" : String(value);
+    // A leading =, +, - or @ makes a spreadsheet treat the cell as a
+    // formula, so quote it and blunt the first character.
+    const safe = /^[=+\-@]/.test(text) ? "'" + text : text;
+    return '"' + safe.replace(/"/g, '""') + '"';
+  };
+
+  const csv = [["email", "character_name", "preferred_class", "created_at"]]
+    .concat(rows.map((r) => [r.email, r.character_name, r.preferred_class, r.created_at]))
+    .map((cols) => cols.map(cell).join(","))
+    .join("\r\n");
+
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="pre-registrations.csv"');
+  res.send("\ufeff" + csv + "\r\n");
+});
+
 
 app.get("/api/admin/posts", requireAuth, (_req, res) => {
   res.json({

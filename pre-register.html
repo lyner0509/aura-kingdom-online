@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Pre-register for Aura Kingdom Online — reserve your name and be called when the gates open.">
+  <meta name="theme-color" content="#14120f">
+  <title>Pre-Register — Aura Kingdom Online</title>
+
+  <meta property="og:title" content="Pre-Register — Aura Kingdom Online">
+  <meta property="og:description" content="Reserve your name on the founders' roll and be the first called when the gates open.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aurakingdom.online/pre-register.html">
+  <meta property="og:image" content="https://aurakingdom.online/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=2">
+  <link rel="stylesheet" href="/animations.css?v=2">
+
+  <!-- If JavaScript is unavailable, show every section immediately
+       instead of leaving the reveal animations stuck at opacity 0. -->
+  <noscript>
+    <style>
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+      .embers { display: none; }
+      .prereg-count { display: none; }
+    </style>
+  </noscript>
+</head>
+
+<body class="prereg-page">
+  <a class="skip-link" href="#enlist">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="embers" aria-hidden="true"></div>
+
+  <header class="topbar is-stuck">
+    <a class="crest" href="/" aria-label="Aura Kingdom Online — home">
+      <img class="crest-mark" src="/assets/logo-mark.webp" alt="" aria-hidden="true">
+      <b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><span>☰</span></button>
+    <nav class="nav" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/#adventure">Adventure</a>
+      <a href="/#classes">Classes</a>
+      <a href="/#chronicles">Chronicles</a>
+      <a class="active" href="/pre-register.html">Pre-Register</a>
+    </nav>
+    <a class="discord" href="/#join"><span aria-hidden="true">◈</span> Join Discord</a>
+  </header>
+
+  <main id="enlist">
+    <section class="prereg">
+      <div class="prereg-inner">
+
+        <div class="prereg-copy">
+          <p class="chapter" data-reveal="fade" data-reveal-now>✦ &nbsp; THE ROLL OF FOUNDERS &nbsp; ✦</p>
+          <h1 data-reveal="left" data-reveal-now data-delay="80">
+            CLAIM YOUR NAME<br><em>BEFORE THE GATES OPEN.</em>
+          </h1>
+          <p class="prereg-lead" data-reveal="left" data-reveal-now data-delay="180">
+            The realm is not open yet. Put your name on the roll now and it is held
+            for you — no one else may take it — and word reaches you the hour the
+            gates swing wide.
+          </p>
+
+          <!-- Hidden until the API answers, so a stale zero never flashes. -->
+          <div class="prereg-count" id="prereg-count" hidden data-reveal="fade" data-delay="260">
+            <b id="prereg-total">0</b>
+            <span>adventurers already on the roll</span>
+          </div>
+
+          <ol class="prereg-steps" data-reveal="left" data-delay="320">
+            <li>
+              <b>01</b>
+              <div>
+                <h3>Your name is held</h3>
+                <p>Claim it here and it is reserved on the founders' roll until launch.</p>
+              </div>
+            </li>
+            <li>
+              <b>02</b>
+              <div>
+                <h3>You are called first</h3>
+                <p>One message when the gates open. Nothing else, and never to anyone else.</p>
+              </div>
+            </li>
+            <li>
+              <b>03</b>
+              <div>
+                <h3>You ride in with the founders</h3>
+                <p>Everyone on the roll is marked as a founding adventurer of the realm.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="prereg-form-wrap" data-reveal="scale" data-reveal-now data-delay="220">
+          <form class="prereg-form" id="prereg-form" novalidate>
+            <p class="prereg-form-kicker">✦ &nbsp; ENLIST &nbsp; ✦</p>
+            <h2>TAKE THE<br><em>OATH.</em></h2>
+            <span class="join-line" aria-hidden="true"></span>
+
+            <label for="prereg-email">Email address <i aria-hidden="true">required</i></label>
+            <input id="prereg-email" name="email" type="email" autocomplete="email"
+                   maxlength="254" required placeholder="you@example.com">
+
+            <label for="prereg-name">Reserve a character name <i aria-hidden="true">optional</i></label>
+            <input id="prereg-name" name="character_name" type="text" autocomplete="off"
+                   maxlength="24" placeholder="Emberwarden">
+
+            <label for="prereg-class">Your calling <i aria-hidden="true">optional</i></label>
+            <select id="prereg-class" name="preferred_class">
+              <option value="">Still deciding</option>
+              <option value="AEGIS">Aegis — guardian of the realm</option>
+              <option value="ARCANIST">Arcanist — keeper of the unseen</option>
+              <option value="RAVAGER">Ravager — fury made steel</option>
+              <option value="RANGER">Ranger — swift as the wild</option>
+            </select>
+
+            <button class="medieval-btn gold prereg-submit" id="prereg-submit" type="submit">
+              <span aria-hidden="true">✦</span> PRE-REGISTER <b aria-hidden="true">→</b>
+            </button>
+
+            <p class="prereg-note" id="prereg-note" role="status" aria-live="polite"></p>
+            <p class="prereg-fine">
+              We keep your address for the launch notice and nothing else. No sharing,
+              no third parties — write to
+              <a href="mailto:hello@aurakingdom.online">hello@aurakingdom.online</a>
+              any time to be struck from the roll.
+            </p>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="prereg-foot">
+      <p>Already have the client?</p>
+      <a class="medieval-btn gold" href="/updates/launcher.zip" download>
+        <span aria-hidden="true">↓</span> DOWNLOAD LAUNCHER <b aria-hidden="true">→</b>
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <a class="crest" href="/" aria-label="Aura Kingdom Online — home">
+      <img class="crest-mark" src="/assets/logo-mark.webp" alt="" aria-hidden="true" loading="lazy">
+      <b>AURA KINGDOM</b><i>ONLINE</i>
+    </a>
+    <p>© 2026 Aura Kingdom Online · Fan community project</p>
+    <div>
+      <a href="/">Terms</a>
+      <a href="/">Privacy</a>
+      <a href="mailto:hello@aurakingdom.online">Contact</a>
+    </div>
+  </footer>
+
+  <script src="/script.js?v=2"></script>
+</body>
+</html>

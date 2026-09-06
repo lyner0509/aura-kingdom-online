@@ -622,3 +622,279 @@ button:focus-visible {
   h1 .line > * { transform: none !important; }
   .ember-canvas { display: none; }
 }
+
+/* The quiet second path out of the join card, for visitors who are
+   not ready to download yet. */
+.join-alt {
+  margin: 26px 0 0;
+  font: 14px Inter, Arial, sans-serif;
+  color: #a4917a;
+}
+.join-alt a {
+  color: var(--light);
+  text-decoration: none;
+  border-bottom: 1px solid #c8994a;
+  padding-bottom: 3px;
+  white-space: nowrap;
+}
+.join-alt a:hover { color: #fff3d6; }
+
+/* ---------- 13. The pre-registration page ------------------ */
+
+.prereg-page {
+  background: #15120f;
+  color: #f4e7d1;
+}
+.prereg-page .topbar { position: fixed; }
+.prereg-page .embers { mix-blend-mode: screen; opacity: 0.1; }
+
+.prereg {
+  position: relative;
+  overflow: hidden;
+  padding: 150px 9vw 96px;
+  background:
+    radial-gradient(circle at 78% 18%, #f6bc6533 0, transparent 42%),
+    radial-gradient(circle at 12% 88%, #8a4a2d40 0, transparent 46%),
+    linear-gradient(160deg, #241812, #15120f 62%);
+}
+/* The same oversized sigil the classes section uses, kept behind
+   everything so the column text never has to fight it. */
+.prereg::before {
+  content: '✦';
+  position: absolute;
+  top: -80px;
+  right: -40px;
+  font: 420px Cinzel, Georgia, serif;
+  color: #e8ae4d14;
+  pointer-events: none;
+}
+.prereg-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 68px;
+  align-items: start;
+}
+
+.prereg-copy h1 {
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin: 18px 0 20px;
+  text-wrap: balance;
+}
+.prereg-copy h1 em { color: var(--light); }
+.prereg-lead {
+  font: 18px/1.75 "IM Fell English", Georgia, serif;
+  color: #c2aa8d;
+  max-width: 480px;
+  margin: 0;
+}
+
+.prereg-count {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 30px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  background: #17120de0;
+  width: fit-content;
+}
+.prereg-count b {
+  font: 700 30px Cinzel, Georgia, serif;
+  color: var(--light);
+  font-variant-numeric: tabular-nums;
+}
+.prereg-count span {
+  font: 700 10px Inter, Arial, sans-serif;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #c3ad8c;
+}
+
+.prereg-steps {
+  list-style: none;
+  margin: 42px 0 0;
+  padding: 0;
+  border-top: 1px solid #5a4734;
+  max-width: 480px;
+}
+.prereg-steps li {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 4px;
+  padding: 19px 0;
+  border-bottom: 1px solid #5a4734;
+}
+.prereg-steps b {
+  font: 10px Inter, Arial, sans-serif;
+  color: #bc7840;
+  padding-top: 5px;
+}
+.prereg-steps h3 {
+  font: 700 17px Cinzel, Georgia, serif;
+  margin: 0 0 5px;
+  color: #f4e7d1;
+}
+.prereg-steps p {
+  margin: 0;
+  font: 14px/1.65 Inter, Arial, sans-serif;
+  color: #a4917a;
+}
+
+/* --- The form card --- */
+
+.prereg-form {
+  border: 1px solid #c8994a;
+  background: #1b1611e6;
+  box-shadow: inset 0 0 0 6px #ffffff0c;
+  padding: 44px 40px 38px;
+  text-align: center;
+}
+.prereg-form-kicker {
+  font: 700 10px Inter, Arial, sans-serif;
+  letter-spacing: 2px;
+  color: #eac067;
+  margin: 0;
+}
+.prereg-form h2 {
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin: 14px 0 0;
+}
+.prereg-form h2 em { color: var(--light); }
+.prereg-form .join-line { margin: 22px auto 30px; }
+
+.prereg-form label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  font: 700 10px Inter, Arial, sans-serif;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: #d8c5a6;
+  margin-bottom: 8px;
+}
+.prereg-form label i {
+  font: 400 10px Inter, Arial, sans-serif;
+  letter-spacing: 0.6px;
+  text-transform: none;
+  color: #8d7c66;
+}
+.prereg-form input,
+.prereg-form select {
+  width: 100%;
+  margin-bottom: 22px;
+  padding: 13px 14px;
+  background: #12100d;
+  color: #f6ecd9;
+  border: 1px solid #6b563c;
+  font: 14px Inter, Arial, sans-serif;
+  transition: border-color var(--dur-1) var(--ease-out),
+              box-shadow var(--dur-1) var(--ease-out);
+}
+.prereg-form input::placeholder { color: #6f6350; }
+.prereg-form input:focus,
+.prereg-form select:focus {
+  outline: 0;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px #e8af4526;
+}
+.prereg-form input[aria-invalid="true"] { border-color: #c4643c; }
+.prereg-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  /* Chevron drawn in CSS so the page pulls in no extra asset. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #c8994a 50%),
+    linear-gradient(135deg, #c8994a 50%, transparent 50%);
+  background-position: calc(100% - 19px) 21px, calc(100% - 14px) 21px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+
+.prereg-submit {
+  width: 100%;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 18px;
+}
+.prereg-submit[disabled] {
+  opacity: 0.62;
+  cursor: progress;
+}
+
+.prereg-note {
+  margin: 18px 0 0;
+  min-height: 20px;
+  font: 13px/1.6 Inter, Arial, sans-serif;
+  color: #c2aa8d;
+}
+.prereg-note.is-ok { color: #8fd58f; }
+.prereg-note.is-err { color: #e79a72; }
+
+.prereg-fine {
+  margin: 16px 0 0;
+  font: 11px/1.7 Inter, Arial, sans-serif;
+  color: #8d7c66;
+}
+.prereg-fine a { color: #c8994a; }
+
+/* Once the oath is taken the form is replaced by this. */
+.prereg-done {
+  text-align: center;
+  padding: 12px 0 6px;
+}
+.prereg-done .prereg-sigil {
+  font: 46px Cinzel, Georgia, serif;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 14px;
+}
+.prereg-done h2 {
+  font-size: clamp(28px, 3.2vw, 40px);
+  letter-spacing: -1.5px;
+  margin: 0 0 14px;
+}
+.prereg-done h2 em { color: var(--light); }
+.prereg-done p {
+  font: 16px/1.75 "IM Fell English", Georgia, serif;
+  color: #c2aa8d;
+  margin: 0 auto;
+  max-width: 380px;
+}
+
+.prereg-foot {
+  text-align: center;
+  padding: 64px 20px 84px;
+  background: #100e0c;
+  border-top: 1px solid #38301f;
+}
+.prereg-foot p {
+  font: 18px "IM Fell English", Georgia, serif;
+  color: #c2aa8d;
+  margin: 0 0 22px;
+}
+
+@media (max-width: 900px) {
+  .prereg { padding: 118px 20px 70px; }
+  .prereg-inner {
+    grid-template-columns: 1fr;
+    gap: 46px;
+  }
+  .prereg::before { font-size: 260px; top: -40px; right: -30px; }
+  .prereg-form { padding: 34px 22px 30px; }
+  .prereg-lead, .prereg-steps { max-width: none; }
+  .prereg-foot { padding: 48px 20px 64px; }
+}

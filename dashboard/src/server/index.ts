@@ -404,7 +404,7 @@ for (const avatarDir of avatarDirs) {
 
 if (existsSync(staticDir)) {
   app.use('/ops', express.static(staticDir, { maxAge: '1h', etag: true }));
-  app.get('/ops/*splat', (_req, res) => res.sendFile(resolve(staticDir, 'index.html')));
+  app.get(['/ops', '/ops/', '/ops/*splat'], (_req, res) => res.sendFile(resolve(staticDir, 'index.html')));
 }
 
 app.listen(config.PORT, '127.0.0.1', () => {

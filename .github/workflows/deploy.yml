@@ -49,7 +49,7 @@ jobs:
       - name: Stage public website only
         run: |
           mkdir site-stage
-          cp index.html article.html styles.css animations.css script.js site-stage/
+          cp index.html article.html pre-register.html styles.css animations.css script.js site-stage/
           cp -r assets server deploy site-stage/
           printf '%s\n' "$GITHUB_SHA" > site-stage/revision.txt
       - name: Deploy site and news API

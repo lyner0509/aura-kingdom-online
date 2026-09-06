@@ -109,10 +109,29 @@ It appears on the home page immediately — no deploy, no rebuild.
 | `/news/<slug>` | nginx → `article.html` | One dispatch, fetched from the API |
 | `/api/*` | Node on `127.0.0.1:3001` | Reads and writes dispatches |
 | `/admin` | Node on `127.0.0.1:3001` | The editor |
+| `/pre-register.html` | nginx (static) | The pre-registration page |
 | `/uploads/*` | nginx (alias) | Images you upload in the editor |
 
 The Node service listens on localhost only — nginx is the sole way in,
 so the API is never exposed directly to the internet.
+
+## Pre-registrations
+
+Sign-ups from `/pre-register.html` land in the same database as the
+dispatches. There is no screen for them yet — read them over the API
+while signed in to `/admin` in the same browser:
+
+| URL | What you get |
+|---|---|
+| `/api/admin/pre-registrations` | Every entry as JSON, newest first |
+| `/api/admin/pre-registrations.csv` | The same list as a spreadsheet |
+
+`/api/pre-register` is the only public part: it answers with the running
+total, which is what the page's counter shows. One visitor may add at
+most 5 entries per hour; rejected attempts do not count against that.
+
+A reserved character name is held for whoever claimed it first — names
+are compared case-insensitively, and the database enforces it.
 
 ## Backup
 

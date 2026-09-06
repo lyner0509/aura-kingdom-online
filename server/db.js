@@ -37,6 +37,23 @@ db.exec(`
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS pre_registrations (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    email           TEXT NOT NULL UNIQUE,
+    character_name  TEXT,
+    preferred_class TEXT,
+    created_at      TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_prereg_created
+    ON pre_registrations (created_at DESC);
+
+  -- A reserved name is only a promise if nobody else can take it.
+  -- Partial index, so any number of rows may leave the name blank.
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_prereg_name
+    ON pre_registrations (lower(character_name))
+    WHERE character_name IS NOT NULL;
 `);
 
 /** Read a settings row, or null. */
