@@ -296,8 +296,7 @@ export function RedeemCodePage() {
         {notice && <div className="notice">{notice}</div>}
         {error && <div className="notice error">{error}</div>}
 
-        {/* Search and Filters with 22px margin */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginTop: '22px' }}>
+        <div className="redeem-filters">
           <label className="search-box" style={{ flex: '1 1 260px', height: '36px' }}>
             <SearchIcon />
             <input
