@@ -7,6 +7,7 @@ import {
   type VipTier,
 } from '../lib/api';
 import { CrownIcon, PlusIcon, RefreshIcon, SearchIcon, TrashIcon, ZapIcon } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 type Tab = 'tiers' | 'members' | 'settings' | 'history';
 
@@ -14,6 +15,8 @@ export function VipSystemPage({ onDirtyChange }: { onDirtyChange?: (dirty: boole
   const [data, setData] = useState<VipData | null>(null);
   const [settingsForm, setSettingsForm] = useState<VipSettings | null>(null);
   const [tiersForm, setTiersForm] = useState<VipTier[]>([]);
+  const [itemNames, setItemNames] = useState<Record<string, string>>({});
+  const [itemIcons, setItemIcons] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<Tab>('tiers');
   const [busy, setBusy] = useState(false);
   const [sendingMail, setSendingMail] = useState(false);
@@ -48,6 +51,8 @@ export function VipSystemPage({ onDirtyChange }: { onDirtyChange?: (dirty: boole
       setData(res);
       setSettingsForm(res.settings);
       setTiersForm(res.tiers);
+      if (res.itemNames) setItemNames(res.itemNames);
+      if (res.itemIcons) setItemIcons(res.itemIcons);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal memuat data VIP system.');
     } finally {
@@ -449,14 +454,33 @@ export function VipSystemPage({ onDirtyChange }: { onDirtyChange?: (dirty: boole
                         />
                       </td>
                       <td>
-                        <input
-                          type="number"
-                          className="vipsys-input-cell number"
-                          value={tier.daily_item_id}
-                          min={0}
-                          placeholder="0 = Tanpa item"
-                          onChange={(e) => updateTierField(tier.level, 'daily_item_id', Number(e.target.value) || 0)}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {tier.daily_item_id > 0 && (
+                            <ItemIcon
+                              itemId={tier.daily_item_id}
+                              icon={itemIcons[String(tier.daily_item_id)]}
+                              name={itemNames[String(tier.daily_item_id)]}
+                              size={28}
+                            />
+                          )}
+                          <input
+                            type="number"
+                            className="vipsys-input-cell number"
+                            value={tier.daily_item_id}
+                            min={0}
+                            placeholder="0 = Tanpa item"
+                            onChange={(e) => {
+                              const val = Number(e.target.value) || 0;
+                              updateTierField(tier.level, 'daily_item_id', val);
+                              if (val > 0 && !itemNames[String(val)]) {
+                                void api.itemNames([val]).then((r) => {
+                                  if (r.itemNames[String(val)]) setItemNames((prev) => ({ ...prev, ...r.itemNames }));
+                                  if (r.itemIcons?.[String(val)]) setItemIcons((prev) => ({ ...prev, ...r.itemIcons }));
+                                }).catch(() => undefined);
+                              }
+                            }}
+                          />
+                        </div>
                       </td>
                       <td>
                         <input

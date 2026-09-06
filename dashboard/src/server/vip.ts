@@ -11,6 +11,7 @@ import {
   type VipSettings,
   type VipTier,
 } from './vip-model.js';
+import { itemNames, itemIcons } from './paragon.js';
 
 export class VipError extends Error {
   public status: number;
@@ -31,6 +32,8 @@ export type VipData = {
     maxVipLevel: number;
     totalVipPoints: number;
   };
+  itemNames?: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: VipHistoryEntry[];
   readOnly: boolean;
@@ -123,12 +126,15 @@ export async function readVipData(): Promise<VipData> {
   );
 
   const revision = revisionForVip(settings, tiers);
+  const tierItemIds = tiers.map((t) => t.daily_item_id).filter((id) => id > 0);
 
   return {
     settings,
     tiers,
     members,
     stats,
+    itemNames: await itemNames(tierItemIds),
+    itemIcons: await itemIcons(tierItemIds),
     revision,
     history: historyRes.rows,
     readOnly: false,

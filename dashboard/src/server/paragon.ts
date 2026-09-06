@@ -18,6 +18,21 @@ export async function itemNames(ids: number[]): Promise<Record<string, string>> 
   const catalog = await itemCatalog();
   return Object.fromEntries([...new Set(ids)].flatMap(id => catalog[String(id)] ? [[String(id), catalog[String(id)]]] : []));
 }
+let iconCatalogPromise: Promise<Record<string, string>> | undefined;
+export async function itemIconCatalog(): Promise<Record<string, string>> {
+  iconCatalogPromise ??= readFile(
+    process.env.ITEM_ICON_CATALOG_PATH ??
+      (existsSync('data/item-icons.json') ? 'data/item-icons.json' : '/opt/aura-dashboard/current/data/item-icons.json'),
+    'utf8'
+  )
+    .then(value => JSON.parse(value) as Record<string, string>)
+    .catch(() => ({}));
+  return iconCatalogPromise;
+}
+export async function itemIcons(ids: number[]): Promise<Record<string, string>> {
+  const catalog = await itemIconCatalog();
+  return Object.fromEntries([...new Set(ids)].flatMap(id => catalog[String(id)] ? [[String(id), catalog[String(id)]]] : []));
+}
 export class ParagonError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
@@ -32,7 +47,15 @@ export async function readParagon() {
   const history = config.NODE_ENV === 'development' ? [] : (await pool(config.ACCOUNT_DB).query(
     `select id::text, actor, created_at as "createdAt" from dashboard.paragon_history order by id desc limit 10`,
   )).rows;
-  return { rows, itemNames: await itemNames(rows.map(row => row.item_id)), revision: revisionFor(rows), history, readOnly: config.NODE_ENV === 'development' };
+  const ids = rows.map(row => row.item_id);
+  return {
+    rows,
+    itemNames: await itemNames(ids),
+    itemIcons: await itemIcons(ids),
+    revision: revisionFor(rows),
+    history,
+    readOnly: config.NODE_ENV === 'development'
+  };
 }
 export async function saveParagon(input: unknown, actor: string) {
   const parsed = paragonSaveSchema.safeParse(input);

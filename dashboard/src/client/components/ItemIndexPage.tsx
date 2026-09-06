@@ -10,6 +10,7 @@ import {
   ChevronIcon,
   DatabaseIcon,
 } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 type ViewMode = 'table' | 'grid';
 type SortOption = 'id_asc' | 'id_desc' | 'name_asc' | 'name_desc';
@@ -414,9 +415,12 @@ export function ItemIndexPage() {
                         </button>
                       </td>
                       <td>
-                        <div className="item-name-cell">
-                          <strong className="item-name-text">{it.name}</strong>
-                          {it.is_bound && <span className="bound-tag">Non-tradable</span>}
+                        <div className="table-item-cell">
+                          <ItemIcon itemId={it.id} icon={it.icon} name={it.name} size={32} />
+                          <div className="item-name-cell">
+                            <strong className="item-name-text">{it.name}</strong>
+                            {it.is_bound && <span className="bound-tag">Non-tradable</span>}
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -474,6 +478,10 @@ export function ItemIndexPage() {
                     {isCopied ? <CheckIcon className="badge-icon" /> : <CopyIcon className="badge-icon" />}
                   </button>
                   <span className={getCategoryClass(it.category)}>{it.category}</span>
+                </div>
+
+                <div className="card-icon-container">
+                  <ItemIcon itemId={it.id} icon={it.icon} name={it.name} size={48} />
                 </div>
 
                 <div className="card-middle">

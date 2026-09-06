@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type ItemMallData, type ItemMallItem } from '../lib/api';
 import { PlusIcon, RefreshIcon, SearchIcon, TrashIcon } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 type Editable = 'item_id' | 'item_num' | 'point' | 'special_price' | 'num_limit' | 'sell';
 
@@ -23,6 +24,7 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
   const [data, setData] = useState<ItemMallData | null>(null);
   const [rows, setRows] = useState<ItemMallItem[]>([]);
   const [itemNames, setItemNames] = useState<Record<string, string>>({});
+  const [itemIcons, setItemIcons] = useState<Record<string, string>>({});
   const [selectedGroup, setSelectedGroup] = useState<string>('1');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [search, setSearch] = useState('');
@@ -54,6 +56,7 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
       setData(result);
       setRows(result.rows);
       setItemNames(result.itemNames);
+      if (result.itemIcons) setItemIcons(result.itemIcons);
       const availableGroups = [...new Set(result.rows.map(r => String(r.item_group)))];
       if (availableGroups.length && !availableGroups.includes(selectedGroup) && selectedGroup !== 'all') {
         setSelectedGroup(availableGroups.includes('1') ? '1' : availableGroups[0]);
@@ -67,7 +70,7 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
 
   useEffect(() => { void load(); }, []);
 
-  // Fetch names for all item IDs in rows or new item form
+  // Fetch names and icons for all item IDs in rows or new item form
   useEffect(() => {
     const ids = rows.map(r => r.item_id);
     if (typeof newItemId === 'number' && newItemId > 0) ids.push(newItemId);
@@ -79,6 +82,7 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
     const timer = setTimeout(() => {
       void api.itemNames(missing.slice(0, 100)).then(result => {
         setItemNames(current => ({ ...current, ...result.itemNames }));
+        if (result.itemIcons) setItemIcons(current => ({ ...current, ...result.itemIcons }));
       }).catch(() => undefined);
     }, 250);
     return () => clearTimeout(timer);
@@ -280,11 +284,16 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
                   value={newItemId}
                   onChange={e => setNewItemId(e.target.value === '' ? '' : Number(e.target.value))}
                 />
-                <span className="item-name-preview">
-                  {typeof newItemId === 'number' && newItemId > 0
-                    ? (itemNames[String(newItemId)] || 'Mencari nama item…')
-                    : 'Ketik Item ID untuk melihat nama'}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  {typeof newItemId === 'number' && newItemId > 0 && (
+                    <ItemIcon itemId={newItemId} icon={itemIcons[String(newItemId)]} size={24} />
+                  )}
+                  <span className="item-name-preview" style={{ marginTop: 0 }}>
+                    {typeof newItemId === 'number' && newItemId > 0
+                      ? (itemNames[String(newItemId)] || 'Mencari nama item…')
+                      : 'Ketik Item ID untuk melihat nama'}
+                  </span>
+                </div>
               </label>
               <label>
                 Harga AP *
@@ -437,8 +446,13 @@ export function ItemMallPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean
                           />
                         </td>
                         <td className="item-name-cell">
-                          <strong>{itemName || 'Nama item tidak ditemukan'}</strong>
-                          <small>Grup {row.item_group} · ID #{row.item_id}</small>
+                          <div className="table-item-cell">
+                            <ItemIcon itemId={row.item_id} icon={itemIcons[String(row.item_id)]} name={itemName} size={30} />
+                            <div className="item-details">
+                              <strong>{itemName || 'Nama item tidak ditemukan'}</strong>
+                              <small>Grup {row.item_group} · ID #{row.item_id}</small>
+                            </div>
+                          </div>
                         </td>
                         <td className="center">
                           <input

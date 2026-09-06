@@ -1,4 +1,4 @@
-﻿import { config } from './config.js';
+import { config } from './config.js';
 import { pool } from './database.js';
 import {
   grantStarterPackSchema,
@@ -11,6 +11,7 @@ import {
   type StarterPackSettings,
   type UpdateStarterPackSettingsInput,
 } from './starter-pack-model.js';
+import { itemNames, itemIcons } from './paragon.js';
 
 export class StarterPackError extends Error {
   public status: number;
@@ -31,6 +32,8 @@ export type StarterPackData = {
     totalItemsInPack: number;
     autoDeliveryActive: boolean;
   };
+  itemNames?: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: StarterPackHistoryEntry[];
   readOnly: boolean;
@@ -123,11 +126,15 @@ export async function readStarterPackData(): Promise<StarterPackData> {
      LIMIT 50`
   );
 
+  const itemIds = items.map((it) => it.item_id);
+
   return {
     settings,
     items,
     recentClaims: claimsRes.rows,
     stats,
+    itemNames: await itemNames(itemIds),
+    itemIcons: await itemIcons(itemIds),
     revision,
     history: historyRes.rows,
     readOnly: false,

@@ -14,6 +14,7 @@ import {
   TicketIcon,
   TrashIcon,
 } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 function randomPin(prefix = ''): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -29,6 +30,7 @@ function randomPin(prefix = ''): string {
 export function RedeemCodePage() {
   const [codes, setCodes] = useState<RedeemCodeItem[]>([]);
   const [itemNames, setItemNames] = useState<Record<string, string>>({});
+  const [itemIcons, setItemIcons] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -70,6 +72,7 @@ export function RedeemCodePage() {
       const res = await api.redeemCodes();
       setCodes(res.codes);
       setItemNames(res.itemNames);
+      if (res.itemIcons) setItemIcons(res.itemIcons);
       setError('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal memuat data Redeem Code.');
@@ -116,18 +119,21 @@ export function RedeemCodePage() {
     return { total, open, used, draft };
   }, [codes]);
 
-  // Lookup missing item names in forms
+  // Lookup missing item names and icons in forms
   const fetchItemName = useCallback(async (itemId: number) => {
-    if (!itemId || itemNames[String(itemId)]) return;
+    if (!itemId) return;
     try {
       const res = await api.itemNames([itemId]);
       if (res.itemNames[String(itemId)]) {
         setItemNames(prev => ({ ...prev, ...res.itemNames }));
       }
+      if (res.itemIcons?.[String(itemId)]) {
+        setItemIcons(prev => ({ ...prev, ...res.itemIcons }));
+      }
     } catch {
       // ignore lookup error
     }
-  }, [itemNames]);
+  }, []);
 
   async function handleCreateSingle(e: React.FormEvent) {
     e.preventDefault();
@@ -409,6 +415,7 @@ export function RedeemCodePage() {
                                 fontSize: '0.8rem',
                               }}
                             >
+                              <ItemIcon itemId={r.item_id} icon={itemIcons[String(r.item_id)]} name={name} size={20} />
                               <span style={{ color: '#fbbf24', fontWeight: 600 }}>#{r.item_id}</span>
                               <span style={{ color: '#e2e8f0' }}>{name}</span>
                               <span style={{ color: '#38bdf8', fontWeight: 600 }}>×{r.item_num}</span>
@@ -763,7 +770,8 @@ export function RedeemCodePage() {
                           }}
                         />
                       </div>
-                      <div style={{ flex: '2 1 180px', fontSize: '0.8rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ flex: '2 1 180px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <ItemIcon itemId={reward.item_id} icon={itemIcons[String(reward.item_id)]} name={resolvedName} size={24} />
                         {resolvedName ? (
                           <span style={{ color: '#a7f3d0' }}>{resolvedName}</span>
                         ) : (
@@ -1102,7 +1110,8 @@ export function RedeemCodePage() {
                             }}
                           />
                         </div>
-                        <div style={{ flex: '2 1 180px', fontSize: '0.8rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ flex: '2 1 180px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <ItemIcon itemId={reward.item_id} icon={itemIcons[String(reward.item_id)]} name={resolvedName} size={24} />
                           {resolvedName ? (
                             <span style={{ color: '#a7f3d0' }}>{resolvedName}</span>
                           ) : (

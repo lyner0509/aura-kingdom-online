@@ -48,6 +48,7 @@ export type { ParagonReward } from '../../server/paragon-model';
 export type ParagonData = {
   rows: import('../../server/paragon-model').ParagonReward[];
   itemNames: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
@@ -57,6 +58,7 @@ export type { LoyaltyItem } from '../../server/loyalty-model';
 export type LoyaltyData = {
   rows: import('../../server/loyalty-model').LoyaltyItem[];
   itemNames: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
@@ -66,6 +68,7 @@ export type { BonusItem } from '../../server/bonus-model';
 export type BonusData = {
   rows: import('../../server/bonus-model').BonusItem[];
   itemNames: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
@@ -75,6 +78,7 @@ export type { ItemMallItem } from '../../server/itemmall-model';
 export type ItemMallData = {
   rows: import('../../server/itemmall-model').ItemMallItem[];
   itemNames: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
@@ -106,6 +110,7 @@ export type RedeemCodeItem = {
 export type RedeemCodeData = {
   codes: RedeemCodeItem[];
   itemNames: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: { id: string; operator: string; action: string; pin?: string; rule_id?: number; details: string; createdAt: string }[];
   readOnly: boolean;
@@ -356,6 +361,8 @@ export type VipData = {
     maxVipLevel: number;
     totalVipPoints: number;
   };
+  itemNames?: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: VipHistoryEntry[];
   readOnly: boolean;
@@ -441,6 +448,8 @@ export type StarterPackData = {
     totalItemsInPack: number;
     autoDeliveryActive: boolean;
   };
+  itemNames?: Record<string, string>;
+  itemIcons?: Record<string, string>;
   revision: string;
   history: StarterPackHistoryEntry[];
   readOnly: boolean;
@@ -471,6 +480,7 @@ export type ItemIndexItem = {
   name: string;
   category: string;
   is_bound: boolean;
+  icon?: string;
 };
 
 export type ItemIndexCategory = {
@@ -502,7 +512,7 @@ export type ItemIndexParams = {
 };
 
 export const api = {
-  itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
+  itemNames: (ids: number[]) => request<{ itemNames: Record<string, string>; itemIcons?: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   itemIndex: (params: ItemIndexParams = {}, signal?: AbortSignal) => {
     const sp = new URLSearchParams();
     if (params.q) sp.set('q', params.q);

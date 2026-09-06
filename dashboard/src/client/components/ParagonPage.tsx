@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, type ParagonData, type ParagonReward } from '../lib/api';
+import { ItemIcon } from './ItemIcon';
 
 type Editable = 'item_id' | 'max_stack' | 'drop_rate' | 'notify' | 'get_only' | 'shining_hint' | 'jack_pot';
 const flags = [
@@ -10,6 +11,7 @@ export function ParagonPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
   const [data, setData] = useState<ParagonData | null>(null);
   const [rows, setRows] = useState<ParagonReward[]>([]);
   const [itemNames, setItemNames] = useState<Record<string, string>>({});
+  const [itemIcons, setItemIcons] = useState<Record<string, string>>({});
   const [group, setGroup] = useState('');
   const [tier, setTier] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -20,7 +22,11 @@ export function ParagonPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
   async function load() {
     setBusy(true); setError('');
     try {
-      const result = await api.paragon(); setData(result); setRows(result.rows); setItemNames(result.itemNames);
+      const result = await api.paragon();
+      setData(result);
+      setRows(result.rows);
+      setItemNames(result.itemNames);
+      if (result.itemIcons) setItemIcons(result.itemIcons);
       setGroup(current => result.rows.some(r => `${r.category}/${r.weekday}` === current) ? current : result.rows.length ? `${result.rows[0].category}/${result.rows[0].weekday}` : '');
     } catch (e) { setError(e instanceof Error ? e.message : 'Tabel gagal dimuat.'); }
     finally { setBusy(false); }
@@ -29,7 +35,10 @@ export function ParagonPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
   useEffect(() => {
     if (!rows.length) return;
     const timer = setTimeout(() => {
-      void api.itemNames(rows.map(row => row.item_id)).then(result => setItemNames(current => ({ ...current, ...result.itemNames }))).catch(() => undefined);
+      void api.itemNames(rows.map(row => row.item_id)).then(result => {
+        setItemNames(current => ({ ...current, ...result.itemNames }));
+        if (result.itemIcons) setItemIcons(current => ({ ...current, ...result.itemIcons }));
+      }).catch(() => undefined);
     }, 250);
     return () => clearTimeout(timer);
   }, [rows]);
@@ -83,7 +92,12 @@ export function ParagonPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
         <div className="table-wrap"><table className="paragon-table"><thead><tr><th>Slot</th><th>Item ID</th><th>Nama item</th><th>Jumlah</th><th>Peluang (%)</th>{flags.map(([key, label]) => <th key={key}>{label}</th>)}</tr></thead>
           <tbody>{visible.map(row => <tr key={`${row.category}/${row.weekday}/${row.drop_level}/${row.level_order}`}><td><strong>{row.level_order}</strong></td>
             <td><input aria-label={`Item ID slot ${row.level_order}`} type="number" min={1} max={2147483647} step={1} disabled={busy || data.readOnly} value={Number.isNaN(row.item_id) ? '' : row.item_id} onChange={e => edit(row, 'item_id', e.target.value === '' ? NaN : Number(e.target.value))}/></td>
-            <td className="item-name">{itemNames[String(row.item_id)] ?? (Number.isInteger(row.item_id) && row.item_id > 0 ? 'Nama tidak ditemukan' : '—')}</td>
+            <td className="item-name">
+              <div className="table-item-cell">
+                <ItemIcon itemId={row.item_id} icon={itemIcons[String(row.item_id)]} name={itemNames[String(row.item_id)]} size={28} />
+                <span>{itemNames[String(row.item_id)] ?? (Number.isInteger(row.item_id) && row.item_id > 0 ? 'Nama tidak ditemukan' : '—')}</span>
+              </div>
+            </td>
             {(['max_stack', 'drop_rate'] as const).map(field => <td key={field}><input aria-label={`${field === 'max_stack' ? 'Jumlah' : 'Peluang'} slot ${row.level_order}`} type="number" min={field === 'drop_rate' ? 0 : 1} max={field === 'drop_rate' ? 100 : 32767} step={field === 'drop_rate' ? 'any' : 1} disabled={busy || data.readOnly} value={Number.isNaN(row[field]) ? '' : row[field]} onChange={e => edit(row, field, e.target.value === '' ? NaN : Number(e.target.value))}/></td>)}
             {flags.map(([field, label]) => <td key={field}><input aria-label={`${label} slot ${row.level_order}`} type="checkbox" checked={row[field] === 1} disabled={busy || data.readOnly} onChange={e => edit(row, field, e.target.checked ? 1 : 0)}/></td>)}
           </tr>)}</tbody></table></div>

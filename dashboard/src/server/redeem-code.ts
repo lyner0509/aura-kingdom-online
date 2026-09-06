@@ -9,7 +9,7 @@ import {
   type RedeemCodeItem,
   type RedeemCodeReward,
 } from './redeem-code-model.js';
-import { itemNames } from './paragon.js';
+import { itemNames, itemIcons } from './paragon.js';
 
 export class RedeemCodeError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -86,6 +86,7 @@ export async function readRedeemCodes() {
     return {
       codes: demoCodes,
       itemNames: await itemNames(allItemIds),
+      itemIcons: await itemIcons(allItemIds),
       revision: revisionForRedeemCodes(demoCodes),
       history: [],
       readOnly: true,
@@ -162,6 +163,7 @@ export async function readRedeemCodes() {
     return {
       codes,
       itemNames: await itemNames(allItemIds),
+      itemIcons: await itemIcons(allItemIds),
       revision: revisionForRedeemCodes(codes),
       history: historyResult.rows,
       readOnly: false,

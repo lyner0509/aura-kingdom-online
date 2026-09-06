@@ -1,11 +1,13 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { itemIconCatalog } from './paragon.js';
 
 export interface IndexedItem {
   id: number;
   name: string;
   category: string;
   is_bound: boolean;
+  icon?: string;
 }
 
 interface InternalCachedItem extends IndexedItem {
@@ -165,6 +167,7 @@ export async function loadItemCatalog(): Promise<InternalCachedItem[]> {
 
     try {
       const catalogObj = JSON.parse(rawJson) as Record<string, string>;
+      const iconMap = await itemIconCatalog();
       const items: InternalCachedItem[] = [];
 
       for (const [idStr, name] of Object.entries(catalogObj)) {
@@ -172,12 +175,14 @@ export async function loadItemCatalog(): Promise<InternalCachedItem[]> {
         if (!Number.isSafeInteger(id) || id <= 0) continue;
         const cleanName = (name || '').trim();
         const { category, is_bound } = classifyItem(id, cleanName);
+        const icon = iconMap[idStr] || undefined;
 
         items.push({
           id,
           name: cleanName,
           category,
           is_bound,
+          icon,
           idStr: String(id),
           lowerName: cleanName.toLowerCase(),
         });
@@ -251,11 +256,12 @@ export async function queryItemIndex(options: ItemIndexQueryOptions = {}): Promi
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const page = Math.min(reqPage, totalPages);
   const offset = (page - 1) * limit;
-  const paged = filtered.slice(offset, offset + limit).map(({ id, name, category: cat, is_bound }) => ({
+  const paged = filtered.slice(offset, offset + limit).map(({ id, name, category: cat, is_bound, icon }) => ({
     id,
     name,
     category: cat,
     is_bound,
+    icon,
   }));
 
   const categories = Object.entries(catCountMap)

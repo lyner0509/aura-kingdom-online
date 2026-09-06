@@ -6,6 +6,7 @@ import {
   type StarterPackSettings,
 } from '../lib/api';
 import { PackageIcon, PlusIcon, RefreshIcon, SearchIcon, TrashIcon, ZapIcon } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 type Tab = 'items' | 'grant' | 'settings' | 'history';
 
@@ -14,6 +15,7 @@ export function StarterPackPage({ onDirtyChange }: { onDirtyChange?: (dirty: boo
   const [settingsForm, setSettingsForm] = useState<StarterPackSettings | null>(null);
   const [itemsForm, setItemsForm] = useState<StarterPackItem[]>([]);
   const [itemNamesMap, setItemNamesMap] = useState<Record<number, string>>({});
+  const [itemIconsMap, setItemIconsMap] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState<Tab>('items');
   const [busy, setBusy] = useState(false);
   const [dispatching, setDispatching] = useState(false);
@@ -52,16 +54,24 @@ export function StarterPackPage({ onDirtyChange }: { onDirtyChange?: (dirty: boo
       setSettingsForm(res.settings);
       setItemsForm(res.items);
 
-      // Resolve item names from catalog
+      // Resolve item names and icons from catalog
       const ids = Array.from(new Set(res.items.map((it) => it.item_id))).filter(Boolean);
       if (ids.length) {
         try {
           const namesRes = await api.itemNames(ids);
-          const map: Record<number, string> = {};
+          const nameMap: Record<number, string> = {};
           for (const [k, v] of Object.entries(namesRes.itemNames)) {
-            map[Number(k)] = v;
+            nameMap[Number(k)] = v;
           }
-          setItemNamesMap((prev) => ({ ...prev, ...map }));
+          setItemNamesMap((prev) => ({ ...prev, ...nameMap }));
+
+          if (namesRes.itemIcons) {
+            const iconMap: Record<number, string> = {};
+            for (const [k, v] of Object.entries(namesRes.itemIcons)) {
+              iconMap[Number(k)] = v;
+            }
+            setItemIconsMap((prev) => ({ ...prev, ...iconMap }));
+          }
         } catch {
           // ignore catalog resolution failures
         }
@@ -77,13 +87,16 @@ export function StarterPackPage({ onDirtyChange }: { onDirtyChange?: (dirty: boo
     void load();
   }, []);
 
-  // Real-time item name resolution when user modifies item_id
+  // Real-time item name and icon resolution when user modifies item_id
   async function resolveItemName(itemId: number) {
-    if (!itemId || itemNamesMap[itemId]) return;
+    if (!itemId) return;
     try {
       const res = await api.itemNames([itemId]);
       if (res.itemNames[String(itemId)]) {
         setItemNamesMap((prev) => ({ ...prev, [itemId]: res.itemNames[String(itemId)] }));
+      }
+      if (res.itemIcons?.[String(itemId)]) {
+        setItemIconsMap((prev) => ({ ...prev, [itemId]: res.itemIcons![String(itemId)] }));
       }
     } catch {
       // ignore
@@ -431,11 +444,14 @@ export function StarterPackPage({ onDirtyChange }: { onDirtyChange?: (dirty: boo
                             />
                           </td>
                           <td>
-                            <div className="starterpack-item-desc">
-                              <strong>{resolvedName}</strong>
-                              {itemNamesMap[item.item_id] && (
-                                <small style={{ color: 'var(--jade-bright)', fontSize: 10 }}>[Catalog Match]</small>
-                              )}
+                            <div className="table-item-cell">
+                              <ItemIcon itemId={item.item_id} icon={itemIconsMap[item.item_id]} name={resolvedName} size={32} />
+                              <div className="starterpack-item-desc">
+                                <strong>{resolvedName}</strong>
+                                {itemNamesMap[item.item_id] && (
+                                  <small style={{ color: 'var(--jade-bright)', fontSize: 10 }}>[Catalog Match]</small>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td>

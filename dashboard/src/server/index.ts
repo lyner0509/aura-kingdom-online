@@ -21,7 +21,7 @@ import { databaseHealth, listPlayers, playerSummary } from './database.js';
 import { BonusError, readBonus, saveBonus } from './bonus.js';
 import { ItemMallError, readItemMall, saveItemMall } from './itemmall.js';
 import { LoyaltyError, readLoyalty, saveLoyalty } from './loyalty.js';
-import { itemNames, readParagon, saveParagon, ParagonError } from './paragon.js';
+import { itemNames, itemIconCatalog, itemIcons, readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
   RedeemCodeError,
   readRedeemCodes,
@@ -78,6 +78,24 @@ app.use(express.json({ limit: '256kb' }));
 app.use('/ops/api', requireSameOrigin);
 
 app.get('/ops/api/health', (_req, res) => res.json({ status: 'ok' }));
+
+app.get('/ops/api/item-icon/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(400).send('Invalid item ID');
+    }
+    const icons = await itemIconCatalog();
+    const iconName = icons[String(id)];
+    if (!iconName) {
+      return res.status(404).send('Icon not found');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    return res.redirect(302, `/ops/item-icons/${encodeURIComponent(iconName.toLowerCase())}.webp`);
+  } catch {
+    return res.status(500).send('Error resolving item icon');
+  }
+});
 
 app.get('/ops/api/auth/session', (req, res) => {
   const session = currentSession(req);
@@ -174,7 +192,10 @@ app.get('/ops/api/item-names', async (req, res, next) => {
     if (!ids.length || ids.length > 150 || ids.some(id => !Number.isSafeInteger(id) || id < 1 || id > 2147483647)) {
       throw new ParagonError(400, 'Daftar Item ID tidak valid.');
     }
-    res.set('Cache-Control', 'no-store').json({ itemNames: await itemNames(ids) });
+    res.set('Cache-Control', 'no-store').json({
+      itemNames: await itemNames(ids),
+      itemIcons: await itemIcons(ids),
+    });
   } catch (error) { next(error); }
 });
 app.get('/ops/api/item-index', async (req, res, next) => {
@@ -334,6 +355,20 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 
 const here = dirname(fileURLToPath(import.meta.url));
 const staticDir = resolve(here, '../dist');
+
+const iconDirs = [
+  resolve(here, '../dist/item-icons'),
+  resolve(here, '../../src/client/public/item-icons'),
+  resolve(process.cwd(), 'src/client/public/item-icons'),
+  '/opt/aura-dashboard/current/dist/item-icons',
+];
+for (const iconDir of iconDirs) {
+  if (existsSync(iconDir)) {
+    app.use('/ops/item-icons', express.static(iconDir, { maxAge: '7d', immutable: true }));
+    break;
+  }
+}
+
 if (existsSync(staticDir)) {
   app.use('/ops', express.static(staticDir, { maxAge: '1h', etag: true }));
   app.get('/ops/*splat', (_req, res) => res.sendFile(resolve(staticDir, 'index.html')));

@@ -88,3 +88,12 @@ test('queryItemIndex sorts correctly', async () => {
   const resNameAsc = await queryItemIndex({ sort: 'name_asc', limit: 5 });
   assert.ok(resNameAsc.items[0].name.localeCompare(resNameAsc.items[1].name) <= 0);
 });
+
+test('queryItemIndex and itemIcons resolve game icons correctly', async () => {
+  const res = await queryItemIndex({ q: '10001', limit: 1 });
+  assert.ok(res.items.length > 0);
+  const item = res.items[0];
+  assert.equal(item.id, 10001);
+  assert.equal(item.icon, 'w20101');
+});
+

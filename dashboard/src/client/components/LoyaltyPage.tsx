@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type LoyaltyData, type LoyaltyItem } from '../lib/api';
 import { PlusIcon, RefreshIcon, SearchIcon, TrashIcon } from './Icons';
+import { ItemIcon } from './ItemIcon';
 
 type Editable = 'item_id' | 'item_num' | 'point' | 'special_price' | 'num_limit' | 'sell';
 
@@ -19,6 +20,7 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
   const [data, setData] = useState<LoyaltyData | null>(null);
   const [rows, setRows] = useState<LoyaltyItem[]>([]);
   const [itemNames, setItemNames] = useState<Record<string, string>>({});
+  const [itemIcons, setItemIcons] = useState<Record<string, string>>({});
   const [selectedGroup, setSelectedGroup] = useState<string>('48');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [search, setSearch] = useState('');
@@ -50,6 +52,7 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
       setData(result);
       setRows(result.rows);
       setItemNames(result.itemNames);
+      if (result.itemIcons) setItemIcons(result.itemIcons);
       const availableGroups = [...new Set(result.rows.map(r => String(r.item_group)))];
       if (availableGroups.length && !availableGroups.includes(selectedGroup) && selectedGroup !== 'all') {
         setSelectedGroup(availableGroups.includes('48') ? '48' : availableGroups[0]);
@@ -63,7 +66,7 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
 
   useEffect(() => { void load(); }, []);
 
-  // Fetch names for all item IDs in rows or new item form
+  // Fetch names and icons for all item IDs in rows or new item form
   useEffect(() => {
     const ids = rows.map(r => r.item_id);
     if (typeof newItemId === 'number' && newItemId > 0) ids.push(newItemId);
@@ -75,6 +78,7 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
     const timer = setTimeout(() => {
       void api.itemNames(missing.slice(0, 100)).then(result => {
         setItemNames(current => ({ ...current, ...result.itemNames }));
+        if (result.itemIcons) setItemIcons(current => ({ ...current, ...result.itemIcons }));
       }).catch(() => undefined);
     }, 250);
     return () => clearTimeout(timer);
@@ -273,11 +277,16 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
                   value={newItemId}
                   onChange={e => setNewItemId(e.target.value === '' ? '' : Number(e.target.value))}
                 />
-                <span className="item-name-preview">
-                  {typeof newItemId === 'number' && newItemId > 0
-                    ? (itemNames[String(newItemId)] || 'Mencari nama item…')
-                    : 'Ketik Item ID untuk melihat nama'}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  {typeof newItemId === 'number' && newItemId > 0 && (
+                    <ItemIcon itemId={newItemId} icon={itemIcons[String(newItemId)]} size={24} />
+                  )}
+                  <span className="item-name-preview" style={{ marginTop: 0 }}>
+                    {typeof newItemId === 'number' && newItemId > 0
+                      ? (itemNames[String(newItemId)] || 'Mencari nama item…')
+                      : 'Ketik Item ID untuk melihat nama'}
+                  </span>
+                </div>
               </label>
               <label>
                 Harga LP *
@@ -421,8 +430,13 @@ export function LoyaltyPage({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
                         />
                       </td>
                       <td className="item-name-cell">
-                        <strong>{itemNames[String(row.item_id)] || (Number.isInteger(row.item_id) && row.item_id > 0 ? 'Nama tidak ditemukan' : '—')}</strong>
-                        <small>#{row.item_id}</small>
+                        <div className="table-item-cell">
+                          <ItemIcon itemId={row.item_id} icon={itemIcons[String(row.item_id)]} name={itemNames[String(row.item_id)]} size={30} />
+                          <div className="item-details">
+                            <strong>{itemNames[String(row.item_id)] || (Number.isInteger(row.item_id) && row.item_id > 0 ? 'Nama tidak ditemukan' : '—')}</strong>
+                            <small>#{row.item_id}</small>
+                          </div>
+                        </div>
                       </td>
                       <td>
                         <span className="category-badge">

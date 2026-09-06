@@ -1,7 +1,7 @@
 import { config } from './config.js';
 import { pool } from './database.js';
 import { itemMallSaveSchema, itemMallSlotKey, revisionForItemMall, type ItemMallItem } from './itemmall-model.js';
-import { itemNames } from './paragon.js';
+import { itemNames, itemIcons } from './paragon.js';
 
 export class ItemMallError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -31,9 +31,11 @@ export async function readItemMall() {
     `select id::text, actor, created_at as "createdAt" from dashboard.itemmall_history order by id desc limit 10`,
   )).rows;
 
+  const ids = rows.map(row => row.item_id);
   return {
     rows,
-    itemNames: await itemNames(rows.map(row => row.item_id)),
+    itemNames: await itemNames(ids),
+    itemIcons: await itemIcons(ids),
     revision: revisionForItemMall(rows),
     history,
     readOnly: config.NODE_ENV === 'development',

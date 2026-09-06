@@ -18,6 +18,9 @@ if [[ -f /root/hxsy/Data/db/T_ItemMall.ini ]]; then
     node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
   fi
 fi
+if [[ -f /root/hxsy/Data/db/S_Item.ini ]]; then
+  node ops/build-item-icons.mjs /root/hxsy/Data/db/S_Item.ini data/item-icons.json
+fi
 account_db=$(node --env-file=/etc/aura-dashboard.env -p 'process.env.ACCOUNT_DB || "FFAccount"')
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/paragon.sql
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/loyalty.sql

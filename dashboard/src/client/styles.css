@@ -1116,3 +1116,71 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
 .empty-content h3 { margin: 0; font-size: 18px; color: var(--parchment); }
 .empty-content p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
 .empty-content .btn-primary { margin-top: 6px; }
+
+/* Item Icons */
+.ak-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #1e293b, #090d16);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+.ak-item-icon:hover {
+  transform: scale(1.08);
+  border-color: var(--amber);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.45), inset 0 0 4px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+.ak-item-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+}
+.ak-item-icon-empty {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(148, 163, 184, 0.25);
+  box-shadow: none;
+}
+.ak-item-icon-fallback-char {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+/* Table Item Cell with Icon */
+.table-item-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  text-align: left;
+}
+.table-item-cell .item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Item Index Grid Card with Icon */
+.card-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0 4px 0;
+}
+.card-icon-container .ak-item-icon {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), inset 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
