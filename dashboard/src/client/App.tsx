@@ -102,6 +102,7 @@ function OverviewPage({ data }: { data: Overview }) {
 }
 
 function ServicesPage({ data, refresh }: { data: Overview; refresh: () => Promise<void> }) {
+  const [logService, setLogService] = useState('WorldServer');
   const [pending, setPending] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
   async function control(action: 'start' | 'stop' | 'restart') {
@@ -113,25 +114,28 @@ function ServicesPage({ data, refresh }: { data: Overview; refresh: () => Promis
     finally { setPending(null); }
   }
   return (
+    <>
     <section className="panel table-panel">
       <header className="service-header"><div><p className="kicker">Process control</p><h3>Service realm</h3><p>Kontrol berlaku untuk seluruh rantai server agar urutan boot tetap benar.</p></div>
         <div className="actions"><button onClick={() => control('start')} disabled={!!pending}>Start</button><button onClick={() => control('restart')} disabled={!!pending}>Restart</button><button className="danger" onClick={() => control('stop')} disabled={!!pending}>Stop</button></div>
       </header>
       {notice && <div className="notice">{pending ? 'Menjalankan operasi…' : notice}</div>}
-      <div className="table-wrap"><table><thead><tr><th>Service</th><th>Status</th><th>PID</th><th>CPU</th><th>Memori</th><th>Uptime</th></tr></thead><tbody>
-        {data.services.map((service) => <tr key={service.name}><td><strong>{service.name}</strong></td><td><span className={`status-pill ${service.online ? 'online' : 'offline'}`}><i/>{service.online ? 'Online' : 'Offline'}</span></td><td>{service.pid ?? '—'}</td><td>{service.cpu.toFixed(1)}%</td><td>{service.memoryMb.toFixed(0)} MB</td><td>{formatDuration(service.uptimeSeconds)}</td></tr>)}
+      <div className="table-wrap"><table><thead><tr><th>Service</th><th>Status</th><th>PID</th><th>CPU</th><th>Memori</th><th>Uptime</th><th>Log</th></tr></thead><tbody>
+        {data.services.map((service) => <tr key={service.name}><td><strong>{service.name}</strong></td><td><span className={`status-pill ${service.online ? 'online' : 'offline'}`}><i/>{service.online ? 'Online' : 'Offline'}</span></td><td>{service.pid ?? '—'}</td><td>{service.cpu.toFixed(1)}%</td><td>{service.memoryMb.toFixed(0)} MB</td><td>{formatDuration(service.uptimeSeconds)}</td><td><button className="detail-stat-btn" onClick={() => setLogService(service.name)} aria-label={`Lihat log ${service.name}`}>Lihat log</button></td></tr>)}
       </tbody></table></div>
     </section>
+    <LogsPage key={logService} services={data.services} initialService={logService} onSelect={setLogService}/>
+    </>
   );
 }
 
-function LogsPage({ services }: { services: Overview['services'] }) {
-  const [selected, setSelected] = useState('WorldServer');
+function LogsPage({ services, initialService = 'WorldServer', onSelect }: { services: Overview['services']; initialService?: string; onSelect?: (service: string) => void }) {
+  const [selected, setSelected] = useState(initialService);
   const [content, setContent] = useState('Memuat log…');
   const [loading, setLoading] = useState(false);
   const load = useCallback(async () => { setLoading(true); try { setContent((await api.logs(selected)).content || 'Log kosong.'); } catch (e) { setContent(e instanceof Error ? e.message : 'Gagal memuat log.'); } finally { setLoading(false); } }, [selected]);
   useEffect(() => { void load(); }, [load]);
-  return <section className="panel logs-panel"><header><div><p className="kicker">Runtime stream</p><h3>Log realm</h3></div><div className="log-tools"><select value={selected} onChange={(e) => setSelected(e.target.value)}>{services.map(s => <option key={s.name}>{s.name}</option>)}</select><button onClick={load} disabled={loading}><RefreshIcon/>{loading ? 'Memuat' : 'Segarkan'}</button></div></header><pre><code>{content}</code></pre></section>;
+  return <section className="panel logs-panel" style={{ marginTop: 24 }}><header><div><p className="kicker">Runtime stream</p><h3>Log realm</h3><p>120 baris terakhir dari service terpilih.</p></div><div className="log-tools"><select aria-label="Pilih service log" value={selected} onChange={(e) => { setSelected(e.target.value); onSelect?.(e.target.value); }}>{services.map(s => <option key={s.name}>{s.name}</option>)}</select><button onClick={load} disabled={loading}><RefreshIcon/>{loading ? 'Memuat' : 'Segarkan'}</button></div></header><pre aria-busy={loading}><code>{content}</code></pre></section>;
 }
 
 export function App() {
