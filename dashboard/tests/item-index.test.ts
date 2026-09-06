@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyItem, queryItemIndex } from '../src/server/item-index.js';
+import { fileURLToPath } from 'node:url';
+
+// The real catalogs are generated on the server from the live game .ini files and
+// are not in the repository, so the query tests read committed fixtures instead.
+process.env.ITEM_CATALOG_PATH = fileURLToPath(new URL('./fixtures/item-names.json', import.meta.url));
+process.env.ITEM_ICON_CATALOG_PATH = fileURLToPath(new URL('./fixtures/item-icons.json', import.meta.url));
+
+const { classifyItem, queryItemIndex } = await import('../src/server/item-index.js');
 
 test('classifyItem correctly categorizes items and detects tradeability', () => {
   // Tradable Weapon

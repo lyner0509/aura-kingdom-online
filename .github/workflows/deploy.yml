@@ -29,6 +29,9 @@ jobs:
           npm test
           npm run check
           npm run build
+          # The catalogs in data/ are regenerated on the VPS from the live game .ini
+          # files, so ship the directory as a placeholder rather than repository content.
+          mkdir -p data
           tar -czf ../aura-dashboard-release.tgz data dist dist-server ops package.json package-lock.json
       - name: Validate site scripts
         run: |
