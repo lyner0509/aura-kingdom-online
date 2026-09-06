@@ -37,6 +37,12 @@ import {
   applyExpBonusNow,
 } from './exp-bonus.js';
 import {
+  DropLootError,
+  readDropLoot,
+  saveDropLoot,
+  applyDropLootNow,
+} from './drop-loot.js';
+import {
   controlService,
   readServiceLog,
   SERVICE_NAMES,
@@ -219,8 +225,29 @@ app.post('/ops/api/exp-bonus/apply', async (_req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/drop-loot', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readDropLoot()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/drop-loot', async (req, res, next) => {
+  try { res.json(await saveDropLoot(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/drop-loot/apply', async (_req, res, next) => {
+  try { res.json(await applyDropLootNow(res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (error instanceof ParagonError || error instanceof LoyaltyError || error instanceof BonusError || error instanceof ItemMallError || error instanceof RedeemCodeError || error instanceof ExpBonusError) return res.status(error.status).json({ error: error.message });
+  if (
+    error instanceof ParagonError ||
+    error instanceof LoyaltyError ||
+    error instanceof BonusError ||
+    error instanceof ItemMallError ||
+    error instanceof RedeemCodeError ||
+    error instanceof ExpBonusError ||
+    error instanceof DropLootError
+  ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
   return res.status(500).json({ error: 'Operasi gagal. Periksa log service dashboard.' });

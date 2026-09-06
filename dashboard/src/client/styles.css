@@ -285,3 +285,68 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
 .expbonus-footer-actions .left-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .expbonus-footer-actions .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* Drop Loot Bonus Styles */
+.droploot-editor { display: grid; gap: 24px; min-width: 0; }
+.droploot-editor > .panel { min-width: 0; }
+.droploot-header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+.droploot-header p:last-child { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
+.droploot-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.droploot-actions button,
+.droploot-footer-actions button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; font-size: 12px; font-weight: 500; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.15; margin: 0; }
+.droploot-actions button svg,
+.droploot-footer-actions button svg { width: 14px; height: 14px; flex-shrink: 0; }
+.droploot-btn-primary { border: 1px solid rgba(200, 157, 86, 0.4); background: var(--amber); color: #1b1a14; font-weight: 600; }
+.droploot-btn-primary:hover:not(:disabled) { background: #d8aa63; }
+.droploot-btn-apply { border: 1px solid rgba(120, 182, 140, 0.6); background: #26372a; color: var(--jade-bright); font-weight: 600; }
+.droploot-btn-apply:hover:not(:disabled) { background: #324937; border-color: var(--jade); color: #ffffff; }
+.droploot-btn-secondary { border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); }
+.droploot-btn-secondary:hover:not(:disabled) { border-color: #69705f; color: #ffffff; }
+.droploot-actions button:disabled,
+.droploot-footer-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.droploot-live-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 24px; }
+.droploot-live-card { padding: 18px 20px; background: #161914; border: 1px solid var(--line); border-radius: 4px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+.droploot-live-card.boosted { border-color: rgba(200, 157, 86, 0.5); background: linear-gradient(145deg, #1b1e17 0%, #242217 100%); }
+.droploot-live-card .card-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.droploot-live-card .card-value { font-size: 28px; font-weight: 700; color: var(--parchment); font-family: var(--display); line-height: 1; display: flex; align-items: baseline; gap: 6px; }
+.droploot-live-card .card-value span { font-size: 14px; font-weight: normal; color: var(--jade-bright); }
+.droploot-live-card .card-tag { font-size: 11px; color: var(--muted); }
+
+.droploot-status-banner { margin: 0 24px 20px; padding: 14px 18px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; background: #171c15; border: 1px solid rgba(120, 182, 140, 0.3); }
+.droploot-status-banner.event-active { background: #261f14; border-color: rgba(200, 157, 86, 0.5); }
+.droploot-status-banner .status-left { display: flex; align-items: center; gap: 12px; }
+.droploot-status-banner .status-icon { width: 32px; height: 32px; border-radius: 50%; display: grid; place-content: center; background: #26372a; color: var(--jade-bright); flex-shrink: 0; }
+.droploot-status-banner.event-active .status-icon { background: #3c2e17; color: #ffd778; }
+.droploot-status-banner .status-info strong { display: block; font-size: 14px; color: var(--parchment); }
+.droploot-status-banner .status-info small { color: var(--muted); font-size: 12px; }
+
+.droploot-form-grid { padding: 0 24px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .droploot-form-grid { grid-template-columns: 1fr; } }
+.droploot-section-box { padding: 20px; background: #171a14; border: 1px solid var(--line); border-radius: 4px; display: grid; gap: 18px; }
+.droploot-section-box h4 { margin: 0; font: 20px var(--display); color: var(--parchment); display: flex; justify-content: space-between; align-items: center; }
+.droploot-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.droploot-presets button { padding: 5px 10px; font-size: 11px; border: 1px solid var(--line); border-radius: 3px; background: var(--stone-2); color: var(--parchment); cursor: pointer; }
+.droploot-presets button:hover { border-color: var(--amber); color: #ffffff; }
+.droploot-presets button.active { background: var(--amber); color: #1b1a14; border-color: var(--amber); font-weight: 600; }
+
+.droploot-field { display: grid; gap: 8px; }
+.droploot-field label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.droploot-field label span:last-child { color: var(--parchment); font-weight: 600; }
+.droploot-slider-row { display: flex; align-items: center; gap: 12px; }
+.droploot-slider-row input[type=range] { flex: 1; accent-color: var(--amber); cursor: pointer; }
+.droploot-slider-row input[type=number] { width: 80px; padding: 7px 10px; text-align: center; background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; font-size: 13px; font-weight: 600; }
+.droploot-slider-row span { font-size: 12px; color: var(--muted); }
+
+.droploot-event-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #131611; border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
+.droploot-event-toggle span { font-size: 13px; font-weight: 500; color: var(--parchment); }
+.droploot-event-toggle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--amber); cursor: pointer; }
+
+.droploot-event-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .droploot-event-dates { grid-template-columns: 1fr; } }
+.droploot-event-dates label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.droploot-event-dates input[type=datetime-local] { padding: 8px 10px; background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; font-size: 12px; }
+
+.droploot-footer-actions { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.droploot-footer-actions .left-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.droploot-footer-actions .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+

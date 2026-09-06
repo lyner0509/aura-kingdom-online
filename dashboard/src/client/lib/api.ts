@@ -202,7 +202,95 @@ export type UpdateExpBonusPayload = {
   event_quest_exp_rate: number;
   event_drop_rate: number;
   event_gold_rate: number;
-  event_np_rate: number;
+  broadcast_event: boolean;
+  apply_immediately?: boolean;
+};
+
+export type DropLootSettings = {
+  id: number;
+  drop_rate: number;
+  boss_drop_rate: number;
+  dungeon_drop_rate: number;
+  quest_drop_rate: number;
+  gold_drop_rate: number;
+  extra_loot_chance: number;
+  rare_drop_rate: number;
+  is_event_active: boolean;
+  event_name: string | null;
+  event_start: string | null;
+  event_end: string | null;
+  event_drop_rate: number;
+  event_boss_drop_rate: number;
+  event_dungeon_drop_rate: number;
+  event_quest_drop_rate: number;
+  event_gold_drop_rate: number;
+  event_extra_loot_chance: number;
+  event_rare_drop_rate: number;
+  broadcast_event: boolean;
+  updated_at: string;
+  updated_by: string;
+  last_applied_at: string | null;
+  last_applied_status: string | null;
+};
+
+export type EffectiveDropRates = {
+  drop_rate: number;
+  boss_drop_rate: number;
+  dungeon_drop_rate: number;
+  quest_drop_rate: number;
+  gold_drop_rate: number;
+  extra_loot_chance: number;
+  rare_drop_rate: number;
+  isEventEffective: boolean;
+  eventName: string | null;
+  timeRemainingSeconds: number | null;
+};
+
+export type DropLootHistoryEntry = {
+  id: string;
+  operator: string;
+  action: string;
+  drop_rate: number;
+  boss_drop_rate: number;
+  dungeon_drop_rate: number;
+  gold_drop_rate: number;
+  extra_loot_chance: number;
+  rare_drop_rate: number;
+  is_event_active: boolean;
+  event_name: string | null;
+  applied_to_server: boolean;
+  note: string | null;
+  created_at: string;
+};
+
+export type DropLootData = {
+  settings: DropLootSettings;
+  effectiveRates: EffectiveDropRates;
+  revision: string;
+  history: DropLootHistoryEntry[];
+  readOnly: boolean;
+};
+
+export type UpdateDropLootPayload = {
+  revision: string;
+  drop_rate: number;
+  boss_drop_rate: number;
+  dungeon_drop_rate: number;
+  quest_drop_rate: number;
+  gold_drop_rate: number;
+  extra_loot_chance: number;
+  rare_drop_rate: number;
+  is_event_active: boolean;
+  event_name?: string | null;
+  event_start?: string | null;
+  event_end?: string | null;
+  event_drop_rate: number;
+  event_boss_drop_rate: number;
+  event_dungeon_drop_rate: number;
+  event_quest_drop_rate: number;
+  event_gold_drop_rate: number;
+  event_extra_loot_chance: number;
+  event_rare_drop_rate: number;
   broadcast_event: boolean;
   apply_immediately?: boolean;
 };
@@ -253,6 +341,15 @@ export const api = {
     }),
   applyExpBonusNow: () =>
     request<{ ok: boolean; effectiveRates: EffectiveRates; applied: boolean; message: string }>('/ops/api/exp-bonus/apply', {
+      method: 'POST',
+    }),
+  dropLoot: () => request<DropLootData>('/ops/api/drop-loot', { cache: 'no-store' }),
+  saveDropLoot: (payload: UpdateDropLootPayload) =>
+    request<{ ok: boolean; revision: string; effectiveRates: EffectiveDropRates; applied: boolean; message: string }>('/ops/api/drop-loot', {
+      method: 'PUT', body: JSON.stringify(payload),
+    }),
+  applyDropLootNow: () =>
+    request<{ ok: boolean; effectiveRates: EffectiveDropRates; applied: boolean; message: string }>('/ops/api/drop-loot/apply', {
       method: 'POST',
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
