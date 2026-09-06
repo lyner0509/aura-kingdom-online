@@ -273,7 +273,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
   const onlinePlayersCount = players.filter((p) => p.online).length;
 
   return (
-    <div className="gift-page-container">
+    <div className="gift-editor">
       <section className="panel">
         <header className="starterpack-header">
           <div>
@@ -384,7 +384,8 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
 
         {/* TAB 1: SEND GIFT */}
         {activeTab === 'send' && (
-          <form onSubmit={handleSendGift} className="gift-modal-form">
+          <div className="starterpack-tab-content">
+            <form onSubmit={handleSendGift} className="gift-modal-form">
             <div className="gift-form-grid">
               {/* Left Column: Target & Item Picker */}
               <div className="gift-form-column">
@@ -747,104 +748,108 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
               </div>
             </div>
           </form>
-        )}
+        </div>
+      )}
 
         {/* TAB 2: SETTINGS TEMPLATE */}
         {activeTab === 'settings' && settingsForm && (
-          <form onSubmit={handleSaveSettings} className="gift-settings-view">
-            <div className="gift-settings-card">
-              <h4>Konfigurasi Template Default Surat Hadiah</h4>
-              <p>
-                Nilai-nilai di bawah ini akan dijadikan template awal setiap kali Anda membuka formulir pengiriman hadiah item.
-              </p>
+          <div className="starterpack-tab-content">
+            <form onSubmit={handleSaveSettings} className="gift-settings-view">
+              <div className="gift-settings-card">
+                <h4>Konfigurasi Template Default Surat Hadiah</h4>
+                <p>
+                  Nilai-nilai di bawah ini akan dijadikan template awal setiap kali Anda membuka formulir pengiriman hadiah item.
+                </p>
 
-              <div className="field-group">
-                <label>Nama Pengirim Bawaan (Default Sender)</label>
-                <input
-                  type="text"
-                  value={settingsForm.default_sender_name}
-                  onChange={(e) =>
-                    setSettingsForm({ ...settingsForm, default_sender_name: e.target.value })
-                  }
-                  maxLength={32}
-                  required
-                />
-              </div>
-
-              <div className="field-group">
-                <label>Judul Surat Bawaan (Default Title)</label>
-                <input
-                  type="text"
-                  value={settingsForm.default_mail_title}
-                  onChange={(e) =>
-                    setSettingsForm({ ...settingsForm, default_mail_title: e.target.value })
-                  }
-                  maxLength={40}
-                  required
-                />
-              </div>
-
-              <div className="field-group">
-                <label>Isi Pesan Surat Bawaan (Default Content)</label>
-                <textarea
-                  rows={4}
-                  value={settingsForm.default_mail_content}
-                  onChange={(e) =>
-                    setSettingsForm({ ...settingsForm, default_mail_content: e.target.value })
-                  }
-                  maxLength={500}
-                  required
-                />
-              </div>
-
-              <div className="bound-toggle-row">
-                <label className="checkbox-label">
+                <div className="field-group">
+                  <label>Nama Pengirim Bawaan (Default Sender)</label>
                   <input
-                    type="checkbox"
-                    checked={settingsForm.default_is_bound}
+                    type="text"
+                    value={settingsForm.default_sender_name}
                     onChange={(e) =>
-                      setSettingsForm({ ...settingsForm, default_is_bound: e.target.checked })
+                      setSettingsForm({ ...settingsForm, default_sender_name: e.target.value })
                     }
+                    maxLength={32}
+                    required
                   />
-                  <span>
-                    <strong>Default Status Terikat (Account Bound)</strong>
-                    <small>Secara bawaan item yang dikirimkan terikat dan tidak bisa ditukar pemain.</small>
-                  </span>
-                </label>
-              </div>
+                </div>
 
-              <div className="bound-toggle-row" style={{ marginTop: 12 }}>
-                <label className="checkbox-label">
+                <div className="field-group">
+                  <label>Judul Surat Bawaan (Default Title)</label>
                   <input
-                    type="checkbox"
-                    checked={settingsForm.allow_online_broadcast}
+                    type="text"
+                    value={settingsForm.default_mail_title}
                     onChange={(e) =>
-                      setSettingsForm({ ...settingsForm, allow_online_broadcast: e.target.checked })
+                      setSettingsForm({ ...settingsForm, default_mail_title: e.target.value })
                     }
+                    maxLength={40}
+                    required
                   />
-                  <span>
-                    <strong>Izinkan Broadcast Pengumuman Layar</strong>
-                    <small>Admin dapat memilih untuk menyiarkan pesan banner saat mengirim hadiah.</small>
-                  </span>
-                </label>
-              </div>
+                </div>
 
-              <div style={{ marginTop: 24 }}>
-                <button
-                  type="submit"
-                  className="starterpack-btn-primary"
-                  disabled={savingSettings || !dirty}
-                >
-                  {savingSettings ? 'Menyimpan...' : 'Simpan Pengaturan Template'}
-                </button>
+                <div className="field-group">
+                  <label>Isi Pesan Surat Bawaan (Default Content)</label>
+                  <textarea
+                    rows={4}
+                    value={settingsForm.default_mail_content}
+                    onChange={(e) =>
+                      setSettingsForm({ ...settingsForm, default_mail_content: e.target.value })
+                    }
+                    maxLength={500}
+                    required
+                  />
+                </div>
+
+                <div className="bound-toggle-row">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={settingsForm.default_is_bound}
+                      onChange={(e) =>
+                        setSettingsForm({ ...settingsForm, default_is_bound: e.target.checked })
+                      }
+                    />
+                    <span>
+                      <strong>Default Status Terikat (Account Bound)</strong>
+                      <small>Secara bawaan item yang dikirimkan terikat dan tidak bisa ditukar pemain.</small>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="bound-toggle-row" style={{ marginTop: 12 }}>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={settingsForm.allow_online_broadcast}
+                      onChange={(e) =>
+                        setSettingsForm({ ...settingsForm, allow_online_broadcast: e.target.checked })
+                      }
+                    />
+                    <span>
+                      <strong>Izinkan Broadcast Pengumuman Layar</strong>
+                      <small>Admin dapat memilih untuk menyiarkan pesan banner saat mengirim hadiah.</small>
+                    </span>
+                  </label>
+                </div>
+
+                <div style={{ marginTop: 24 }}>
+                  <button
+                    type="submit"
+                    className="starterpack-btn-primary"
+                    disabled={savingSettings || !dirty}
+                  >
+                    {savingSettings ? 'Menyimpan...' : 'Simpan Pengaturan Template'}
+                  </button>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         )}
 
         {/* TAB 3: AUDIT TRAIL HISTORY */}
         {activeTab === 'history' && (
-          <div className="gift-history-view">
+          <div className="starterpack-tab-content">
+            <div className="gift-history-view">
             <div className="table-wrap">
               <table>
                 <thead>
@@ -933,8 +938,9 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
               </table>
             </div>
           </div>
-        )}
-      </section>
-    </div>
+        </div>
+      )}
+    </section>
+  </div>
   );
 }
