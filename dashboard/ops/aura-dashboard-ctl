@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+export LC_ALL=C
 
 GAME_DIR=/root/hxsy
 SERVICES=(TicketServer GatewayServer LoginServer MissionServer WorldServer ZoneServer)
@@ -36,9 +37,17 @@ status_json() {
 }
 
 start_realm() {
-  mkdir -p "$GAME_DIR/Logs"
-  nohup "$GAME_DIR/start" --no-dashboard >"$GAME_DIR/Logs/dashboard-start.out" 2>&1 </dev/null &
-  printf 'Startup dijalankan dengan PID %s.\n' "$!"
+  local service missing=0
+  for service in "${SERVICES[@]}"; do pid_for "$service" >/dev/null || missing=1; done
+  if (( missing == 0 )); then echo 'Seluruh proses realm sudah berjalan.'; return; fi
+  systemctl restart aurakingdom.service
+  sleep 10
+  missing=0
+  for service in "${SERVICES[@]}"; do
+    if ! pid_for "$service" >/dev/null; then echo "$service gagal bertahan setelah startup. Periksa log service."; missing=1; fi
+  done
+  (( missing == 0 )) || return 1
+  echo 'Seluruh proses realm berjalan setelah pemeriksaan startup.'
 }
 
 active_players() {
@@ -157,10 +166,10 @@ case "${1:-}" in
     start_realm
     ;;
   stop)
-    "$GAME_DIR/stop" --keep-logs
+    systemctl stop aurakingdom.service
     ;;
   restart)
-    "$GAME_DIR/stop" --keep-logs
+    systemctl stop aurakingdom.service
     start_realm
     ;;
   *)
