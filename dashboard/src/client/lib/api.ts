@@ -57,6 +57,6 @@ export const api = {
     request<{ ok: boolean; output: string }>(`/ops/api/services/${action}`, { method: 'POST' }),
   logs: (service: string, lines = 120) =>
     request<{ service: string; content: string }>(`/ops/api/logs?service=${encodeURIComponent(service)}&lines=${lines}`),
-  players: (search = '') =>
-    request<{ players: Player[] }>(`/ops/api/players?search=${encodeURIComponent(search)}&limit=60`),
+  players: (search = '', signal?: AbortSignal) =>
+    request<{ players: Player[] }>(`/ops/api/players?search=${encodeURIComponent(search)}&limit=60`, { signal, cache: 'no-store' }),
 };
