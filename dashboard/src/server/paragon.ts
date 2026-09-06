@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { config } from './config.js';
 import { pool } from './database.js';
@@ -8,7 +9,7 @@ const selectRows = `select lottery_id, category, weekday, drop_level, level_orde
   from public.lottery order by category, weekday, drop_level, level_order`;
 let catalogPromise: Promise<Record<string, string>> | undefined;
 async function itemCatalog(): Promise<Record<string, string>> {
-  catalogPromise ??= readFile(process.env.ITEM_CATALOG_PATH ?? '/opt/aura-dashboard/current/data/item-names.json', 'utf8')
+  catalogPromise ??= readFile(process.env.ITEM_CATALOG_PATH ?? (existsSync('data/item-names.json') ? 'data/item-names.json' : '/opt/aura-dashboard/current/data/item-names.json'), 'utf8')
     .then(value => JSON.parse(value) as Record<string, string>)
     .catch(() => ({}));
   return catalogPromise;

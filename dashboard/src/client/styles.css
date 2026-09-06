@@ -49,6 +49,51 @@
   .paragon-header { flex-wrap: wrap; }
 }
 
+.loyalty-editor { display: grid; gap: 24px; min-width: 0; }
+.loyalty-editor > .panel { min-width: 0; }
+.loyalty-header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+.loyalty-header p:last-child, .loyalty-save p { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
+.loyalty-add-box { margin: 0 24px 20px; padding: 20px; background: #1a1e17; border: 1px solid var(--jade); border-radius: 4px; display: grid; gap: 16px; }
+.loyalty-add-box h4 { margin: 0; font: 20px var(--display); color: var(--jade-bright); }
+.loyalty-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: start; }
+.loyalty-form-grid label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.loyalty-form-grid input { padding: 9px 12px; background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; }
+.loyalty-form-grid .item-name-preview { color: var(--jade-bright); font-size: 11px; min-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loyalty-form-grid .checkbox-label { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; padding-top: 24px; }
+.loyalty-form-grid .checkbox-label input { width: 18px; height: 18px; accent-color: var(--jade); cursor: pointer; }
+.loyalty-form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.loyalty-toolbar { padding: 0 24px 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.loyalty-filters { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.loyalty-filters label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.loyalty-filters select { padding: 8px 12px; background: var(--stone-2); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; }
+.loyalty-table { min-width: 960px; }
+.loyalty-table input[type=number], .loyalty-table input[type=text] { width: 100%; padding: 8px 10px; color: var(--parchment); background: var(--ink); border: 1px solid var(--line); border-radius: 3px; font-size: 13px; }
+.loyalty-table input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--jade); cursor: pointer; }
+.loyalty-table .num-small { max-width: 70px; text-align: center; }
+.loyalty-table .num-id { max-width: 95px; font-weight: 500; }
+.loyalty-table .num-price { max-width: 100px; color: #ffd778; font-weight: 600; }
+.loyalty-table .cat-input { min-width: 110px; max-width: 150px; }
+.loyalty-table .item-name-cell strong { display: block; color: var(--parchment); font-weight: 500; font-size: 13px; max-width: 260px; }
+.loyalty-table .item-name-cell small { color: var(--muted); font-size: 11px; }
+.loyalty-table .price-cell { display: flex; flex-direction: column; gap: 4px; }
+.loyalty-table .discounted-price { font-size: 11px; color: var(--jade-bright); font-weight: 500; }
+.loyalty-table .center { text-align: center; }
+.loyalty-save { padding: 22px 24px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.loyalty-save .primary-button { width: auto; min-width: 180px; margin: 0; }
+.loyalty-history > p { padding: 0 24px 24px; color: var(--muted); font-size: 13px; }
+.loyalty-history ul { list-style: none; padding: 0 24px 24px; margin: 0; }
+.loyalty-history li { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--line); gap: 16px; font-size: 13px; }
+.loyalty-history time { color: var(--muted); }
+.icon-button { border: 1px solid var(--line); background: transparent; color: var(--muted); padding: 6px 9px; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.icon-button:hover { color: var(--parchment); border-color: #69705f; }
+.icon-button.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(223, 75, 75, 0.1); }
+.icon-button svg { width: 16px; height: 16px; }
+@media (max-width: 680px) {
+  .loyalty-save { flex-direction: column; align-items: stretch; }
+  .loyalty-toolbar { flex-direction: column; align-items: stretch; }
+  .loyalty-header { flex-wrap: wrap; }
+}
+
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; margin: 0; }
 body { min-width: 320px; background: var(--ink); }

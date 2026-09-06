@@ -14,6 +14,7 @@ npm ci --omit=dev --ignore-scripts
 node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
 account_db=$(node --env-file=/etc/aura-dashboard.env -p 'process.env.ACCOUNT_DB || "FFAccount"')
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/paragon.sql
+sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/loyalty.sql
 install -o root -g root -m 0750 ops/aura-dashboard-ctl /usr/local/sbin/aura-dashboard-ctl
 install -o root -g root -m 0750 ops/deploy-release.sh /usr/local/sbin/aura-dashboard-deploy
 install -o root -g root -m 0644 ops/aura-dashboard.service /etc/systemd/system/aura-dashboard.service

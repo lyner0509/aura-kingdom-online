@@ -52,11 +52,26 @@ export type ParagonData = {
   history: { id: string; actor: string; createdAt: string }[];
   readOnly: boolean;
 };
+
+export type { LoyaltyItem } from '../../server/loyalty-model';
+export type LoyaltyData = {
+  rows: import('../../server/loyalty-model').LoyaltyItem[];
+  itemNames: Record<string, string>;
+  revision: string;
+  history: { id: string; actor: string; createdAt: string }[];
+  readOnly: boolean;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
   saveParagon: (revision: string, rows: ParagonData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/paragon', {
+      method: 'PUT', body: JSON.stringify({ revision, rows }),
+    }),
+  loyalty: () => request<LoyaltyData>('/ops/api/loyalty', { cache: 'no-store' }),
+  saveLoyalty: (revision: string, rows: LoyaltyData['rows']) =>
+    request<{ changed: boolean; revision: string }>('/ops/api/loyalty', {
       method: 'PUT', body: JSON.stringify({ revision, rows }),
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),

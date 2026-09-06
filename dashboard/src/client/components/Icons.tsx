@@ -19,3 +19,13 @@ export const ChevronIcon = (props: Props) => <Base {...props}><path d="m9 18 6-6
 export const LockIcon = (props: Props) => <Base {...props}><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></Base>;
 export const MenuIcon = (props: Props) => <Base {...props}><path d="M4 6h16M4 12h16M4 18h16"/></Base>;
 export const CloseIcon = (props: Props) => <Base {...props}><path d="m6 6 12 12M18 6 6 18"/></Base>;
+export const ShopIcon = (props: Props) => (
+  <Base {...props}>
+    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+    <path d="M3 6h18" />
+    <path d="M16 10a4 4 0 0 1-8 0" />
+  </Base>
+);
+export const PlusIcon = (props: Props) => <Base {...props}><path d="M12 5v14M5 12h14"/></Base>;
+export const TrashIcon = (props: Props) => <Base {...props}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></Base>;
+
