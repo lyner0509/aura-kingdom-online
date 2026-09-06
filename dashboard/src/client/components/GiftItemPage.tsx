@@ -114,7 +114,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
 
   // Load active players for helper suggestions
   useEffect(() => {
-    api.players({ limit: 100 })
+    api.players()
       .then((res) => setPlayers(res.players))
       .catch(() => {});
   }, []);
@@ -166,7 +166,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
   const handleSelectItem = (item: ItemIndexItem) => {
     setItemId(item.id);
     setItemName(item.name);
-    setIsBound(item.isTradable === false);
+    setIsBound(item.is_bound);
     setShowItemDropdown(false);
     setItemSearchQuery('');
   };
@@ -188,8 +188,8 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
         default_is_bound: settingsForm.default_is_bound,
         allow_online_broadcast: settingsForm.allow_online_broadcast,
       });
-      setSettings(updated);
-      setSettingsForm(updated);
+      setSettings(updated.settings);
+      setSettingsForm(updated.settings);
       setSuccessMsg('Pengaturan template surat default berhasil disimpan!');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Gagal menyimpan pengaturan.');
@@ -513,7 +513,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                             <strong>{item.name}</strong>
                             <span className="item-submeta">
                               ID: <code>{item.id}</code> · Kategori: {item.category} ·{' '}
-                              {item.isTradable ? (
+                              {!item.is_bound ? (
                                 <span className="tradable-badge">Tradeable</span>
                               ) : (
                                 <span className="bound-badge">Bound</span>
