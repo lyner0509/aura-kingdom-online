@@ -225,16 +225,19 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
 .expbonus-editor > .panel { min-width: 0; }
 .expbonus-header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
 .expbonus-header p:last-child { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
-.expbonus-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.expbonus-actions button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 500; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.2; margin: 0; }
-.expbonus-actions button svg { width: 15px; height: 15px; flex-shrink: 0; }
+.expbonus-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.expbonus-actions button,
+.expbonus-footer-actions button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; font-size: 12px; font-weight: 500; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.15; margin: 0; }
+.expbonus-actions button svg,
+.expbonus-footer-actions button svg { width: 14px; height: 14px; flex-shrink: 0; }
 .expbonus-btn-primary { border: 1px solid rgba(200, 157, 86, 0.4); background: var(--amber); color: #1b1a14; font-weight: 600; }
 .expbonus-btn-primary:hover:not(:disabled) { background: #d8aa63; }
 .expbonus-btn-apply { border: 1px solid rgba(120, 182, 140, 0.6); background: #26372a; color: var(--jade-bright); font-weight: 600; }
 .expbonus-btn-apply:hover:not(:disabled) { background: #324937; border-color: var(--jade); color: #ffffff; }
 .expbonus-btn-secondary { border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); }
 .expbonus-btn-secondary:hover:not(:disabled) { border-color: #69705f; color: #ffffff; }
-.expbonus-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.expbonus-actions button:disabled,
+.expbonus-footer-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .expbonus-live-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 24px; }
 .expbonus-live-card { padding: 18px 20px; background: #161914; border: 1px solid var(--line); border-radius: 4px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
@@ -278,7 +281,7 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
 .expbonus-event-dates label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
 .expbonus-event-dates input[type=datetime-local] { padding: 8px 10px; background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; font-size: 12px; }
 
-.expbonus-footer-actions { padding: 20px 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
-.expbonus-footer-actions .left-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.expbonus-footer-actions .right-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.expbonus-footer-actions { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.expbonus-footer-actions .left-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.expbonus-footer-actions .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
