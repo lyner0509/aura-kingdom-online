@@ -41,6 +41,101 @@ start_realm() {
   printf 'Startup dijalankan dengan PID %s.\n' "$!"
 }
 
+active_players() {
+  /usr/bin/python3 - <<'PYEOF'
+import glob, json, os, re, subprocess
+
+try:
+    ws_pid = subprocess.check_output(["pgrep", "-o", "-f", "(^|/)WorldServer(\\.bin)?( |$)"]).decode().strip()
+except Exception:
+    ws_pid = None
+
+if not ws_pid:
+    print(json.dumps({"online": 0, "accounts": [], "characters": []}))
+    raise SystemExit(0)
+
+try:
+    ss_out = subprocess.check_output("ss -tnp '( sport = :5567 or sport = :10020 )'", shell=True).decode()
+    active_sockets = 0
+    for line in ss_out.splitlines():
+        if "ESTAB" in line and not any(loc in line for loc in ["127.0.0.1", "::1"]):
+            active_sockets += 1
+except Exception:
+    active_sockets = 0
+
+login_logs = sorted(glob.glob('/root/hxsy/WorldServer/Login1010.log*'))
+if not login_logs:
+    print(json.dumps({"online": 0, "accounts": [], "characters": []}))
+    raise SystemExit(0)
+
+latest_login = login_logs[-1]
+active_accounts = {}
+iface_to_aid = {}
+
+with open(latest_login, 'r', errors='ignore') as f:
+    for line in f:
+        m = re.search(r'AID[:=](\d+)\s+Interface[:=](0x[0-9a-fA-F]+)\s+ClientInterfaces\s+Insert', line)
+        if m:
+            aid = int(m.group(1))
+            iface = m.group(2).lower()
+            iface_to_aid[iface] = aid
+            if aid not in active_accounts:
+                active_accounts[aid] = {'iface': iface, 'char_id': None}
+            else:
+                active_accounts[aid]['iface'] = iface
+            continue
+
+        m = re.search(r'Logout\s+AccountID\((\d+)\)\s+ClientInterfaces\((0x[0-9a-fA-F]+)\)\s+erase', line)
+        if m:
+            aid = int(m.group(1))
+            iface = m.group(2).lower()
+            iface_to_aid.pop(iface, None)
+            active_accounts.pop(aid, None)
+            continue
+
+        m = re.search(r'Billing\s+Logout\s+AID:(\d+)', line)
+        if m:
+            aid = int(m.group(1))
+            active_accounts.pop(aid, None)
+            for ifc, a in list(iface_to_aid.items()):
+                if a == aid:
+                    del iface_to_aid[ifc]
+            continue
+
+        m = re.search(r'AID:\[(\d+)\]CharID\[(\d+)\]PlayerEntity deleted', line)
+        if m:
+            aid = int(m.group(1))
+            if aid in active_accounts:
+                active_accounts[aid]['char_id'] = None
+            continue
+
+reset_logs = sorted(glob.glob('/root/hxsy/WorldServer/ResetLog1010.log*'))
+if reset_logs:
+    latest_reset = reset_logs[-1]
+    with open(latest_reset, 'r', errors='ignore') as f:
+        for line in f:
+            m = re.search(r'PAID:(\d+),CID:(\d+),WID:\d+,DoReset Greeting', line)
+            if m:
+                aid = int(m.group(1))
+                cid = int(m.group(2))
+                if aid in active_accounts:
+                    active_accounts[aid]['char_id'] = cid
+
+active_aids = sorted(list(active_accounts.keys()))
+active_cids = sorted([info['char_id'] for info in active_accounts.values() if info['char_id']])
+
+if active_sockets == 0:
+    print(json.dumps({"online": 0, "accounts": [], "characters": []}))
+    raise SystemExit(0)
+
+print(json.dumps({
+    "online": len(active_aids),
+    "accounts": active_aids,
+    "characters": active_cids
+}))
+PYEOF
+}
+
 case "${1:-}" in
   status)
     [[ "${2:-}" == --json ]] || { echo 'status requires --json' >&2; exit 2; }
@@ -55,6 +150,9 @@ case "${1:-}" in
     [[ -r "$log_file" ]] || { echo "Belum ada log untuk $service."; exit 0; }
     tail -n "$lines" -- "$log_file"
     ;;
+  active-players)
+    active_players
+    ;;
   start)
     start_realm
     ;;
@@ -66,7 +164,7 @@ case "${1:-}" in
     start_realm
     ;;
   *)
-    echo 'Usage: aura-dashboard-ctl {status --json|logs SERVICE LINES|start|stop|restart}' >&2
+    echo 'Usage: aura-dashboard-ctl {status --json|logs SERVICE LINES|start|stop|restart|active-players}' >&2
     exit 2
     ;;
 esac

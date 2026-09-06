@@ -62,6 +62,39 @@ export async function readServiceLog(service: ServiceName, lines: number): Promi
   return controller(['logs', service, String(lines)]);
 }
 
+export type ActivePlayersResult = {
+  online: number;
+  accounts: number[];
+  characters: number[];
+};
+
+let cachedActivePlayers: { data: ActivePlayersResult; expiresAt: number } | null = null;
+
+export async function getActivePlayers(): Promise<ActivePlayersResult> {
+  if (config.NODE_ENV === 'development') {
+    return {
+      online: 2,
+      accounts: [2418, 2419],
+      characters: [10482, 10431],
+    };
+  }
+
+  const now = Date.now();
+  if (cachedActivePlayers && cachedActivePlayers.expiresAt > now) {
+    return cachedActivePlayers.data;
+  }
+
+  try {
+    const raw = await controller(['active-players']);
+    const data = JSON.parse(raw) as ActivePlayersResult;
+    cachedActivePlayers = { data, expiresAt: now + 3000 };
+    return data;
+  } catch (error) {
+    console.error('Failed to get active players from controller:', error);
+    return { online: 0, accounts: [], characters: [] };
+  }
+}
+
 function parseMeminfo(value: string): { total: number; available: number } {
   const fields = Object.fromEntries(
     value
