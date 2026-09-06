@@ -466,8 +466,54 @@ export type GrantStarterPackPayload = {
   override_claim_limit?: boolean;
 };
 
+export type ItemIndexItem = {
+  id: number;
+  name: string;
+  category: string;
+  is_bound: boolean;
+};
+
+export type ItemIndexCategory = {
+  name: string;
+  count: number;
+};
+
+export type ItemIndexResponse = {
+  items: ItemIndexItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  categories: ItemIndexCategory[];
+  stats: {
+    totalItems: number;
+    tradableCount: number;
+    boundCount: number;
+  };
+};
+
+export type ItemIndexParams = {
+  q?: string;
+  page?: number;
+  limit?: number;
+  category?: string;
+  tradable?: 'all' | 'tradable' | 'non_tradable';
+  sort?: 'id_asc' | 'id_desc' | 'name_asc' | 'name_desc';
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
+  itemIndex: (params: ItemIndexParams = {}, signal?: AbortSignal) => {
+    const sp = new URLSearchParams();
+    if (params.q) sp.set('q', params.q);
+    if (params.page) sp.set('page', String(params.page));
+    if (params.limit) sp.set('limit', String(params.limit));
+    if (params.category && params.category !== 'all') sp.set('category', params.category);
+    if (params.tradable && params.tradable !== 'all') sp.set('tradable', params.tradable);
+    if (params.sort) sp.set('sort', params.sort);
+    const qs = sp.toString();
+    return request<ItemIndexResponse>(`/ops/api/item-index${qs ? `?${qs}` : ''}`, { signal, cache: 'no-store' });
+  },
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
   saveParagon: (revision: string, rows: ParagonData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/paragon', {

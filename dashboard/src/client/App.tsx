@@ -10,12 +10,13 @@ import { ExpBonusPage } from './components/ExpBonusPage';
 import { DropLootPage } from './components/DropLootPage';
 import { VipSystemPage } from './components/VipSystemPage';
 import { StarterPackPage } from './components/StarterPackPage';
+import { ItemIndexPage } from './components/ItemIndexPage';
 import {
-  CartIcon, ChevronIcon, CloseIcon, CrownIcon, GiftIcon, LogoutIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
+  CartIcon, ChevronIcon, CloseIcon, CrownIcon, DatabaseIcon, GiftIcon, LogoutIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
   ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, SparklesIcon, TicketIcon, TreasureIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack';
+type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack' | 'itemindex';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
@@ -30,6 +31,7 @@ const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'droploot', label: 'Drop Loot Bonus', icon: TreasureIcon },
   { id: 'vip', label: 'VIP System', icon: CrownIcon },
   { id: 'starterpack', label: 'Starter Pack', icon: PackageIcon },
+  { id: 'itemindex', label: 'Item Index', icon: DatabaseIcon },
 ];
 
 function formatBytes(value: number | string): string {
@@ -208,7 +210,7 @@ export function App() {
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>} {page === 'itemindex' && <ItemIndexPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }

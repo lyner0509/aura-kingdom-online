@@ -59,6 +59,7 @@ import {
   batchDispatchStarterPack,
   revokeStarterPackClaim,
 } from './starter-pack.js';
+import { queryItemIndex } from './item-index.js';
 import {
   controlService,
   readServiceLog,
@@ -174,6 +175,19 @@ app.get('/ops/api/item-names', async (req, res, next) => {
       throw new ParagonError(400, 'Daftar Item ID tidak valid.');
     }
     res.set('Cache-Control', 'no-store').json({ itemNames: await itemNames(ids) });
+  } catch (error) { next(error); }
+});
+app.get('/ops/api/item-index', async (req, res, next) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q : undefined;
+    const page = typeof req.query.page === 'string' ? Number(req.query.page) : undefined;
+    const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined;
+    const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+    const tradable = typeof req.query.tradable === 'string' ? (req.query.tradable as 'all' | 'tradable' | 'non_tradable') : undefined;
+    const sort = typeof req.query.sort === 'string' ? (req.query.sort as 'id_asc' | 'id_desc' | 'name_asc' | 'name_desc') : undefined;
+
+    const result = await queryItemIndex({ q, page, limit, category, tradable, sort });
+    res.set('Cache-Control', 'no-store').json(result);
   } catch (error) { next(error); }
 });
 app.put('/ops/api/paragon', async (req, res, next) => {
