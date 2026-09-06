@@ -1,8 +1,19 @@
 import type { SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
-const Base = ({ children, ...props }: Props) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+const Base = ({ children, width = 16, height = 16, ...props }: Props) => (
+  <svg
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
     {children}
   </svg>
 );

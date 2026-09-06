@@ -348,19 +348,19 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="tab-bar" style={{ marginBottom: 20 }}>
+        <div className="starterpack-tab-bar" style={{ marginBottom: 20 }}>
           <button
-            className={`tab-item ${activeTab === 'send' ? 'active' : ''}`}
+            className={`starterpack-tab-btn ${activeTab === 'send' ? 'active' : ''}`}
             onClick={() => {
               setActiveTab('send');
               setErrorMsg('');
               setSuccessMsg('');
             }}
           >
-            <SendIcon /> Kirim Hadiah Item
+            <SendIcon width={14} height={14} /> Kirim Hadiah Item
           </button>
           <button
-            className={`tab-item ${activeTab === 'history' ? 'active' : ''}`}
+            className={`starterpack-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
             onClick={() => {
               setActiveTab('history');
               setErrorMsg('');
@@ -368,17 +368,17 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
               void loadHistory();
             }}
           >
-            <MailIcon /> Riwayat Pengiriman ({history.length})
+            <MailIcon width={14} height={14} /> Riwayat Pengiriman ({history.length})
           </button>
           <button
-            className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}
+            className={`starterpack-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => {
               setActiveTab('settings');
               setErrorMsg('');
               setSuccessMsg('');
             }}
           >
-            <SparklesIcon /> Template Default Surat
+            <SparklesIcon width={14} height={14} /> Template Default Surat
           </button>
         </div>
 
@@ -389,7 +389,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
               {/* Left Column: Target & Item Picker */}
               <div className="gift-form-column">
                 <div className="gift-section-title">
-                  <UsersIcon /> 1. Penerima Hadiah
+                  <UsersIcon width={16} height={16} /> 1. Penerima Hadiah
                 </div>
 
                 {/* Target Type Picker */}
@@ -478,14 +478,14 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
 
                 {/* Section: Item Selection */}
                 <div className="gift-section-title" style={{ marginTop: 24 }}>
-                  <SparklesIcon /> 2. Pilih Item &amp; Kuantitas
+                  <SparklesIcon width={16} height={16} /> 2. Pilih Item &amp; Kuantitas
                 </div>
 
                 {/* Interactive Catalog Search */}
                 <div className="field-group search-catalog-wrapper" ref={searchDropdownRef}>
                   <label>Pencarian Katalog Item (38.000+ Item)</label>
                   <div className="catalog-search-input">
-                    <SearchIcon className="search-icon-inside" />
+                    <SearchIcon width={15} height={15} className="search-icon-inside" />
                     <input
                       type="text"
                       placeholder="Ketik nama item atau ID (misal: Backpack, XP, Potion, Ruby)..."
@@ -507,7 +507,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                           className="catalog-dropdown-item"
                           onClick={() => handleSelectItem(item)}
                         >
-                          <ItemIcon iconId={item.icon} size={32} name={item.name} />
+                          <ItemIcon itemId={item.id} icon={item.icon} size={32} name={item.name} />
                           <div className="dropdown-item-meta">
                             <strong>{item.name}</strong>
                             <span className="item-submeta">
@@ -529,7 +529,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                 <div className="selected-item-box">
                   <div className="selected-item-preview">
                     <ItemIcon
-                      iconId={itemId ? String(itemId) : undefined}
+                      itemId={itemId ? Number(itemId) : undefined}
                       size={44}
                       name={itemName || 'Item'}
                     />
@@ -632,7 +632,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
               {/* Right Column: Mail Customization & Live Preview */}
               <div className="gift-form-column">
                 <div className="gift-section-title">
-                  <MailIcon /> 3. Kustomisasi Surat In-Game
+                  <MailIcon width={16} height={16} /> 3. Kustomisasi Surat In-Game
                 </div>
 
                 <div className="field-group">
@@ -698,7 +698,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                 {/* Live Preview Card */}
                 <div className="mailbox-preview-card">
                   <div className="mailbox-preview-header">
-                    <MailIcon /> Live In-Game Mailbox Preview
+                    <MailIcon width={14} height={14} /> Live In-Game Mailbox Preview
                   </div>
                   <div className="mailbox-envelope">
                     <div className="envelope-sender-row">
@@ -715,7 +715,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                     <div className="envelope-attachment-row">
                       <div className="attached-item">
                         <ItemIcon
-                          iconId={itemId ? String(itemId) : undefined}
+                          itemId={itemId ? Number(itemId) : undefined}
                           size={32}
                           name={itemName || 'Hadiah'}
                         />
@@ -740,7 +740,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                     className="gift-submit-btn"
                     disabled={submitting || !itemId}
                   >
-                    <ZapIcon />
+                    <ZapIcon width={16} height={16} />
                     {submitting ? 'Mengirimkan Surat...' : 'Kirim Hadiah ke Mail Sekarang'}
                   </button>
                 </div>
@@ -895,7 +895,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                         </td>
                         <td>
                           <div className="table-item-cell">
-                            <ItemIcon iconId={String(h.item_id)} size={26} name={h.item_name} />
+                            <ItemIcon itemId={h.item_id} size={26} name={h.item_name} />
                             <div>
                               <strong>{h.item_name || `Item #${h.item_id}`}</strong>
                               <span className="item-id-quiet">#{h.item_id}</span>
@@ -923,7 +923,7 @@ export function GiftItemPage({ onDirtyChange }: GiftItemPageProps) {
                         </td>
                         <td>
                           <span className="delivery-badge-success">
-                            <CheckIcon /> {h.delivered_count} Terkirim
+                            <CheckIcon width={13} height={13} /> {h.delivered_count} Terkirim
                           </span>
                         </td>
                       </tr>

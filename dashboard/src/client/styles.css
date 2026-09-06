@@ -165,11 +165,11 @@ aside { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: 
 .aside-head span { color: var(--muted); font-size: 11px; }
 nav { display: grid; gap: 5px; }
 nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; border: 0; border-radius: 3px; padding: 12px 13px; background: transparent; color: #8f9785; text-align: left; cursor: pointer; }
-nav button svg { width: 19px; }
+nav button svg { width: 19px !important; height: 19px !important; min-width: 19px; min-height: 19px; flex-shrink: 0; }
 nav button:hover { color: var(--parchment); background: rgba(232,228,213,.04); }
 nav button.active { color: var(--parchment); background: var(--stone-3); }
 nav button.active::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px; background: var(--amber); }
-nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
+nav .chevron { margin-left: auto; width: 14px !important; height: 14px !important; min-width: 14px; min-height: 14px; flex-shrink: 0; color: var(--amber); }
 .operator { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 16px 7px 0; border-top: 1px solid var(--line); }
 .operator > span { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #343a2f; color: var(--jade-bright); }
 .operator div { min-width: 0; flex: 1; }.operator strong, .operator small { display: block; overflow: hidden; text-overflow: ellipsis; }.operator strong { font-size: 13px; }.operator small { color: var(--muted); font-size: 10px; }
@@ -3331,6 +3331,69 @@ input:checked + .slider:before {
   font-size: 11.5px;
   font-weight: 600;
 }
+
+/* Explicit SVG dimension constraints for Gift components */
+.starterpack-tab-btn svg,
+.tab-item svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  min-height: 14px;
+  flex-shrink: 0;
+}
+
+.gift-section-title svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  flex-shrink: 0;
+  color: #fbbf24;
+}
+
+.catalog-search-input .search-icon-inside,
+.search-icon-inside,
+.search-icon-svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px;
+  min-height: 15px;
+  max-width: 15px !important;
+  max-height: 15px !important;
+  color: #64748b;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.mailbox-preview-header svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  min-height: 14px;
+  flex-shrink: 0;
+  color: #fbbf24;
+}
+
+.gift-submit-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  flex-shrink: 0;
+}
+
+.delivery-badge-success svg {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px;
+  min-height: 13px;
+  flex-shrink: 0;
+}
+
 
 /* ---------- Level Player ---------- */
 

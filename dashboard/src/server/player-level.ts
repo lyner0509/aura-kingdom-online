@@ -92,7 +92,40 @@ async function recordHistory(entry: {
   );
 }
 
+// Local preview has no Postgres behind it, so the page still renders
+// with a shape that matches production.
+const demoData: PlayerLevelData = {
+  levelCap: 99,
+  assignments: [
+    {
+      player_id: '10482', player_name: 'Astra Vale', target_level: 90, from_level: 78,
+      status: 'pending', attempts: 0, last_error: null, requested_by: 'admin',
+      requested_at: '2026-09-06T09:00:00.000Z', applied_at: null,
+      online: true, current_level: 78,
+    },
+    {
+      player_id: '10431', player_name: 'Corvin Ash', target_level: 60, from_level: 41,
+      status: 'applied', attempts: 1, last_error: null, requested_by: 'admin',
+      requested_at: '2026-09-06T08:10:00.000Z', applied_at: '2026-09-06T08:42:00.000Z',
+      online: false, current_level: 60,
+    },
+  ],
+  history: [
+    {
+      id: '2', player_id: '10431', player_name: 'Corvin Ash', from_level: 41, to_level: 60,
+      action: 'applied', operator: 'admin', details: 'Naik dari level 41 ke 60',
+      created_at: '2026-09-06T08:42:00.000Z',
+    },
+    {
+      id: '1', player_id: '10482', player_name: 'Astra Vale', from_level: 78, to_level: 90,
+      action: 'queued', operator: 'admin', details: 'Pemenang event',
+      created_at: '2026-09-06T09:00:00.000Z',
+    },
+  ],
+};
+
 export async function readPlayerLevels(): Promise<PlayerLevelData> {
+  if (config.NODE_ENV === 'development') return structuredClone(demoData);
   const accountDb = pool(config.ACCOUNT_DB);
   const [assignmentRes, historyRes, online] = await Promise.all([
     accountDb.query<PlayerLevelAssignment>(
@@ -148,6 +181,10 @@ export async function assignPlayerLevel(
     throw new PlayerLevelError(400, `Parameter tidak valid: ${message}`);
   }
   const input = parsed.data;
+
+  if (config.NODE_ENV === 'development') {
+    throw new PlayerLevelError(403, 'Preview lokal tidak menulis level ke game.');
+  }
 
   const capError = checkLevelCap(input.target_level, config.PLAYER_LEVEL_CAP);
   if (capError) throw new PlayerLevelError(400, capError);
@@ -281,6 +318,10 @@ export async function retryPlayerLevel(
   if (!parsed.success) throw new PlayerLevelError(400, 'Player ID tidak valid.');
   const playerId = parsed.data.player_id;
 
+  if (config.NODE_ENV === 'development') {
+    throw new PlayerLevelError(403, 'Preview lokal tidak menulis level ke game.');
+  }
+
   await pool(config.ACCOUNT_DB).query(
     `update dashboard.player_level_assignment
         set status = 'pending', last_error = null
@@ -306,6 +347,10 @@ export async function cancelPlayerLevel(
   const parsed = cancelPlayerLevelSchema.safeParse(rawInput);
   if (!parsed.success) throw new PlayerLevelError(400, 'Player ID tidak valid.');
   const playerId = parsed.data.player_id;
+
+  if (config.NODE_ENV === 'development') {
+    throw new PlayerLevelError(403, 'Preview lokal tidak menulis level ke game.');
+  }
 
   const res = await pool(config.ACCOUNT_DB).query<{ player_name: string; target_level: number; from_level: number | null }>(
     `update dashboard.player_level_assignment

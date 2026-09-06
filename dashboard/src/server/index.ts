@@ -23,6 +23,7 @@ import { ItemMallError, readItemMall, saveItemMall } from './itemmall.js';
 import { LoyaltyError, readLoyalty, saveLoyalty } from './loyalty.js';
 import { itemNames, itemIconCatalog, itemIcons, readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
+  PlayerLevelError,
   readPlayerLevels,
   assignPlayerLevel,
   cancelPlayerLevel,
@@ -402,7 +403,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     error instanceof DropLootError ||
     error instanceof VipError ||
     error instanceof StarterPackError ||
-    error instanceof GiftError
+    error instanceof GiftError ||
+    error instanceof PlayerLevelError
   ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
