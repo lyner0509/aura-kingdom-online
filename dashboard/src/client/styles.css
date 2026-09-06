@@ -3408,6 +3408,7 @@ input:checked + .slider:before {
 .level-form input:focus { outline: 0; border-color: var(--amber); }
 .level-form input:disabled { opacity: .5; }
 
+.level-search { margin-top: 18px; }
 .level-search .search-field { display: flex; align-items: center; gap: 9px; border: 1px solid var(--line); border-radius: 3px; background: var(--stone-2); padding-left: 11px; color: var(--muted); }
 .level-search .search-field input { border: 0; background: transparent; flex: 1; padding-left: 0; }
 
