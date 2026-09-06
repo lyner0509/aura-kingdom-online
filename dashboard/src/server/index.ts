@@ -18,6 +18,7 @@ import {
 } from './auth.js';
 import { config } from './config.js';
 import { databaseHealth, listPlayers, playerSummary } from './database.js';
+import { readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
   controlService,
   readServiceLog,
@@ -32,7 +33,7 @@ app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
-app.use(express.json({ limit: '32kb' }));
+app.use(express.json({ limit: '256kb' }));
 app.use('/ops/api', requireSameOrigin);
 
 app.get('/ops/api/health', (_req, res) => res.json({ status: 'ok' }));
@@ -121,7 +122,17 @@ app.get('/ops/api/players', async (req, res, next) => {
   }
 });
 
+app.get('/ops/api/paragon', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readParagon()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/paragon', async (req, res, next) => {
+  try { res.json(await saveParagon(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (error instanceof ParagonError) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
   return res.status(500).json({ error: 'Operasi gagal. Periksa log service dashboard.' });

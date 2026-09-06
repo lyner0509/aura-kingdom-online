@@ -26,6 +26,7 @@ jobs:
         working-directory: dashboard
         run: |
           npm ci
+          npm test
           npm run check
           npm run build
           tar -czf ../aura-dashboard-release.tgz dist dist-server ops package.json package-lock.json

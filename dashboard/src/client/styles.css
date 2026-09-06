@@ -17,6 +17,37 @@
   --display: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
 
+.paragon-editor { display: grid; gap: 24px; min-width: 0; }
+.paragon-editor > .panel { min-width: 0; }
+.paragon-header > button { padding: 10px 16px; border: 1px solid var(--line); border-radius: 3px; background: var(--stone-2); cursor: pointer; flex-shrink: 0; }
+.paragon-header { gap: 20px; align-items: start; }
+.paragon-header p:last-child, .paragon-controls p, .paragon-save p { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
+.paragon-controls { padding: 0 24px 24px; display: flex; gap: 28px; align-items: end; flex-wrap: wrap; }
+.paragon-controls label { display: grid; gap: 8px; font-size: 13px; min-width: 220px; }
+.paragon-controls select { padding: 10px 12px; }
+.paragon-tiers { display: flex; gap: 8px; padding: 0 24px; flex-wrap: wrap; }
+.paragon-tiers button { border: 1px solid var(--line); padding: 10px 16px; border-radius: 3px; background: var(--stone-2); cursor: pointer; }
+.paragon-tiers button.selected { color: var(--jade-bright); border-color: var(--jade); background: #26372a; }
+.paragon-tier-heading { display: flex; justify-content: space-between; align-items: center; padding: 22px 24px 14px; gap: 16px; }
+.paragon-tier-heading h4 { font: 24px var(--display); margin: 0; }
+.paragon-tier-heading span { color: var(--jade-bright); font-size: 13px; }
+.paragon-tier-heading .invalid { color: var(--danger); }
+.paragon-table { min-width: 820px; }
+.paragon-table input[type=number] { width: 100%; min-width: 85px; max-width: 132px; padding: 10px; color: var(--parchment); background: var(--ink); border: 1px solid var(--line); border-radius: 3px; }
+.paragon-table input[type=checkbox] { width: 19px; height: 19px; accent-color: var(--jade); cursor: pointer; }
+.paragon-help { padding: 0 24px; color: var(--muted); font-size: 12px; line-height: 1.7; max-width: 780px; }
+.paragon-save { padding: 22px 24px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.paragon-save .primary-button { width: auto; min-width: 180px; margin: 0; }
+.paragon-history > p { padding: 0 24px 24px; color: var(--muted); font-size: 13px; }
+.paragon-history ul { list-style: none; padding: 0 24px 24px; margin: 0; }
+.paragon-history li { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--line); gap: 16px; font-size: 13px; }
+.paragon-history time { color: var(--muted); }
+@media (max-width: 680px) {
+  .paragon-save { flex-direction: column; align-items: stretch; }
+  .paragon-controls, .paragon-tiers { padding-left: 16px; padding-right: 16px; }
+  .paragon-header { flex-wrap: wrap; }
+}
+
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; margin: 0; }
 body { min-width: 320px; background: var(--ink); }

@@ -44,7 +44,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export type { ParagonReward } from '../../server/paragon-model';
+export type ParagonData = {
+  rows: import('../../server/paragon-model').ParagonReward[];
+  revision: string;
+  history: { id: string; actor: string; createdAt: string }[];
+  readOnly: boolean;
+};
 export const api = {
+  paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
+  saveParagon: (revision: string, rows: ParagonData['rows']) =>
+    request<{ changed: boolean; revision: string }>('/ops/api/paragon', {
+      method: 'PUT', body: JSON.stringify({ revision, rows }),
+    }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
   login: (username: string, password: string) =>
     request<{ authenticated: true; user: string }>('/ops/api/auth/login', {

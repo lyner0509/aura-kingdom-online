@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --import tsx --test tests/*.test.ts",
     "dev": "concurrently -k -n api,ui -c cyan,magenta \"tsx watch src/server/index.ts\" \"vite\"",
     "build": "tsc -p tsconfig.server.json && vite build",
     "start": "node dist-server/index.js",

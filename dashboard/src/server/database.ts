@@ -4,7 +4,7 @@ import { config } from './config.js';
 const { Pool } = pg;
 const pools = new Map<string, pg.Pool>();
 
-function pool(database: string): pg.Pool {
+export function pool(database: string): pg.Pool {
   let value = pools.get(database);
   if (!value) {
     value = new Pool({

@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, type Overview, type Player } from './lib/api';
 import { Login } from './components/Login';
+import { ParagonPage } from './components/ParagonPage';
 import {
   ChevronIcon, CloseIcon, LogoutIcon, MenuIcon, PulseIcon, RefreshIcon,
   ScrollIcon, SearchIcon, ServerIcon, SigilIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'logs' | 'players';
+type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
   { id: 'logs', label: 'Log realm', icon: ScrollIcon },
   { id: 'players', label: 'Pemain', icon: UsersIcon },
+  { id: 'paragon', label: 'Paragon Table', icon: SigilIcon },
 ];
 
 function formatBytes(value: number | string): string {
@@ -145,22 +147,23 @@ function PlayersPage() {
 }
 
 export function App() {
+  const [paragonDirty, setParagonDirty] = useState(false);
   const [user, setUser] = useState<string | null>(null); const [checking, setChecking] = useState(true); const [page, setPage] = useState<Page>('overview'); const [overview, setOverview] = useState<Overview | null>(null); const [error, setError] = useState(''); const [menuOpen, setMenuOpen] = useState(false); const [refreshing, setRefreshing] = useState(false);
   const refresh = useCallback(async () => { setRefreshing(true); try { setOverview(await api.overview()); setError(''); } catch (e) { if (e instanceof Error && e.message.includes('Sesi')) setUser(null); else setError(e instanceof Error ? e.message : 'Data tidak tersedia.'); } finally { setRefreshing(false); } }, []);
   useEffect(() => { api.session().then(s => setUser(s.user)).catch(() => setUser(null)).finally(() => setChecking(false)); }, []);
   useEffect(() => { if (!user) return; void refresh(); const timer = setInterval(() => void refresh(), 15_000); return () => clearInterval(timer); }, [user, refresh]);
   const title = useMemo(() => navigation.find(item => item.id === page)?.label ?? '', [page]);
-  async function logout() { await api.logout(); setUser(null); }
+  async function logout() { if (paragonDirty && !window.confirm('Keluar dan buang perubahan Paragon yang belum disimpan?')) return; await api.logout(); setUser(null); }
   if (checking) return <div className="boot-screen"><SigilIcon/><span>Menyiapkan ruang kendali…</span></div>;
   if (!user) return <Login onAuthenticated={setUser}/>;
   return <div className="app-shell">
     <aside className={menuOpen ? 'open' : ''}><div className="aside-head"><div className="brand-mark"><SigilIcon/></div><div><strong>Aura Kingdom</strong><span>Realm operations</span></div><button className="mobile-close" onClick={() => setMenuOpen(false)}><CloseIcon/></button></div>
-      <nav>{navigation.map(item => <button key={item.id} className={page === item.id ? 'active' : ''} onClick={() => { setPage(item.id); setMenuOpen(false); }}><item.icon/><span>{item.label}</span>{page === item.id && <ChevronIcon className="chevron"/>}</button>)}</nav>
+      <nav>{navigation.map(item => <button key={item.id} className={page === item.id ? 'active' : ''} onClick={() => { if (page === 'paragon' && item.id !== page && paragonDirty && !window.confirm('Buang perubahan Paragon yang belum disimpan?')) return; setPage(item.id); setMenuOpen(false); }}><item.icon/><span>{item.label}</span>{page === item.id && <ChevronIcon className="chevron"/>}</button>)}</nav>
       <div className="operator"><span>{user.slice(0,1).toUpperCase()}</span><div><strong>{user}</strong><small>Realm operator</small></div><button title="Keluar" onClick={logout}><LogoutIcon/></button></div>
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }
