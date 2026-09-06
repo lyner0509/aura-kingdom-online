@@ -28,4 +28,14 @@ export const ShopIcon = (props: Props) => (
 );
 export const PlusIcon = (props: Props) => <Base {...props}><path d="M12 5v14M5 12h14"/></Base>;
 export const TrashIcon = (props: Props) => <Base {...props}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></Base>;
+export const GiftIcon = (props: Props) => (
+  <Base {...props}>
+    <polyline points="20 12 20 22 4 22 4 12" />
+    <rect x="2" y="7" width="20" height="5" />
+    <line x1="12" y1="22" x2="12" y2="7" />
+    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+  </Base>
+);
+
 

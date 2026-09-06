@@ -62,6 +62,15 @@ export type LoyaltyData = {
   readOnly: boolean;
 };
 
+export type { BonusItem } from '../../server/bonus-model';
+export type BonusData = {
+  rows: import('../../server/bonus-model').BonusItem[];
+  itemNames: Record<string, string>;
+  revision: string;
+  history: { id: string; actor: string; createdAt: string }[];
+  readOnly: boolean;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -72,6 +81,11 @@ export const api = {
   loyalty: () => request<LoyaltyData>('/ops/api/loyalty', { cache: 'no-store' }),
   saveLoyalty: (revision: string, rows: LoyaltyData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/loyalty', {
+      method: 'PUT', body: JSON.stringify({ revision, rows }),
+    }),
+  bonus: () => request<BonusData>('/ops/api/bonus-mall', { cache: 'no-store' }),
+  saveBonus: (revision: string, rows: BonusData['rows']) =>
+    request<{ changed: boolean; revision: string }>('/ops/api/bonus-mall', {
       method: 'PUT', body: JSON.stringify({ revision, rows }),
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),

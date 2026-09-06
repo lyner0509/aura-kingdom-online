@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, type Overview, type Player } from './lib/api';
 import { Login } from './components/Login';
+import { BonusPage } from './components/BonusPage';
 import { LoyaltyPage } from './components/LoyaltyPage';
 import { ParagonPage } from './components/ParagonPage';
 import {
-  ChevronIcon, CloseIcon, LogoutIcon, MenuIcon, PulseIcon, RefreshIcon,
+  ChevronIcon, CloseIcon, GiftIcon, LogoutIcon, MenuIcon, PulseIcon, RefreshIcon,
   ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty';
+type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
@@ -16,6 +17,7 @@ const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'players', label: 'Pemain', icon: UsersIcon },
   { id: 'paragon', label: 'Paragon Table', icon: SigilIcon },
   { id: 'loyalty', label: 'Loyalty Shop', icon: ShopIcon },
+  { id: 'bonus', label: 'Bonus Mall', icon: GiftIcon },
 ];
 
 function formatBytes(value: number | string): string {
@@ -151,6 +153,7 @@ function PlayersPage() {
 export function App() {
   const [paragonDirty, setParagonDirty] = useState(false);
   const [loyaltyDirty, setLoyaltyDirty] = useState(false);
+  const [bonusDirty, setBonusDirty] = useState(false);
   const [user, setUser] = useState<string | null>(null); const [checking, setChecking] = useState(true); const [page, setPage] = useState<Page>('overview'); const [overview, setOverview] = useState<Overview | null>(null); const [error, setError] = useState(''); const [menuOpen, setMenuOpen] = useState(false); const [refreshing, setRefreshing] = useState(false);
   const refresh = useCallback(async () => { setRefreshing(true); try { setOverview(await api.overview()); setError(''); } catch (e) { if (e instanceof Error && e.message.includes('Sesi')) setUser(null); else setError(e instanceof Error ? e.message : 'Data tidak tersedia.'); } finally { setRefreshing(false); } }, []);
   useEffect(() => { api.session().then(s => setUser(s.user)).catch(() => setUser(null)).finally(() => setChecking(false)); }, []);
@@ -159,6 +162,7 @@ export function App() {
   async function logout() {
     if (paragonDirty && !window.confirm('Keluar dan buang perubahan Paragon yang belum disimpan?')) return;
     if (loyaltyDirty && !window.confirm('Keluar dan buang perubahan Loyalty Shop yang belum disimpan?')) return;
+    if (bonusDirty && !window.confirm('Keluar dan buang perubahan Bonus Mall yang belum disimpan?')) return;
     await api.logout();
     setUser(null);
   }
@@ -169,6 +173,7 @@ export function App() {
       <nav>{navigation.map(item => <button key={item.id} className={page === item.id ? 'active' : ''} onClick={() => {
         if (page === 'paragon' && item.id !== page && paragonDirty && !window.confirm('Buang perubahan Paragon yang belum disimpan?')) return;
         if (page === 'loyalty' && item.id !== page && loyaltyDirty && !window.confirm('Buang perubahan Loyalty Shop yang belum disimpan?')) return;
+        if (page === 'bonus' && item.id !== page && bonusDirty && !window.confirm('Buang perubahan Bonus Mall yang belum disimpan?')) return;
         setPage(item.id);
         setMenuOpen(false);
       }}><item.icon/><span>{item.label}</span>{page === item.id && <ChevronIcon className="chevron"/>}</button>)}</nav>
@@ -176,7 +181,7 @@ export function App() {
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }

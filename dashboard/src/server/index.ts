@@ -18,6 +18,7 @@ import {
 } from './auth.js';
 import { config } from './config.js';
 import { databaseHealth, listPlayers, playerSummary } from './database.js';
+import { BonusError, readBonus, saveBonus } from './bonus.js';
 import { LoyaltyError, readLoyalty, saveLoyalty } from './loyalty.js';
 import { itemNames, readParagon, saveParagon, ParagonError } from './paragon.js';
 import {
@@ -151,8 +152,17 @@ app.put('/ops/api/loyalty', async (req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/bonus-mall', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readBonus()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/bonus-mall', async (req, res, next) => {
+  try { res.json(await saveBonus(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (error instanceof ParagonError || error instanceof LoyaltyError) return res.status(error.status).json({ error: error.message });
+  if (error instanceof ParagonError || error instanceof LoyaltyError || error instanceof BonusError) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
   return res.status(500).json({ error: 'Operasi gagal. Periksa log service dashboard.' });
