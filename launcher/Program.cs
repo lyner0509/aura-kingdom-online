@@ -87,6 +87,7 @@ public partial class LauncherWindow : Window
     }
     void LogVideo(string message) { try { File.AppendAllText(Path.Combine(root, "launcher-video.log"), DateTime.Now.ToString("O") + " " + message + Environment.NewLine); } catch { } }
     void CloseClick(object sender, RoutedEventArgs e) => Close();
+    void MinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     void MuteClick(object sender, RoutedEventArgs e) {
         Video.IsMuted = !Video.IsMuted; MuteButton.Content = Video.IsMuted ? "Sound off" : "Sound on";
         LogVideo("Muted: " + Video.IsMuted);

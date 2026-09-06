@@ -7,12 +7,14 @@
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#80552B16"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="White"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
  </Window.Resources>
- <Grid ClipToBounds="True" MouseLeftButtonDown="DragWindow">
+ <Grid ClipToBounds="True">
   <MediaElement x:Name="Video" LoadedBehavior="Manual" UnloadedBehavior="Manual" IsMuted="True" Stretch="UniformToFill" IsHitTestVisible="False"/>
   <Rectangle IsHitTestVisible="False"><Rectangle.Fill><LinearGradientBrush StartPoint="0,1" EndPoint="1,0"><GradientStop Color="#D9100C0A" Offset="0"/><GradientStop Color="#40100C0A" Offset="0.65"/><GradientStop Color="#10100C0A" Offset="1"/></LinearGradientBrush></Rectangle.Fill></Rectangle>
+  <Border Height="64" VerticalAlignment="Top" Background="Transparent" MouseLeftButtonDown="DragWindow"/>
   <Image x:Name="Logo" Width="290" Height="210" Margin="40,24,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Uniform" IsHitTestVisible="False"/>
-  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,16,0">
+  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,16,0" Panel.ZIndex="1">
    <Button x:Name="MuteButton" Content="Sound off" Click="MuteClick" BorderThickness="0" AutomationProperties.Name="Mute or unmute video"/>
+   <Button Width="42" Height="42" Padding="0" BorderThickness="0" Click="MinimizeClick" AutomationProperties.Name="Minimize launcher"><Path Data="M 0,6 L 12,6" Stroke="#FFF4DD" StrokeThickness="2" Width="12" Height="12"/></Button>
    <Button Width="42" Height="42" Padding="0" BorderThickness="0" Click="CloseClick" AutomationProperties.Name="Close launcher"><Path Data="M 0,0 L 12,12 M 12,0 L 0,12" Stroke="#FFF4DD" StrokeThickness="2" Width="12" Height="12"/></Button>
   </StackPanel>
   <StackPanel Margin="60,0,60,45" VerticalAlignment="Bottom">
