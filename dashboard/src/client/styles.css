@@ -2912,6 +2912,7 @@ input:checked + .slider:before {
 
 .btn-kick-row { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; border: 1px solid rgba(205,118,103,.45); border-radius: 4px; background: rgba(205,118,103,.1); color: #e99183; padding: 4px 8px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .btn-kick-row:hover { border-color: #cd7667; background: rgba(205,118,103,.22); color: #ffd5ce; }
+.btn-kick-row:disabled { border-color: rgba(148,163,184,.22); background: rgba(148,163,184,.06); color: #64748b; cursor: not-allowed; opacity: .72; }
 .btn-kick-row:focus-visible, .kick-confirm-button:focus-visible, .kick-reasons label:focus-within { outline: 2px solid #f4a397; outline-offset: 2px; }
 .kick-success { margin-bottom: 12px; border-color: rgba(120,182,140,.35); color: var(--jade-bright); }
 

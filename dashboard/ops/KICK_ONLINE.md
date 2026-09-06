@@ -1,6 +1,6 @@
 # Kick Online
 
-Dashboard menampilkan aksi **Kick** hanya untuk karakter yang terdeteksi online pada menu **Pemain**. Operator wajib memilih alasan sebelum sesi diputus.
+Dashboard menampilkan aksi **Kick** pada setiap karakter di menu **Pemain** agar fiturnya mudah ditemukan. Tombol hanya aktif untuk karakter yang terdeteksi online; karakter offline menampilkan tombol nonaktif dengan tooltip yang menjelaskan statusnya. Operator wajib memilih alasan sebelum sesi diputus.
 
 Backend memvalidasi Character ID terhadap database dan status sesi aktif, lalu mengirim `kick <character_name>` melalui socket CGI ZoneServer yang sudah dikonfigurasi oleh `ZONE_CGI_HOST`, `ZONE_CGI_PORT`, dan `ZONE_CGI_KEY`.
 

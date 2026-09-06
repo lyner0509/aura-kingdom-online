@@ -331,15 +331,16 @@ export function PlayersPage() {
                       <GiftIcon width={12} height={12} />
                       Gift
                     </button>
-                    {player.online && <button
+                    <button
                       type="button"
                       className="btn-kick-row"
+                      disabled={!player.online}
                       onClick={() => { setKickTarget(player); setKickReason(''); setKickNote(''); setKickError(''); }}
-                      title={`Putus koneksi ${player.name}`}
+                      title={player.online ? `Putus koneksi ${player.name}` : 'Karakter sedang offline'}
                     >
                       <DisconnectIcon />
                       Kick
-                    </button>}
+                    </button>
                   </td>
                 </tr>
               );
