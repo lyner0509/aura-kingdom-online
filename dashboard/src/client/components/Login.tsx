@@ -25,7 +25,7 @@ export function Login({ onAuthenticated }: { onAuthenticated: (user: string) => 
   return (
     <main className="login-shell">
       <section className="login-story" aria-label="Aura Kingdom Operations">
-        <div className="login-brand"><SigilIcon /> <span>Aura Kingdom</span></div>
+        <div className="login-brand"><img src="https://aurakingdom.online/assets/logo.webp" alt="Aura Kingdom" className="login-brand-logo" /> <span>Aura Kingdom</span></div>
         <div className="story-copy">
           <p className="kicker">Realm operations</p>
           <h1>Satu pandangan untuk menjaga seluruh Azuria tetap hidup.</h1>

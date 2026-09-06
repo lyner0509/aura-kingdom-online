@@ -190,10 +190,10 @@ export function App() {
     await api.logout();
     setUser(null);
   }
-  if (checking) return <div className="boot-screen"><SigilIcon/><span>Menyiapkan ruang kendali…</span></div>;
+  if (checking) return <div className="boot-screen"><img src="https://aurakingdom.online/assets/logo.webp" alt="Aura Kingdom" className="boot-logo" /><span>Menyiapkan ruang kendali…</span></div>;
   if (!user) return <Login onAuthenticated={setUser}/>;
   return <div className="app-shell">
-    <aside className={menuOpen ? 'open' : ''}><div className="aside-head"><div className="brand-mark"><SigilIcon/></div><div><strong>Aura Kingdom</strong><span>Realm operations</span></div><button className="mobile-close" onClick={() => setMenuOpen(false)}><CloseIcon/></button></div>
+    <aside className={menuOpen ? 'open' : ''}><div className="aside-head"><div className="brand-mark"><img src="https://aurakingdom.online/assets/logo.webp" alt="Aura Kingdom" className="brand-logo" /></div><div><strong>Aura Kingdom</strong><span>Realm operations</span></div><button className="mobile-close" onClick={() => setMenuOpen(false)}><CloseIcon/></button></div>
       <nav>{navigation.map(item => <button key={item.id} className={page === item.id ? 'active' : ''} onClick={() => {
         if (page === 'paragon' && item.id !== page && paragonDirty && !window.confirm('Buang perubahan Paragon yang belum disimpan?')) return;
         if (page === 'loyalty' && item.id !== page && loyaltyDirty && !window.confirm('Buang perubahan Loyalty Shop yang belum disimpan?')) return;

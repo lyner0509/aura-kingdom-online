@@ -125,7 +125,7 @@ button { color: inherit; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
 .boot-screen { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 18px; color: var(--muted); }
-.boot-screen svg { width: 46px; color: var(--amber); animation: breathe 1.6s ease-in-out infinite; }
+.boot-screen svg, .boot-screen .boot-logo { width: 56px; height: 56px; object-fit: contain; color: var(--amber); animation: breathe 1.6s ease-in-out infinite; }
 @keyframes breathe { 50% { opacity: .42; transform: scale(.94); } }
 
 .login-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(400px, .85fr); background: #141611; }
@@ -133,6 +133,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .login-story::before { content: ""; position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(30deg, transparent 49.5%, rgba(232,228,213,.12) 50%, transparent 50.5%), linear-gradient(150deg, transparent 49.5%, rgba(232,228,213,.08) 50%, transparent 50.5%); background-size: 90px 156px; mask-image: linear-gradient(to bottom right, transparent, black 44%, transparent); }
 .login-brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; font-family: var(--display); font-size: 19px; }
 .login-brand svg { width: 32px; color: var(--amber); }
+.login-brand .login-brand-logo { width: 38px; height: 38px; object-fit: contain; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
 .story-copy { position: relative; z-index: 1; max-width: 660px; margin: auto 0; }
 .kicker { margin: 0 0 8px; color: var(--amber); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
 .story-copy h1 { max-width: 650px; margin: 0; font: 400 clamp(42px, 5.4vw, 78px)/1.03 var(--display); letter-spacing: -.035em; }
@@ -157,8 +158,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .app-shell { min-height: 100vh; display: grid; grid-template-columns: 264px minmax(0, 1fr); }
 aside { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 24px 16px 18px; background: #151712; border-right: 1px solid var(--line); z-index: 20; }
 .aside-head { display: flex; align-items: center; gap: 12px; padding: 0 8px 34px; }
-.brand-mark { width: 40px; height: 40px; display: grid; place-items: center; color: var(--amber); border: 1px solid rgba(200,157,86,.42); transform: rotate(45deg); }
-.brand-mark svg { width: 25px; transform: rotate(-45deg); }
+.brand-mark { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.brand-mark .brand-logo { width: 44px; height: 44px; object-fit: contain; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+.brand-mark svg { width: 25px; }
 .aside-head strong { display: block; font: 400 17px/1.2 var(--display); }
 .aside-head span { color: var(--muted); font-size: 11px; }
 nav { display: grid; gap: 5px; }
