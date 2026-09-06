@@ -12,16 +12,16 @@ import { VipSystemPage } from './components/VipSystemPage';
 import { StarterPackPage } from './components/StarterPackPage';
 import { ItemIndexPage } from './components/ItemIndexPage';
 import { PlayersPage } from './components/PlayersPage';
+import { LogsViewer } from './components/LogsViewer';
 import {
   CartIcon, ChevronIcon, CloseIcon, CrownIcon, DatabaseIcon, GiftIcon, LogoutIcon, MenuIcon, PackageIcon, PulseIcon, RefreshIcon,
-  ScrollIcon, SearchIcon, ServerIcon, ShopIcon, SigilIcon, SparklesIcon, TicketIcon, TreasureIcon, UsersIcon,
+  SearchIcon, ServerIcon, ShopIcon, SigilIcon, SparklesIcon, TicketIcon, TreasureIcon, UsersIcon,
 } from './components/Icons';
 
-type Page = 'overview' | 'services' | 'logs' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack' | 'itemindex';
+type Page = 'overview' | 'services' | 'players' | 'paragon' | 'loyalty' | 'bonus' | 'itemmall' | 'redeem' | 'expbonus' | 'droploot' | 'vip' | 'starterpack' | 'itemindex';
 const navigation: { id: Page; label: string; icon: typeof PulseIcon }[] = [
   { id: 'overview', label: 'Ringkasan', icon: PulseIcon },
   { id: 'services', label: 'Service', icon: ServerIcon },
-  { id: 'logs', label: 'Log realm', icon: ScrollIcon },
   { id: 'players', label: 'Pemain', icon: UsersIcon },
   { id: 'paragon', label: 'Paragon Table', icon: SigilIcon },
   { id: 'loyalty', label: 'Loyalty Shop', icon: ShopIcon },
@@ -113,6 +113,15 @@ function ServicesPage({ data, refresh }: { data: Overview; refresh: () => Promis
     catch (reason) { setNotice(reason instanceof Error ? reason.message : 'Aksi gagal.'); }
     finally { setPending(null); }
   }
+
+  const handleShowLog = (serviceName: string) => {
+    setLogService(serviceName);
+    const el = document.getElementById('realm-logs-container');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
     <section className="panel table-panel">
@@ -121,21 +130,14 @@ function ServicesPage({ data, refresh }: { data: Overview; refresh: () => Promis
       </header>
       {notice && <div className="notice">{pending ? 'Menjalankan operasi…' : notice}</div>}
       <div className="table-wrap"><table><thead><tr><th>Service</th><th>Status</th><th>PID</th><th>CPU</th><th>Memori</th><th>Uptime</th><th>Log</th></tr></thead><tbody>
-        {data.services.map((service) => <tr key={service.name}><td><strong>{service.name}</strong></td><td><span className={`status-pill ${service.online ? 'online' : 'offline'}`}><i/>{service.online ? 'Online' : 'Offline'}</span></td><td>{service.pid ?? '—'}</td><td>{service.cpu.toFixed(1)}%</td><td>{service.memoryMb.toFixed(0)} MB</td><td>{formatDuration(service.uptimeSeconds)}</td><td><button className="detail-stat-btn" onClick={() => setLogService(service.name)} aria-label={`Lihat log ${service.name}`}>Lihat log</button></td></tr>)}
+        {data.services.map((service) => <tr key={service.name}><td><strong>{service.name}</strong></td><td><span className={`status-pill ${service.online ? 'online' : 'offline'}`}><i/>{service.online ? 'Online' : 'Offline'}</span></td><td>{service.pid ?? '—'}</td><td>{service.cpu.toFixed(1)}%</td><td>{service.memoryMb.toFixed(0)} MB</td><td>{formatDuration(service.uptimeSeconds)}</td><td><button className="detail-stat-btn" onClick={() => handleShowLog(service.name)} aria-label={`Lihat log ${service.name}`}>Lihat log</button></td></tr>)}
       </tbody></table></div>
     </section>
-    <LogsPage key={logService} services={data.services} initialService={logService} onSelect={setLogService}/>
+    <div id="realm-logs-container" style={{ marginTop: 24 }}>
+      <LogsViewer services={data.services} activeService={logService} onServiceChange={setLogService} />
+    </div>
     </>
   );
-}
-
-function LogsPage({ services, initialService = 'WorldServer', onSelect }: { services: Overview['services']; initialService?: string; onSelect?: (service: string) => void }) {
-  const [selected, setSelected] = useState(initialService);
-  const [content, setContent] = useState('Memuat log…');
-  const [loading, setLoading] = useState(false);
-  const load = useCallback(async () => { setLoading(true); try { setContent((await api.logs(selected)).content || 'Log kosong.'); } catch (e) { setContent(e instanceof Error ? e.message : 'Gagal memuat log.'); } finally { setLoading(false); } }, [selected]);
-  useEffect(() => { void load(); }, [load]);
-  return <section className="panel logs-panel" style={{ marginTop: 24 }}><header><div><p className="kicker">Runtime stream</p><h3>Log realm</h3><p>120 baris terakhir dari service terpilih.</p></div><div className="log-tools"><select aria-label="Pilih service log" value={selected} onChange={(e) => { setSelected(e.target.value); onSelect?.(e.target.value); }}>{services.map(s => <option key={s.name}>{s.name}</option>)}</select><button onClick={load} disabled={loading}><RefreshIcon/>{loading ? 'Memuat' : 'Segarkan'}</button></div></header><pre aria-busy={loading}><code>{content}</code></pre></section>;
 }
 
 export function App() {
@@ -184,7 +186,7 @@ export function App() {
     </aside>
     {menuOpen && <button className="scrim" aria-label="Tutup menu" onClick={() => setMenuOpen(false)}/>} 
     <main className="workspace"><header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)}><MenuIcon/></button><div><p>VM-18-118 · Asia/Jakarta</p><h1>{title}</h1></div><button className="refresh-button" onClick={refresh} disabled={refreshing}><RefreshIcon className={refreshing ? 'spin' : ''}/><span>{refreshing ? 'Memuat' : 'Segarkan'}</span></button></header>
-      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'logs' && <LogsPage services={overview.services}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>} {page === 'itemindex' && <ItemIndexPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
+      <div className="content">{error && <div className="notice error">{error}</div>}{overview ? <>{page === 'overview' && <OverviewPage data={overview}/>} {page === 'services' && <ServicesPage data={overview} refresh={refresh}/>} {page === 'players' && <PlayersPage/>} {page === 'paragon' && <ParagonPage onDirtyChange={setParagonDirty}/>} {page === 'loyalty' && <LoyaltyPage onDirtyChange={setLoyaltyDirty}/>} {page === 'bonus' && <BonusPage onDirtyChange={setBonusDirty}/>} {page === 'itemmall' && <ItemMallPage onDirtyChange={setItemMallDirty}/>} {page === 'redeem' && <RedeemCodePage />} {page === 'expbonus' && <ExpBonusPage onDirtyChange={setExpBonusDirty}/>} {page === 'droploot' && <DropLootPage onDirtyChange={setDropLootDirty}/>} {page === 'vip' && <VipSystemPage onDirtyChange={setVipDirty}/>} {page === 'starterpack' && <StarterPackPage onDirtyChange={setStarterPackDirty}/>} {page === 'itemindex' && <ItemIndexPage/>}</> : <div className="loading-state"><SigilIcon/><p>Membaca kondisi realm…</p></div>}</div>
     </main>
   </div>;
 }
