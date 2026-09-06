@@ -24,14 +24,13 @@ export class KickOnlineError extends Error {
 
 type KickTarget = { id: number; name: string; accountId: number };
 
-export function buildKickCommand(characterName: string): string {
-  const name = characterName.trim();
-  // ZoneServer's `kick <word>` grammar cannot safely represent separators,
-  // whitespace, or control characters. Reject instead of escaping/guessing.
-  if (!name || name.length > 64 || /[\s,\u0000-\u001f\u007f]/u.test(name)) {
-    throw new KickOnlineError(422, 'Nama karakter tidak dapat dikirim ke perintah kick ZoneServer.');
+export function buildKickCommand(characterId: number): string {
+  if (!Number.isSafeInteger(characterId) || characterId <= 0) {
+    throw new KickOnlineError(400, 'Character ID tidak valid.');
   }
-  return `kick ${name}`;
+  // Resolve the live entity directly by ID. Reason `0` is the native neutral
+  // disconnect reason and is not derived from operator-controlled text.
+  return `kick_out ${characterId} 0`;
 }
 
 export function isSuccessfulKickResponse(response: string): boolean {
@@ -102,7 +101,7 @@ export async function kickOnlineCharacter(
     throw new KickOnlineError(409, `${target.name} sudah offline. Muat ulang daftar pemain.`);
   }
 
-  const command = buildKickCommand(target.name);
+  const command = buildKickCommand(target.id);
   let response = 'DONE (simulasi development)';
   let requiresSessionVerification = false;
   if (config.NODE_ENV !== 'development') {

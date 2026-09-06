@@ -3,12 +3,12 @@ import test from 'node:test';
 import { buildKickCommand, isKickNoReplyTimeout, isSuccessfulKickResponse, kickOnlineCharacter, KickOnlineError } from '../src/server/kick-online.js';
 
 test('buildKickCommand builds the documented ZoneServer command', () => {
-  assert.equal(buildKickCommand('AstraVale'), 'kick AstraVale');
-  assert.equal(buildKickCommand(' 夜星 '), 'kick 夜星');
+  assert.equal(buildKickCommand(10482), 'kick_out 10482 0');
+  assert.equal(buildKickCommand(50000001), 'kick_out 50000001 0');
 });
 
-test('buildKickCommand rejects CGI separators and multi-word input', () => {
-  for (const value of ['Astra Vale', 'Astra,announce hello', 'Astra\nannounce hello', '']) {
+test('buildKickCommand rejects invalid character IDs', () => {
+  for (const value of [0, -1, 1.5, Number.NaN]) {
     assert.throws(() => buildKickCommand(value), KickOnlineError);
   }
 });

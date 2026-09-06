@@ -154,6 +154,12 @@ case "${1:-}" in
     service="${2:-}"; lines="${3:-120}"
     [[ " ${SERVICES[*]} " == *" $service "* ]] || { echo 'Unknown service' >&2; exit 2; }
     [[ "$lines" =~ ^[0-9]+$ ]] && (( lines >= 20 && lines <= 500 )) || { echo 'Invalid line count' >&2; exit 2; }
+    if [[ "$service" == ZoneServer ]]; then
+      log_file=$(ls -1t "$GAME_DIR"/ZoneServer/GMCommand*.log* 2>/dev/null | head -n 1 || true)
+      [[ -n "$log_file" && -r "$log_file" ]] || { echo 'Belum ada log CGI/GMCommand untuk ZoneServer.'; exit 0; }
+      tail -n "$lines" -- "$log_file"
+      exit 0
+    fi
     log_file="$GAME_DIR/Logs/$service.out"
     [[ -r "$log_file" ]] || log_file="$GAME_DIR/_qlogs/$service.out"
     [[ -r "$log_file" ]] || { echo "Belum ada log untuk $service."; exit 0; }
