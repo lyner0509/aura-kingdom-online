@@ -13,6 +13,7 @@ export type PlayerLevelAssignment = {
   requested_by: string;
   requested_at: string;
   applied_at: string | null;
+  written_at?: string | null;
   /** Filled in when the list is read, not stored. */
   online?: boolean;
   current_level?: number | null;
@@ -80,6 +81,31 @@ export function planFor(input: {
     };
   }
   return { action: 'apply-now', reason: 'Karakter sedang offline. Level diterapkan sekarang.' };
+}
+
+/**
+ * Whether a pending assignment may be written right now.
+ *
+ * "Nobody is online" is only trustworthy when the realm actually answered,
+ * and a character whose row was saved seconds ago may still belong to a
+ * live session that would overwrite the new level.
+ */
+export function canWriteNow(input: {
+  onlineKnown: boolean;
+  online: boolean;
+  secondsSinceSave: number | null;
+  settleSeconds: number;
+}): { ok: boolean; reason: string } {
+  if (!input.onlineKnown) {
+    return { ok: false, reason: 'Daftar pemain online tidak terbaca, penulisan ditunda.' };
+  }
+  if (input.online) {
+    return { ok: false, reason: 'Karakter sedang online.' };
+  }
+  if (input.secondsSinceSave !== null && input.secondsSinceSave < input.settleSeconds) {
+    return { ok: false, reason: 'Data karakter baru saja disimpan server.' };
+  }
+  return { ok: true, reason: 'Aman untuk ditulis.' };
 }
 
 /** Guards the operator-supplied level against the configured server cap. */

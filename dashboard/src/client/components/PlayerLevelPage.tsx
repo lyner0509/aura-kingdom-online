@@ -202,7 +202,8 @@ export function PlayerLevelPage() {
 
         <p className="level-help">
           Batas level server saat ini {levelCap}. Level karakter, bar EXP, dan level class aktif
-          diubah bersamaan; class lain tidak disentuh.
+          diubah bersamaan; class lain tidak disentuh. Setelah ditulis, level dibaca
+          ulang lebih dulu — status baru menjadi Diterapkan kalau nilainya bertahan.
           {selected && targetLevel && !levelValid && ' Masukkan level antara 1 dan ' + levelCap + '.'}
           {sameLevel && ' Karakter sudah berada di level itu.'}
         </p>
@@ -226,7 +227,11 @@ export function PlayerLevelPage() {
             </td>
             <td>{row.current_level ?? '—'}</td>
             <td>{row.target_level}</td>
-            <td><span className={`level-status ${row.status}`}>{statusLabel[row.status] ?? row.status}</span></td>
+            <td>
+              <span className={`level-status ${row.status}`}>
+                {row.status === 'pending' && row.written_at ? 'Memverifikasi' : statusLabel[row.status] ?? row.status}
+              </span>
+            </td>
             <td>{row.requested_by}</td>
             <td>{formatTime(row.applied_at ?? row.requested_at)}</td>
             <td className="level-actions">

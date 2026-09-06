@@ -27,6 +27,14 @@ CREATE INDEX IF NOT EXISTS idx_player_level_pending
     ON dashboard.player_level_assignment (requested_at)
     WHERE status = 'pending';
 
+-- A written level is not trusted until it has been read back, so the write
+-- is stamped here and the sweep confirms it later. Added after the table
+-- shipped, hence the ALTERs.
+ALTER TABLE dashboard.player_level_assignment
+    ADD COLUMN IF NOT EXISTS written_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE dashboard.player_level_assignment
+    ADD COLUMN IF NOT EXISTS note TEXT;
+
 -- 2. Audit trail. Every applied change is kept, even after the
 --    assignment row is replaced by a later one for the same character.
 CREATE TABLE IF NOT EXISTS dashboard.player_level_history (

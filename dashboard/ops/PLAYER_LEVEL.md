@@ -35,7 +35,25 @@ connected player would simply be overwritten, so:
   longer in the online list, with no further action from the operator.
 
 The online list comes from `aura-dashboard-ctl active-players`, the same
-source the Pemain page uses.
+source the Pemain page uses. If that list cannot be read, nothing is
+written — an unreachable realm must never be mistaken for an empty one.
+
+## A written level is read back before it counts
+
+ZoneServer flushes a connected character to the database roughly once a
+minute, so a write can be overwritten seconds later and the row would
+still look like it succeeded. Two guards prevent that:
+
+1. A character whose row was saved less than 90 seconds ago is left
+   alone, so the write does not race a flush that is already on its way.
+2. After writing, the assignment stays **pending** and is stamped in
+   `written_at`. Two minutes later the sweep reads the level back. Only a
+   level that survived is marked `applied` and written to the history. If
+   the realm put the old value back, the stamp is cleared and the level
+   is written again — up to five attempts before the assignment is marked
+   `failed` for an operator to look at.
+
+The table shows this middle stage as **Memverifikasi**.
 
 One assignment exists per character: setting a new level for a character
 that already has a pending one replaces it, so a mistake can be
@@ -86,8 +104,9 @@ All routes require an operator session.
 
 - Assigning the level a character already has is refused; there is
   nothing to do.
-- If the character has no row in `player_classlist` for its active class,
-  the character level still changes and the response says the class row
-  was missing.
+- Some server builds keep no `player_classlist` rows at all. That is not
+  reported as a problem; the note about a missing class row appears only
+  when the character has other class rows but not one for its active
+  class.
 - Local preview (`npm run dev`) shows sample rows and refuses every
   write, the same way Paragon Table does.

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   assignPlayerLevelSchema,
+  canWriteNow,
   cancelPlayerLevelSchema,
   checkLevelCap,
   describeChange,
@@ -59,4 +60,33 @@ test('describeChange reads correctly in both directions', () => {
   assert.equal(describeChange(80, 10), 'Turun dari level 80 ke 10');
   assert.equal(describeChange(null, 80), 'Set ke level 80');
   assert.equal(describeChange(80, 80), 'Tetap di level 80');
+});
+
+test('canWriteNow refuses when the online list could not be read', () => {
+  const result = canWriteNow({ onlineKnown: false, online: false, secondsSinceSave: 9000, settleSeconds: 90 });
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /tidak terbaca/);
+});
+
+test('canWriteNow refuses while the character is online', () => {
+  assert.equal(
+    canWriteNow({ onlineKnown: true, online: true, secondsSinceSave: 9000, settleSeconds: 90 }).ok,
+    false
+  );
+});
+
+test('canWriteNow waits for a row the realm has just saved', () => {
+  const fresh = canWriteNow({ onlineKnown: true, online: false, secondsSinceSave: 12, settleSeconds: 90 });
+  assert.equal(fresh.ok, false);
+  assert.match(fresh.reason, /baru saja disimpan/);
+
+  const settled = canWriteNow({ onlineKnown: true, online: false, secondsSinceSave: 91, settleSeconds: 90 });
+  assert.equal(settled.ok, true);
+});
+
+test('canWriteNow allows a character that has never been saved', () => {
+  assert.equal(
+    canWriteNow({ onlineKnown: true, online: false, secondsSinceSave: null, settleSeconds: 90 }).ok,
+    true
+  );
 });

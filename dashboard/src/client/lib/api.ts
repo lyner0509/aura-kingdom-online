@@ -71,6 +71,7 @@ export type PlayerLevelAssignment = {
   requested_by: string;
   requested_at: string;
   applied_at: string | null;
+  written_at?: string | null;
   online?: boolean;
   current_level?: number | null;
 };

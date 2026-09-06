@@ -70,6 +70,28 @@ export type ActivePlayersResult = {
 
 let cachedActivePlayers: { data: ActivePlayersResult; expiresAt: number } | null = null;
 
+/**
+ * Same reading as getActivePlayers, but it throws instead of reporting an
+ * empty realm when the controller cannot be reached. Callers that decide
+ * whether it is safe to write to a character's row must be able to tell
+ * "nobody is online" apart from "we could not find out".
+ */
+export async function getActivePlayersStrict(): Promise<ActivePlayersResult> {
+  if (config.NODE_ENV === 'development') return getActivePlayers();
+
+  const now = Date.now();
+  if (cachedActivePlayers && cachedActivePlayers.expiresAt > now) {
+    return cachedActivePlayers.data;
+  }
+  const raw = await controller(['active-players']);
+  const data = JSON.parse(raw) as ActivePlayersResult;
+  if (!data || !Array.isArray(data.characters)) {
+    throw new Error('Daftar pemain online tidak bisa dibaca.');
+  }
+  cachedActivePlayers = { data, expiresAt: now + 3000 };
+  return data;
+}
+
 export async function getActivePlayers(): Promise<ActivePlayersResult> {
   if (config.NODE_ENV === 'development') {
     return {
