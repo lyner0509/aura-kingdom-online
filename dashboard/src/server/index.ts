@@ -75,6 +75,7 @@ import {
   readGiftHistory,
 } from './gift.js';
 import { queryItemIndex } from './item-index.js';
+import { KickOnlineError, kickOnlineCharacter } from './kick-online.js';
 import {
   controlService,
   readServiceLog,
@@ -200,6 +201,12 @@ app.get('/ops/api/players/:id/detail', async (req, res, next) => {
     const detail = await getPlayerDetail(Number(req.params.id));
     if (!detail) return res.status(404).json({ error: 'Karakter tidak ditemukan.' });
     res.json({ detail });
+  } catch (error) { next(error); }
+});
+app.post('/ops/api/players/:id/kick', async (req, res, next) => {
+  try {
+    const characterId = z.coerce.number().int().positive().parse(req.params.id);
+    res.json(await kickOnlineCharacter(characterId, req.body, res.locals.session.user));
   } catch (error) { next(error); }
 });
 
@@ -404,7 +411,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     error instanceof VipError ||
     error instanceof StarterPackError ||
     error instanceof GiftError ||
-    error instanceof PlayerLevelError
+    error instanceof PlayerLevelError ||
+    error instanceof KickOnlineError
   ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });

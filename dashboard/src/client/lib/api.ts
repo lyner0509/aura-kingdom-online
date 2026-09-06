@@ -59,6 +59,7 @@ export type Player = {
   lastSeen: string | null;
 };
 export type PlayerDetail = { exp: number; lastLevelUp: string | null; family: { name: string; level: number; contribution: number } | null; currencies: Record<string, number>; equipment: { equipped: number; maxEnhance: number; avgEnhance: number }; inventory: { items: number; locked: number; expandedStorage: number }; unreadMail: number; friends: number; achievement: { points: number; coins: number }; classes: { classId: number; level: number; point: number; aaPoint: number }[]; skyTower: { highest: number; attempts: number } | null; weaponExpert: { type: number; level: number } | null; potential: { atk: number; def: number; total: number } | null; accountCharacters: { id: string; name: string; level: number }[] };
+export type KickReason = 'bug_glitch' | 'skill_glitch' | 'afk_botting' | 'other';
 
 export type PlayerLevelAssignment = {
   player_id: string;
@@ -748,6 +749,10 @@ export const api = {
   players: (search = '', signal?: AbortSignal) =>
     request<{ players: Player[] }>(`/ops/api/players?search=${encodeURIComponent(search)}&limit=60`, { signal, cache: 'no-store' }),
   playerDetail: (id: string) => request<{ detail: PlayerDetail }>(`/ops/api/players/${encodeURIComponent(id)}/detail`, { cache: 'no-store' }),
+  kickPlayer: (id: string, reason: KickReason, note = '') =>
+    request<{ ok: true; characterId: number; characterName: string; message: string }>(`/ops/api/players/${encodeURIComponent(id)}/kick`, {
+      method: 'POST', body: JSON.stringify({ reason, note }),
+    }),
   giftSettings: () => request<GiftSettings>('/ops/api/gifts/settings', { cache: 'no-store' }),
   saveGiftSettings: (payload: Partial<GiftSettings>) =>
     request<{ ok: boolean; settings: GiftSettings; message: string }>('/ops/api/gifts/settings', {

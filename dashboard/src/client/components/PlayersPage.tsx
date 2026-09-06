@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { api, type Player, type PlayerDetail } from '../lib/api';
+import { api, type KickReason, type Player, type PlayerDetail } from '../lib/api';
 import { GiftIcon } from './Icons';
 import { GiftItemModal } from './GiftItemModal';
 
@@ -21,6 +21,21 @@ function StatIcon() {
     </svg>
   );
 }
+
+function DisconnectIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+    </svg>
+  );
+}
+
+const kickReasonOptions: { value: KickReason; label: string; help: string }[] = [
+  { value: 'bug_glitch', label: 'Bug / glitch karakter', help: 'Posisi, animasi, atau state karakter bermasalah.' },
+  { value: 'skill_glitch', label: 'Glitch skill', help: 'Skill macet, cooldown, atau efek combat tidak normal.' },
+  { value: 'afk_botting', label: 'AFK / indikasi botting', help: 'Sesi perlu dihentikan untuk pemeriksaan operator.' },
+  { value: 'other', label: 'Alasan lainnya', help: 'Tambahkan catatan singkat untuk audit.' },
+];
 
 function ClassCrestAvatar({
   classIcon,
@@ -70,6 +85,31 @@ export function PlayersPage() {
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [giftTargetPlayer, setGiftTargetPlayer] = useState<Player | null>(null);
   const [giftNotice, setGiftNotice] = useState('');
+  const [kickTarget, setKickTarget] = useState<Player | null>(null);
+  const [kickReason, setKickReason] = useState<KickReason | ''>('');
+  const [kickNote, setKickNote] = useState('');
+  const [kickPending, setKickPending] = useState(false);
+  const [kickError, setKickError] = useState('');
+  const [kickNotice, setKickNotice] = useState('');
+
+  const closeKickDialog = () => {
+    if (kickPending) return;
+    setKickTarget(null); setKickReason(''); setKickNote(''); setKickError('');
+  };
+
+  const kickPlayer = async () => {
+    if (!kickTarget || !kickReason) return;
+    setKickPending(true); setKickError('');
+    try {
+      const result = await api.kickPlayer(kickTarget.id, kickReason, kickNote);
+      setPlayers((current) => current.map((player) => player.id === kickTarget.id ? { ...player, online: false } : player));
+      setKickNotice(result.message);
+      setSelectedPlayer((current) => current?.id === kickTarget.id ? { ...current, online: false } : current);
+      setKickTarget(null); setKickReason(''); setKickNote('');
+    } catch (e) {
+      setKickError(e instanceof Error ? e.message : 'Koneksi karakter gagal diputus.');
+    } finally { setKickPending(false); }
+  };
 
   const openDetail = async (player: Player) => {
     setSelectedPlayer(player); setDetail(null); setDetailError('');
@@ -111,11 +151,16 @@ export function PlayersPage() {
   // Handle ESC key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedPlayer(null);
+      if (e.key === 'Escape') {
+        setSelectedPlayer(null);
+        if (!kickPending) {
+          setKickTarget(null); setKickReason(''); setKickNote(''); setKickError('');
+        }
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [kickPending]);
 
   const formatNumber = (num?: number) => {
     if (typeof num !== 'number') return '0';
@@ -167,6 +212,7 @@ export function PlayersPage() {
         </div>
       </header>
 
+      {kickNotice && <div className="notice kick-success">{kickNotice}</div>}
       {giftNotice && (
         <div className="notice success" style={{ marginBottom: '12px' }}>
           {giftNotice}
@@ -285,6 +331,15 @@ export function PlayersPage() {
                       <GiftIcon width={12} height={12} />
                       Gift
                     </button>
+                    {player.online && <button
+                      type="button"
+                      className="btn-kick-row"
+                      onClick={() => { setKickTarget(player); setKickReason(''); setKickNote(''); setKickError(''); }}
+                      title={`Putus koneksi ${player.name}`}
+                    >
+                      <DisconnectIcon />
+                      Kick
+                    </button>}
                   </td>
                 </tr>
               );
@@ -520,6 +575,34 @@ export function PlayersPage() {
               );
             })()}
           </div>
+        </div>
+      )}
+
+      {kickTarget && (
+        <div className="kick-modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) closeKickDialog();
+        }}>
+          <section className="kick-modal" role="dialog" aria-modal="true" aria-labelledby="kick-dialog-title">
+            <header>
+              <div className="kick-warning-mark"><DisconnectIcon /></div>
+              <div><h3 id="kick-dialog-title">Putus koneksi karakter?</h3><p>Aksi ini langsung mengakhiri sesi aktif melalui ZoneServer CGI.</p></div>
+            </header>
+            <div className="kick-target-summary">
+              <strong>{kickTarget.name}</strong>
+              <span>#{kickTarget.id}{kickTarget.accountName ? ` · @${kickTarget.accountName}` : ''}</span>
+              <span>{kickTarget.mapName || `Zone #${kickTarget.nodeId ?? 1}`} · Level {kickTarget.level}</span>
+            </div>
+            <fieldset className="kick-reasons">
+              <legend>Alasan pemutusan</legend>
+              {kickReasonOptions.map((option) => <label key={option.value} className={kickReason === option.value ? 'selected' : ''}>
+                <input type="radio" name="kick-reason" value={option.value} checked={kickReason === option.value} onChange={() => { setKickReason(option.value); setKickError(''); }} />
+                <span><strong>{option.label}</strong><small>{option.help}</small></span>
+              </label>)}
+            </fieldset>
+            <label className="kick-note"><span>Catatan {kickReason === 'other' ? '(wajib)' : '(opsional)'}</span><textarea rows={3} maxLength={240} value={kickNote} onChange={(event) => setKickNote(event.target.value)} placeholder="Konteks singkat untuk log audit…" /><small>{kickNote.length}/240</small></label>
+            {kickError && <div className="notice error">{kickError}</div>}
+            <footer><button type="button" className="modal-btn-close" onClick={closeKickDialog} disabled={kickPending}>Batal</button><button type="button" className="kick-confirm-button" onClick={() => void kickPlayer()} disabled={kickPending || !kickReason || (kickReason === 'other' && kickNote.trim().length < 3)}>{kickPending ? 'Memutus koneksi…' : 'Putus koneksi'}</button></footer>
+          </section>
         </div>
       )}
 
