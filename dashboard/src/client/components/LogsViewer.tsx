@@ -242,7 +242,7 @@ export function LogsViewer({ services, activeService = 'WorldServer', onServiceC
       <div className="logs-toolbar">
         {/* Search Input */}
         <div className="logs-search-wrapper">
-          <SearchIcon />
+          <SearchIcon className="logs-search-icon" width={14} height={14} />
           <input
             type="text"
             placeholder="Cari kata kunci dalam log (contoh: error, connect, size)..."

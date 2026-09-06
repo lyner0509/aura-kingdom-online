@@ -1768,6 +1768,12 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
   color: #fff;
 }
 
+.log-btn-action svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 /* Service Tabs Bar */
 .logs-service-tabs-bar {
   background: #080d16;
@@ -1852,11 +1858,17 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
   max-width: 400px;
 }
 
-.logs-search-wrapper svg {
+.logs-search-wrapper svg,
+.logs-search-wrapper .logs-search-icon {
   position: absolute;
   left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
   color: #64748b;
   pointer-events: none;
+  flex-shrink: 0;
 }
 
 .logs-search-input {
