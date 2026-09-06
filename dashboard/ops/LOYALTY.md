@@ -1,18 +1,21 @@
 ﻿# Loyalty Shop (Toko Loyalitas)
 
-Halaman admin untuk mengelola katalog item yang dijual di Loyalty Shop (Toko Loyalitas).
-Item menggunakan mata uang Loyalty Points (LP) yang diperoleh pemain melalui aktivitas in-game.
+Halaman admin untuk mengelola katalog item yang dijual di Loyalty Shop (`FFAccount.public.itemmall` dengan `money_unit = 2`).
+Item dibeli pemain menggunakan mata uang Loyalty Points (LP).
 
-Item ID, nama item, kategori, harga LP, jumlah stack per pembelian, batas beli (buy limit), diskon (%),
-status aktif, dan urutan tampilan dapat diubah, ditambah, atau dihapus langsung oleh operator.
-Nama item dibaca dari katalog item game server `Data/db/T_ItemMall.ini` (`data/item-names.json`).
+Setiap item memiliki atribut:
+- `item_group`: Kategori tab (e.g. 48: Populer/Rekomendasi, 2: Kostum, 3: Konsumsi, 4: Batu Permata, 5: Tas/Penyimpanan, 8: Aksesori/Senjata, dll.)
+- `detail_type`: Sub-kategori (default 1)
+- `item_index`: Nomor indeks urutan dalam kategori
+- `item_id`: ID item game (nama item otomatis diambil dari `Data/db/T_ItemMall.ini` / `data/item-names.json`)
+- `item_num`: Jumlah stack yang diterima per pembelian
+- `point`: Harga dalam Loyalty Points (LP)
+- `special_price`: Harga promo / diskon LP (0 = tidak ada promo)
+- `num_limit`: Batas pembelian (0 = tanpa batas)
+- `sell`: Status penjualan (1 = Aktif dijual, 0 = Non-aktif)
 
-`loyalty.sql` membuat tabel `dashboard.loyalty_shop` dan tabel audit `dashboard.loyalty_history` di database `FFAccount`.
-Script deploy menjalankan migrasi ini secara otomatis sebelum mengaktifkan release baru.
+Operator dapat menambah item baru, mengubah item yang ada, menghapus item, serta memfilter berdasarkan kategori dan status aktif.
+Penyimpanan menerapkan row locking `FOR UPDATE`, validasi skema Zod, pengecekan token revisi SHA-256 (concurrency check),
+dan mencatat snapshot sebelum/sesudah di tabel `dashboard.loyalty_history`.
 
-Penyimpanan menggunakan mekanisme transaksi berkeamanan tinggi:
-1. Memverifikasi kecocokan revision token (optimistic concurrency control) untuk mencegah tabrakan edit antar admin.
-2. Menyimpan snapshot sebelum dan sesudah perubahan di `dashboard.loyalty_history` lengkap dengan nama operator (actor) dan timestamp.
-3. Menolak input jika ada data yang tidak valid (harga negatif, item ID tidak valid, atau diskon > 100%).
-
-Jalankan `npm test` dan `npm run check` sebelum deploy.
+Jalankan `npm test` dan `npm run check` sebelum deployment.

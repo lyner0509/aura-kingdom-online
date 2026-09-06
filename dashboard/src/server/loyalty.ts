@@ -1,26 +1,26 @@
 ﻿import { config } from './config.js';
 import { pool } from './database.js';
-import { loyaltySaveSchema, revisionForLoyalty, type LoyaltyItem } from './loyalty-model.js';
+import { loyaltySaveSchema, loyaltySlotKey, revisionForLoyalty, type LoyaltyItem } from './loyalty-model.js';
 import { itemNames } from './paragon.js';
 
 export class LoyaltyError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-const selectRows = `select id, item_id, category, cost_lp, quantity, buy_limit,
-  discount_percent, is_active, sort_order
-  from dashboard.loyalty_shop order by category asc, sort_order asc, id asc`;
+const selectRows = `select item_group, detail_type, item_index, item_id, item_num,
+  point, special_price, num_limit, sell
+  from public.itemmall where money_unit = 2 order by item_group asc, detail_type asc, item_index asc`;
 
 const demoRows: LoyaltyItem[] = [
-  { id: 1, item_id: 40001, category: 'Populer', cost_lp: 50, quantity: 5, buy_limit: 0, discount_percent: 0, is_active: 1, sort_order: 1 },
-  { id: 2, item_id: 40003, category: 'Populer', cost_lp: 300, quantity: 1, buy_limit: 5, discount_percent: 0, is_active: 1, sort_order: 2 },
-  { id: 3, item_id: 40009, category: 'Populer', cost_lp: 120, quantity: 10, buy_limit: 0, discount_percent: 10, is_active: 1, sort_order: 3 },
-  { id: 4, item_id: 40011, category: 'Populer', cost_lp: 250, quantity: 2, buy_limit: 0, discount_percent: 0, is_active: 1, sort_order: 4 },
-  { id: 5, item_id: 40005, category: 'Konsumsi', cost_lp: 450, quantity: 1, buy_limit: 0, discount_percent: 0, is_active: 1, sort_order: 1 },
-  { id: 6, item_id: 40007, category: 'Konsumsi', cost_lp: 850, quantity: 1, buy_limit: 3, discount_percent: 0, is_active: 1, sort_order: 2 },
-  { id: 7, item_id: 62949, category: 'Kostum', cost_lp: 1500, quantity: 1, buy_limit: 0, discount_percent: 15, is_active: 1, sort_order: 1 },
-  { id: 8, item_id: 62950, category: 'Kostum', cost_lp: 1200, quantity: 1, buy_limit: 0, discount_percent: 0, is_active: 1, sort_order: 2 },
-  { id: 9, item_id: 62951, category: 'Eidolon', cost_lp: 2000, quantity: 1, buy_limit: 2, discount_percent: 0, is_active: 1, sort_order: 1 },
+  { item_group: 48, detail_type: 1, item_index: 1, item_id: 40001, item_num: 5, point: 50, special_price: 0, num_limit: 0, sell: 1 },
+  { item_group: 48, detail_type: 1, item_index: 2, item_id: 40003, item_num: 1, point: 300, special_price: 250, num_limit: 5, sell: 1 },
+  { item_group: 48, detail_type: 1, item_index: 3, item_id: 40009, item_num: 10, point: 120, special_price: 100, num_limit: 0, sell: 1 },
+  { item_group: 48, detail_type: 1, item_index: 4, item_id: 40011, item_num: 2, point: 250, special_price: 0, num_limit: 0, sell: 1 },
+  { item_group: 3, detail_type: 1, item_index: 1, item_id: 40005, item_num: 1, point: 450, special_price: 0, num_limit: 0, sell: 1 },
+  { item_group: 3, detail_type: 1, item_index: 2, item_id: 40007, item_num: 1, point: 850, special_price: 750, num_limit: 3, sell: 1 },
+  { item_group: 2, detail_type: 1, item_index: 1, item_id: 62949, item_num: 1, point: 1500, special_price: 1200, num_limit: 0, sell: 1 },
+  { item_group: 2, detail_type: 1, item_index: 2, item_id: 62950, item_num: 1, point: 1200, special_price: 0, num_limit: 0, sell: 1 },
+  { item_group: 4, detail_type: 1, item_index: 1, item_id: 62951, item_num: 1, point: 2000, special_price: 0, num_limit: 2, sell: 1 },
 ];
 
 export async function readLoyalty() {
@@ -54,56 +54,71 @@ export async function saveLoyalty(input: unknown, actor: string) {
 
     const before = (await client.query<LoyaltyItem>(`${selectRows} for update`)).rows;
     if (revisionForLoyalty(before) !== parsed.data.revision) {
-      throw new LoyaltyError(409, 'Data Loyalty Shop telah berubah oleh admin lain. Muat ulang sebelum menyimpan kembali.');
+      throw new LoyaltyError(409, 'Tabel Loyalty Shop telah berubah oleh admin lain. Muat ulang sebelum menyimpan kembali.');
     }
 
     const changed = revisionForLoyalty(before) !== revisionForLoyalty(parsed.data.rows);
     if (changed) {
-      const incomingIds = new Set(parsed.data.rows.map(r => r.id).filter(id => id > 0));
-      
+      const incomingKeys = new Set(parsed.data.rows.map(loyaltySlotKey));
+      const beforeMap = new Map(before.map(row => [loyaltySlotKey(row), row]));
+
+      // 1. Delete rows no longer present
       for (const oldRow of before) {
-        if (!incomingIds.has(oldRow.id)) {
-          await client.query('delete from dashboard.loyalty_shop where id = $1', [oldRow.id]);
+        if (!incomingKeys.has(loyaltySlotKey(oldRow))) {
+          await client.query(
+            `delete from public.itemmall where item_group = $1 and detail_type = $2 and item_index = $3 and money_unit = 2`,
+            [oldRow.item_group, oldRow.detail_type, oldRow.item_index]
+          );
         }
       }
 
-      const afterRows: LoyaltyItem[] = [];
-      for (const row of parsed.data.rows) {
-        if (row.id > 0 && before.some(b => b.id === row.id)) {
-          const res = await client.query<LoyaltyItem>(
-            `update dashboard.loyalty_shop
-             set item_id=$1, category=$2, cost_lp=$3, quantity=$4, buy_limit=$5,
-                 discount_percent=$6, is_active=$7, sort_order=$8, updated_at=now()
-             where id=$9
-             returning id, item_id, category, cost_lp, quantity, buy_limit, discount_percent, is_active, sort_order`,
-            [row.item_id, row.category, row.cost_lp, row.quantity, row.buy_limit,
-             row.discount_percent, row.is_active, row.sort_order, row.id]
-          );
-          afterRows.push(res.rows[0]);
+      // 2. Update existing rows and insert new ones
+      for (const newRow of parsed.data.rows) {
+        const key = loyaltySlotKey(newRow);
+        const existing = beforeMap.get(key);
+        if (existing) {
+          const isModified = existing.item_id !== newRow.item_id ||
+            existing.item_num !== newRow.item_num ||
+            existing.point !== newRow.point ||
+            existing.special_price !== newRow.special_price ||
+            existing.num_limit !== newRow.num_limit ||
+            existing.sell !== newRow.sell;
+
+          if (isModified) {
+            await client.query(
+              `update public.itemmall
+               set item_id = $1, item_num = $2, point = $3, special_price = $4, num_limit = $5, sell = $6
+               where item_group = $7 and detail_type = $8 and item_index = $9 and money_unit = 2`,
+              [newRow.item_id, newRow.item_num, newRow.point, newRow.special_price, newRow.num_limit, newRow.sell,
+               newRow.item_group, newRow.detail_type, newRow.item_index]
+            );
+          }
         } else {
-          const res = await client.query<LoyaltyItem>(
-            `insert into dashboard.loyalty_shop(item_id, category, cost_lp, quantity, buy_limit, discount_percent, is_active, sort_order)
-             values ($1, $2, $3, $4, $5, $6, $7, $8)
-             returning id, item_id, category, cost_lp, quantity, buy_limit, discount_percent, is_active, sort_order`,
-            [row.item_id, row.category, row.cost_lp, row.quantity, row.buy_limit,
-             row.discount_percent, row.is_active, row.sort_order]
+          await client.query(
+            `insert into public.itemmall (
+               item_id, item_group, detail_type, item_index, item_num, money_unit,
+               point, special_price, num_limit, level_limit, gender, sell,
+               not_sell_date, sell_date, message, beginner_only_time, note
+             ) values (
+               $1, $2, $3, $4, $5, 2,
+               $6, $7, $8, 0, -1, $9,
+               0, 0, '', 0, ''
+             )`,
+            [newRow.item_id, newRow.item_group, newRow.detail_type, newRow.item_index, newRow.item_num,
+             newRow.point, newRow.special_price, newRow.num_limit, newRow.sell]
           );
-          afterRows.push(res.rows[0]);
         }
       }
 
       await client.query(
         `insert into dashboard.loyalty_history(actor, before_rows, after_rows)
          values ($1, $2::jsonb, $3::jsonb)`,
-        [actor, JSON.stringify(before), JSON.stringify(afterRows)]
+        [actor, JSON.stringify(before), JSON.stringify(parsed.data.rows)]
       );
-
-      await client.query('commit');
-      return { changed: true, revision: revisionForLoyalty(afterRows) };
     }
 
     await client.query('commit');
-    return { changed: false, revision: revisionForLoyalty(parsed.data.rows) };
+    return { changed, revision: revisionForLoyalty(parsed.data.rows) };
   } catch (error) {
     await client.query('rollback');
     throw error;

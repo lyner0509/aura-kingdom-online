@@ -88,9 +88,17 @@
 .icon-button:hover { color: var(--parchment); border-color: #69705f; }
 .icon-button.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(223, 75, 75, 0.1); }
 .icon-button svg { width: 16px; height: 16px; }
+.category-badge { display: inline-block; padding: 4px 8px; border-radius: 3px; font-size: 11px; background: #22291f; border: 1px solid #3c4837; color: var(--jade-bright); white-space: nowrap; }
+.num-price.discount { color: var(--jade-bright); }
+.loyalty-pagination { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.pagination-buttons { display: flex; gap: 8px; }
+.pagination-buttons button { padding: 7px 14px; border: 1px solid var(--line); background: var(--stone-2); border-radius: 3px; cursor: pointer; color: var(--parchment); }
+.pagination-buttons button:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination-buttons button:not(:disabled):hover { border-color: var(--jade); color: var(--jade-bright); }
 @media (max-width: 680px) {
   .loyalty-save { flex-direction: column; align-items: stretch; }
   .loyalty-toolbar { flex-direction: column; align-items: stretch; }
+  .loyalty-pagination { flex-direction: column; gap: 12px; align-items: stretch; }
   .loyalty-header { flex-wrap: wrap; }
 }
 
