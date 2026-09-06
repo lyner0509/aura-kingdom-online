@@ -13,6 +13,7 @@ import {
 } from './vip-model.js';
 import { itemNames, itemIcons } from './paragon.js';
 import { sendCharacterMail } from './mail.js';
+import { triggerMailQueue, sendAnnounce } from './zone-command.js';
 
 export class VipError extends Error {
   public status: number;
@@ -470,19 +471,17 @@ export async function dispatchDailyVipMail(
       if (!charRes.rows.length) continue;
       const charId = charRes.rows[0].id;
 
-      // Send item to player_mail + mailitem if daily_item_id > 0
-      if (m.daily_item_id > 0) {
-        await sendCharacterMail(gameDb, {
-          receiverCharId: charId,
-          senderName: 'Sistem VIP',
-          title: mailTitle,
-          content: mailContent,
-          itemId: m.daily_item_id,
-          itemCount: m.daily_item_count || 1,
-          isBound: true,
-          gold: 0,
-        });
-      }
+      // Send daily VIP mail (with item if daily_item_id > 0, or greeting/points)
+      await sendCharacterMail(gameDb, {
+        receiverCharId: charId,
+        senderName: 'Sistem VIP',
+        title: mailTitle,
+        content: mailContent,
+        itemId: m.daily_item_id > 0 ? m.daily_item_id : 0,
+        itemCount: m.daily_item_count || 1,
+        isBound: true,
+        gold: 0,
+      });
 
       // Add loyalty points if > 0
       if (m.daily_loyalty_points > 0) {
@@ -505,6 +504,24 @@ export async function dispatchDailyVipMail(
       sentCount++;
     } catch (e) {
       console.error(`Gagal mengirim hadiah VIP ke akun ${m.username}:`, e);
+    }
+  }
+
+  // Flush any remaining mail queue via ZoneServer
+  try {
+    await triggerMailQueue(0);
+  } catch (e) {
+    console.warn('[VIP] Gagal flush send_sys_mail_queue 0:', e);
+  }
+
+  // Broadcast in-game announcement if mails were dispatched
+  if (sentCount > 0) {
+    try {
+      await sendAnnounce(
+        `[Sistem VIP] Hadiah harian VIP (${sentCount} penerima) telah dikirimkan ke kotak surat! Silakan periksa mailbox Anda.`
+      );
+    } catch (e) {
+      console.warn('[VIP] Gagal broadcast announcement ZoneServer:', e);
     }
   }
 
