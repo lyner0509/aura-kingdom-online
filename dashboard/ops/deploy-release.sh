@@ -11,7 +11,13 @@ install -d -o akdashboard -g akdashboard "$release_dir"
 tar -xzf "$release_archive" -C "$release_dir"
 cd "$release_dir"
 npm ci --omit=dev --ignore-scripts
-node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
+if [[ -f /root/hxsy/Data/db/T_ItemMall.ini ]]; then
+  if [[ -f /root/hxsy/Data/db/T_Item.ini ]]; then
+    node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_Item.ini /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
+  else
+    node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
+  fi
+fi
 account_db=$(node --env-file=/etc/aura-dashboard.env -p 'process.env.ACCOUNT_DB || "FFAccount"')
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/paragon.sql
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/loyalty.sql
