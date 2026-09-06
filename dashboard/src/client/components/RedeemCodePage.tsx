@@ -270,7 +270,7 @@ export function RedeemCodePage() {
             <h3>Manajemen Redeem Code</h3>
             <p>Kelola voucher hadiah dan kode serial in-game terintegrasi langsung dengan engine server FFAccount.</p>
           </div>
-          <div className="actions">
+          <div className="actions redeem-actions">
             <button
               onClick={() => {
                 setSinglePin(randomPin('AK'));
