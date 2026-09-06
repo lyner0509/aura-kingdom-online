@@ -90,3 +90,28 @@ test('canWriteNow allows a character that has never been saved', () => {
     true
   );
 });
+
+test('canWriteNow refuses while only the account is signed in', () => {
+  // The player is sitting on the character screen: no character is named,
+  // but the realm still owns the row.
+  const result = canWriteNow({
+    onlineKnown: true,
+    online: false,
+    accountOnline: true,
+    secondsSinceSave: 9000,
+    settleSeconds: 90,
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /pilih karakter/);
+});
+
+test('planFor queues a character whose account is still signed in', () => {
+  const plan = planFor({ online: false, accountOnline: true, currentLevel: 12, targetLevel: 60 });
+  assert.equal(plan.action, 'queue');
+  assert.match(plan.reason, /Akun masih login/);
+});
+
+test('planFor applies only when neither the character nor the account is present', () => {
+  const plan = planFor({ online: false, accountOnline: false, currentLevel: 12, targetLevel: 60 });
+  assert.equal(plan.action, 'apply-now');
+});

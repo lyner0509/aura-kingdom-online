@@ -38,6 +38,14 @@ The online list comes from `aura-dashboard-ctl active-players`, the same
 source the Pemain page uses. If that list cannot be read, nothing is
 written — an unreachable realm must never be mistaken for an empty one.
 
+That list is built from WorldServer's log and has two halves: signed-in
+accounts, and the character each one has chosen. Backing out to the
+character screen clears the character while the account stays signed in,
+and the realm still holds that character — it writes its own copy back on
+entering the world. **A signed-in account therefore blocks the write even
+when no character is named**, which is why a level could once look
+correct at character selection and snap back on entering the game.
+
 ## A written level is read back before it counts
 
 ZoneServer flushes a connected character to the database roughly once a

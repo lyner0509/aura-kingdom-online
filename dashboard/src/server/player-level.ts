@@ -20,11 +20,12 @@ export class PlayerLevelError extends Error {
   }
 }
 
-type CharacterRow = { id: string; name: string; level: number; classId: number | null };
+type CharacterRow = { id: string; name: string; level: number; classId: number | null; accountId: number };
 
 async function findCharacter(playerId: number): Promise<CharacterRow | null> {
   const res = await pool(config.GAME_DB).query<CharacterRow>(
-    `select id::text as id, given_name as name, level, class_id as "classId"
+    `select id::text as id, given_name as name, level, class_id as "classId",
+            account_id as "accountId"
        from player_characters
       where id = $1 and deleted_time = 0`,
     [playerId]
@@ -40,6 +41,24 @@ async function findCharacter(playerId: number): Promise<CharacterRow | null> {
 async function onlineCharacterIds(): Promise<Set<number>> {
   const active = await getActivePlayersStrict();
   return new Set(active.characters ?? []);
+}
+
+/**
+ * Presence has two halves, and only one of them names a character.
+ *
+ * The realm's online list is built from WorldServer's log: when a player
+ * backs out to the character screen their character id is cleared while
+ * the account stays signed in. The realm still holds that character and
+ * writes its own copy back on entering the world — which is how a level
+ * could look right at character selection and snap back in game. So a
+ * signed-in account blocks the write even when no character is named.
+ */
+async function sessionPresence(character: CharacterRow): Promise<{ characterOnline: boolean; accountOnline: boolean }> {
+  const active = await getActivePlayersStrict();
+  return {
+    characterOnline: (active.characters ?? []).includes(Number(character.id)),
+    accountOnline: (active.accounts ?? []).includes(character.accountId),
+  };
 }
 
 /**
@@ -182,26 +201,35 @@ export async function readPlayerLevels(): Promise<PlayerLevelData> {
         order by created_at desc
         limit 100`
     ),
-    onlineCharacterIds(),
+    getActivePlayersStrict().catch(() => ({ online: 0, accounts: [] as number[], characters: [] as number[] })),
   ]);
 
   // Current levels come from the game database so the operator sees what
   // the character actually is, not what it was when the row was written.
   const ids = assignmentRes.rows.map(row => Number(row.player_id)).filter(Number.isSafeInteger);
   const levels = new Map<number, number>();
+  const accounts = new Map<number, number>();
   if (ids.length) {
-    const levelRes = await pool(config.GAME_DB).query<{ id: string; level: number }>(
-      `select id::text as id, level from player_characters where id = any($1::bigint[]) and deleted_time = 0`,
+    const levelRes = await pool(config.GAME_DB).query<{ id: string; level: number; accountId: number }>(
+      `select id::text as id, level, account_id as "accountId"
+         from player_characters where id = any($1::bigint[]) and deleted_time = 0`,
       [ids]
     );
-    for (const row of levelRes.rows) levels.set(Number(row.id), row.level);
+    for (const row of levelRes.rows) {
+      levels.set(Number(row.id), row.level);
+      accounts.set(Number(row.id), row.accountId);
+    }
   }
 
   return {
     levelCap: config.PLAYER_LEVEL_CAP,
     assignments: assignmentRes.rows.map(row => ({
       ...row,
-      online: online.has(Number(row.player_id)),
+      // Shown as online while the account is signed in too: a player on the
+      // character screen still blocks the write.
+      online:
+        (online.characters ?? []).includes(Number(row.player_id)) ||
+        (online.accounts ?? []).includes(accounts.get(Number(row.player_id)) ?? -1),
       current_level: levels.get(Number(row.player_id)) ?? null,
     })),
     history: historyRes.rows,
@@ -233,10 +261,14 @@ export async function assignPlayerLevel(
 
   // If the realm cannot be asked, queue rather than guess: the sweep will
   // pick it up once the answer is available again.
-  const online = await onlineCharacterIds()
-    .then(ids => ids.has(input.player_id))
-    .catch(() => true);
-  const plan = planFor({ online, currentLevel: character.level, targetLevel: input.target_level });
+  const presence = await sessionPresence(character)
+    .catch(() => ({ characterOnline: true, accountOnline: true }));
+  const plan = planFor({
+    online: presence.characterOnline,
+    accountOnline: presence.accountOnline,
+    currentLevel: character.level,
+    targetLevel: input.target_level,
+  });
 
   if (plan.action === 'noop') {
     throw new PlayerLevelError(400, plan.reason);
@@ -322,16 +354,17 @@ async function applyAssignment(
   // Checked again here, as close to the write as possible: the character may
   // have logged in since the sweep read the online list.
   let onlineKnown = true;
-  let online = false;
+  let presence = { characterOnline: false, accountOnline: false };
   try {
-    online = (await onlineCharacterIds()).has(playerId);
+    presence = await sessionPresence(character);
   } catch {
     onlineKnown = false;
   }
   const settled = await secondsSinceLastSave(playerId);
   const permission = canWriteNow({
     onlineKnown,
-    online,
+    online: presence.characterOnline,
+    accountOnline: presence.accountOnline,
     secondsSinceSave: settled,
     settleSeconds: SETTLE_SECONDS,
   });

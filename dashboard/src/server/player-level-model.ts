@@ -68,6 +68,7 @@ export type AssignmentPlan =
 
 export function planFor(input: {
   online: boolean;
+  accountOnline?: boolean;
   currentLevel: number | null;
   targetLevel: number;
 }): AssignmentPlan {
@@ -78,6 +79,15 @@ export function planFor(input: {
     return {
       action: 'queue',
       reason: 'Karakter sedang online. Level akan diterapkan otomatis setelah logout.',
+    };
+  }
+  // The account can still be signed in while no character is chosen — the
+  // player is sitting on the character screen. The realm keeps that
+  // character in hand and writes its own copy back on entering the world.
+  if (input.accountOnline) {
+    return {
+      action: 'queue',
+      reason: 'Akun masih login (kemungkinan di layar pilih karakter). Level diterapkan otomatis setelah keluar dari game.',
     };
   }
   return { action: 'apply-now', reason: 'Karakter sedang offline. Level diterapkan sekarang.' };
@@ -93,6 +103,7 @@ export function planFor(input: {
 export function canWriteNow(input: {
   onlineKnown: boolean;
   online: boolean;
+  accountOnline?: boolean;
   secondsSinceSave: number | null;
   settleSeconds: number;
 }): { ok: boolean; reason: string } {
@@ -101,6 +112,9 @@ export function canWriteNow(input: {
   }
   if (input.online) {
     return { ok: false, reason: 'Karakter sedang online.' };
+  }
+  if (input.accountOnline) {
+    return { ok: false, reason: 'Akun masih login, kemungkinan di layar pilih karakter.' };
   }
   if (input.secondsSinceSave !== null && input.secondsSinceSave < input.settleSeconds) {
     return { ok: false, reason: 'Data karakter baru saja disimpan server.' };
