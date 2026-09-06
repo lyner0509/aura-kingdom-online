@@ -295,6 +295,91 @@ export type UpdateDropLootPayload = {
   apply_immediately?: boolean;
 };
 
+export type VipTier = {
+  level: number;
+  name: string;
+  required_points: number;
+  exp_bonus_percent: number;
+  drop_bonus_percent: number;
+  gold_bonus_percent: number;
+  move_speed_percent: number;
+  daily_loyalty_points: number;
+  daily_item_id: number;
+  daily_item_count: number;
+  buff_desc: string;
+};
+
+export type VipSettings = {
+  id: number;
+  is_enabled: boolean;
+  points_per_ap: number;
+  auto_vip_on_spending: boolean;
+  daily_mail_reward_enabled: boolean;
+  daily_mail_title: string;
+  daily_mail_content: string;
+  last_mail_dispatch_at: string | null;
+  last_mail_dispatch_status: string | null;
+  updated_at: string;
+  updated_by: string;
+};
+
+export type AccountVip = {
+  account_id: number;
+  username: string;
+  vip_level: number;
+  vip_points: number;
+  is_active: boolean;
+  expires_at: string | null;
+  last_daily_claim_at: string | null;
+  created_at: string;
+  updated_at: string;
+  updated_by: string;
+};
+
+export type VipHistoryEntry = {
+  id: string;
+  operator: string;
+  action: string;
+  target_account: string | null;
+  vip_level: number | null;
+  details: string | null;
+  created_at: string;
+};
+
+export type VipData = {
+  settings: VipSettings;
+  tiers: VipTier[];
+  members: AccountVip[];
+  stats: {
+    totalVipAccounts: number;
+    activeVipAccounts: number;
+    maxVipLevel: number;
+    totalVipPoints: number;
+  };
+  revision: string;
+  history: VipHistoryEntry[];
+  readOnly: boolean;
+};
+
+export type UpdateVipSettingsPayload = {
+  revision: string;
+  is_enabled: boolean;
+  points_per_ap: number;
+  auto_vip_on_spending: boolean;
+  daily_mail_reward_enabled: boolean;
+  daily_mail_title: string;
+  daily_mail_content: string;
+  tiers: VipTier[];
+};
+
+export type GrantVipPayload = {
+  username: string;
+  vip_level: number;
+  vip_points?: number;
+  duration_days?: number | null;
+  custom_expires_at?: string | null;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -350,6 +435,27 @@ export const api = {
     }),
   applyDropLootNow: () =>
     request<{ ok: boolean; effectiveRates: EffectiveDropRates; applied: boolean; message: string }>('/ops/api/drop-loot/apply', {
+      method: 'POST',
+    }),
+  vip: () => request<VipData>('/ops/api/vip', { cache: 'no-store' }),
+  saveVipSettings: (payload: UpdateVipSettingsPayload) =>
+    request<{ ok: boolean; revision: string; message: string }>('/ops/api/vip/settings', {
+      method: 'PUT', body: JSON.stringify(payload),
+    }),
+  grantVip: (payload: GrantVipPayload) =>
+    request<{ ok: boolean; message: string; member: AccountVip }>('/ops/api/vip/members', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  revokeVip: (username: string) =>
+    request<{ ok: boolean; message: string }>(`/ops/api/vip/members/${encodeURIComponent(username)}`, {
+      method: 'DELETE',
+    }),
+  extendVip: (username: string, days = 30) =>
+    request<{ ok: boolean; message: string; expires_at: string }>(`/ops/api/vip/members/${encodeURIComponent(username)}/extend`, {
+      method: 'POST', body: JSON.stringify({ days }),
+    }),
+  dispatchVipMail: () =>
+    request<{ ok: boolean; dispatchedCount: number; message: string }>('/ops/api/vip/dispatch-mail', {
       method: 'POST',
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),

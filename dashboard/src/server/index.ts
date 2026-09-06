@@ -43,6 +43,15 @@ import {
   applyDropLootNow,
 } from './drop-loot.js';
 import {
+  VipError,
+  readVipData,
+  saveVipSettings,
+  grantVipMember,
+  revokeVipMember,
+  extendVipMember,
+  dispatchDailyVipMail,
+} from './vip.js';
+import {
   controlService,
   readServiceLog,
   SERVICE_NAMES,
@@ -238,6 +247,31 @@ app.post('/ops/api/drop-loot/apply', async (_req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/vip', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readVipData()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/vip/settings', async (req, res, next) => {
+  try { res.json(await saveVipSettings(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/vip/members', async (req, res, next) => {
+  try { res.status(201).json(await grantVipMember(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.delete('/ops/api/vip/members/:username', async (req, res, next) => {
+  try { res.json(await revokeVipMember(req.params.username, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/vip/members/:username/extend', async (req, res, next) => {
+  try { res.json(await extendVipMember(req.params.username, Number(req.body?.days || 30), res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/vip/dispatch-mail', async (_req, res, next) => {
+  try { res.json(await dispatchDailyVipMail(res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (
     error instanceof ParagonError ||
@@ -246,7 +280,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     error instanceof ItemMallError ||
     error instanceof RedeemCodeError ||
     error instanceof ExpBonusError ||
-    error instanceof DropLootError
+    error instanceof DropLootError ||
+    error instanceof VipError
   ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
