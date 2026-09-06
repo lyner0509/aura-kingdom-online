@@ -542,6 +542,50 @@ export type ItemIndexParams = {
   sort?: 'id_asc' | 'id_desc' | 'name_asc' | 'name_desc';
 };
 
+export type GiftSettings = {
+  id: number;
+  default_sender_name: string;
+  default_mail_title: string;
+  default_mail_content: string;
+  default_is_bound: boolean;
+  allow_online_broadcast: boolean;
+  updated_at?: string;
+  updated_by?: string;
+};
+
+export type SendGiftPayload = {
+  target_type: 'character' | 'online' | 'all';
+  target_query?: string;
+  item_id: number;
+  item_name?: string;
+  item_count: number;
+  is_bound: boolean;
+  gold: number;
+  sender_name?: string;
+  title?: string;
+  content?: string;
+  announce?: boolean;
+  announce_message?: string;
+};
+
+export type GiftHistoryEntry = {
+  id: number;
+  operator: string;
+  target_type: 'character' | 'online' | 'all';
+  target_name: string;
+  char_id: number | null;
+  item_id: number;
+  item_name: string;
+  item_count: number;
+  is_bound: boolean;
+  gold: number;
+  title: string;
+  content: string;
+  announced: boolean;
+  delivered_count: number;
+  created_at: string;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string>; itemIcons?: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   itemIndex: (params: ItemIndexParams = {}, signal?: AbortSignal) => {
@@ -663,4 +707,15 @@ export const api = {
   players: (search = '', signal?: AbortSignal) =>
     request<{ players: Player[] }>(`/ops/api/players?search=${encodeURIComponent(search)}&limit=60`, { signal, cache: 'no-store' }),
   playerDetail: (id: string) => request<{ detail: PlayerDetail }>(`/ops/api/players/${encodeURIComponent(id)}/detail`, { cache: 'no-store' }),
+  giftSettings: () => request<GiftSettings>('/ops/api/gifts/settings', { cache: 'no-store' }),
+  saveGiftSettings: (payload: Partial<GiftSettings>) =>
+    request<{ ok: boolean; settings: GiftSettings; message: string }>('/ops/api/gifts/settings', {
+      method: 'PUT', body: JSON.stringify(payload),
+    }),
+  sendGift: (payload: SendGiftPayload) =>
+    request<{ ok: boolean; deliveredCount: number; message: string }>('/ops/api/gifts/send', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  giftHistory: (limit = 50) =>
+    request<GiftHistoryEntry[]>(`/ops/api/gifts/history?limit=${limit}`, { cache: 'no-store' }),
 };

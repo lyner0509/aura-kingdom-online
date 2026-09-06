@@ -35,6 +35,7 @@ sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/exp-bonus.sql
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/drop-loot.sql
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/vip-system.sql
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/starter-pack.sql
+sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/gift.sql
 game_db=$(node --env-file=/etc/aura-dashboard.env -p 'process.env.GAME_DB || "FFDB1"')
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$game_db" -c 'GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.sys_mail_queue, public.player_mail, public.mailitem, public.player_account_mail, public.account_mailitem, public.player_characters, public.inventory1, public.inventory2 TO akdashboard; GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO akdashboard;'
 install -o root -g root -m 0750 ops/aura-dashboard-ctl /usr/local/sbin/aura-dashboard-ctl

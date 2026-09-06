@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api, type Player, type PlayerDetail } from '../lib/api';
+import { GiftIcon } from './Icons';
+import { GiftItemModal } from './GiftItemModal';
 
 function SearchIcon() {
   return (
@@ -65,6 +67,9 @@ export function PlayersPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [detail, setDetail] = useState<PlayerDetail | null>(null);
   const [detailError, setDetailError] = useState('');
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftTargetPlayer, setGiftTargetPlayer] = useState<Player | null>(null);
+  const [giftNotice, setGiftNotice] = useState('');
 
   const openDetail = async (player: Player) => {
     setSelectedPlayer(player); setDetail(null); setDetailError('');
@@ -139,16 +144,34 @@ export function PlayersPage() {
           <p className="kicker">Character Registry</p>
           <h3>Direktori Karakter & Pemain</h3>
         </div>
-        <label className="search-box">
-          <SearchIcon />
-          <input
-            placeholder="Cari nama karakter atau akun…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-gift-main"
+            onClick={() => {
+              setGiftTargetPlayer(null);
+              setShowGiftModal(true);
+            }}
+          >
+            <GiftIcon width={16} height={16} />
+            Kirim Gift Item
+          </button>
+          <label className="search-box">
+            <SearchIcon />
+            <input
+              placeholder="Cari nama karakter atau akun…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+        </div>
       </header>
 
+      {giftNotice && (
+        <div className="notice success" style={{ marginBottom: '12px' }}>
+          {giftNotice}
+        </div>
+      )}
       {error && <div className="notice error">{error}</div>}
 
       <div className="table-wrap">
@@ -241,7 +264,7 @@ export function PlayersPage() {
                     </span>
                   </td>
 
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                     <button
                       className="detail-stat-btn"
                       onClick={() => void openDetail(player)}
@@ -249,6 +272,18 @@ export function PlayersPage() {
                     >
                       <StatIcon />
                       Detail
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-gift-row"
+                      onClick={() => {
+                        setGiftTargetPlayer(player);
+                        setShowGiftModal(true);
+                      }}
+                      title={`Kirim Gift Item ke ${player.name}`}
+                    >
+                      <GiftIcon width={12} height={12} />
+                      Gift
                     </button>
                   </td>
                 </tr>
@@ -462,7 +497,18 @@ export function PlayersPage() {
                     </div>}
                   </div>
 
-                  <div className="modal-footer">
+                  <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <button
+                      type="button"
+                      className="btn-gift-modal"
+                      onClick={() => {
+                        setGiftTargetPlayer(selectedPlayer);
+                        setShowGiftModal(true);
+                      }}
+                    >
+                      <GiftIcon width={16} height={16} />
+                      Kirim Gift Item ke {selectedPlayer.name}
+                    </button>
                     <button
                       className="modal-btn-close"
                       onClick={() => setSelectedPlayer(null)}
@@ -476,6 +522,15 @@ export function PlayersPage() {
           </div>
         </div>
       )}
+
+      {/* Gift Item Modal Component */}
+      <GiftItemModal
+        isOpen={showGiftModal}
+        onClose={() => setShowGiftModal(false)}
+        prefillPlayer={giftTargetPlayer}
+        playersList={players}
+        onSuccess={(msg) => setGiftNotice(msg)}
+      />
     </section>
   );
 }

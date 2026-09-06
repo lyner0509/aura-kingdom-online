@@ -59,6 +59,13 @@ import {
   batchDispatchStarterPack,
   revokeStarterPackClaim,
 } from './starter-pack.js';
+import {
+  GiftError,
+  readGiftSettings,
+  saveGiftSettings,
+  sendPlayerGift,
+  readGiftHistory,
+} from './gift.js';
 import { queryItemIndex } from './item-index.js';
 import {
   controlService,
@@ -343,6 +350,23 @@ app.delete('/ops/api/starter-pack/claims/:id', async (req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/gifts/settings', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readGiftSettings()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/gifts/settings', async (req, res, next) => {
+  try { res.json(await saveGiftSettings(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/gifts/send', async (req, res, next) => {
+  try { res.json(await sendPlayerGift(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.get('/ops/api/gifts/history', async (req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readGiftHistory(Number(req.query.limit || 50))); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (
     error instanceof ParagonError ||
@@ -353,7 +377,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     error instanceof ExpBonusError ||
     error instanceof DropLootError ||
     error instanceof VipError ||
-    error instanceof StarterPackError
+    error instanceof StarterPackError ||
+    error instanceof GiftError
   ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
