@@ -380,6 +380,92 @@ export type GrantVipPayload = {
   custom_expires_at?: string | null;
 };
 
+export type StarterPackItem = {
+  id?: number;
+  item_id: number;
+  item_name?: string;
+  item_count: number;
+  is_bound: boolean;
+  category: string;
+  sort_order: number;
+  note?: string;
+};
+
+export type StarterPackSettings = {
+  id: number;
+  is_enabled: boolean;
+  auto_deliver_new_chars: boolean;
+  mail_sender_name: string;
+  mail_title: string;
+  mail_content: string;
+  bonus_gold: number;
+  bonus_loyalty_points: number;
+  min_character_level: number;
+  max_claims_per_account: number;
+  last_dispatch_at: string | null;
+  last_dispatch_status: string | null;
+  updated_at: string;
+  updated_by: string;
+};
+
+export type StarterPackClaim = {
+  id: number;
+  account_id: number;
+  username: string;
+  character_id: number;
+  character_name: string;
+  delivery_method: string;
+  items_delivered_count: number;
+  gold_delivered: number;
+  loyalty_delivered: number;
+  operator: string;
+  claimed_at: string;
+};
+
+export type StarterPackHistoryEntry = {
+  id: string;
+  operator: string;
+  action: string;
+  target: string | null;
+  details: string | null;
+  created_at: string;
+};
+
+export type StarterPackData = {
+  settings: StarterPackSettings;
+  items: StarterPackItem[];
+  recentClaims: StarterPackClaim[];
+  stats: {
+    totalClaims: number;
+    uniqueAccounts: number;
+    totalItemsInPack: number;
+    autoDeliveryActive: boolean;
+  };
+  revision: string;
+  history: StarterPackHistoryEntry[];
+  readOnly: boolean;
+};
+
+export type UpdateStarterPackSettingsPayload = {
+  revision: string;
+  is_enabled: boolean;
+  auto_deliver_new_chars: boolean;
+  mail_sender_name: string;
+  mail_title: string;
+  mail_content: string;
+  bonus_gold: number;
+  bonus_loyalty_points: number;
+  min_character_level: number;
+  max_claims_per_account: number;
+  items: StarterPackItem[];
+};
+
+export type GrantStarterPackPayload = {
+  target_type: 'character' | 'account';
+  target_name: string;
+  override_claim_limit?: boolean;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -457,6 +543,23 @@ export const api = {
   dispatchVipMail: () =>
     request<{ ok: boolean; dispatchedCount: number; message: string }>('/ops/api/vip/dispatch-mail', {
       method: 'POST',
+    }),
+  starterPack: () => request<StarterPackData>('/ops/api/starter-pack', { cache: 'no-store' }),
+  saveStarterPackSettings: (payload: UpdateStarterPackSettingsPayload) =>
+    request<{ ok: boolean; revision: string; message: string }>('/ops/api/starter-pack/settings', {
+      method: 'PUT', body: JSON.stringify(payload),
+    }),
+  grantStarterPack: (payload: GrantStarterPackPayload) =>
+    request<{ ok: boolean; message: string; claim: StarterPackClaim }>('/ops/api/starter-pack/grant', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+  batchDispatchStarterPack: (min_level = 1) =>
+    request<{ ok: boolean; dispatchedCount: number; message: string }>('/ops/api/starter-pack/batch-dispatch', {
+      method: 'POST', body: JSON.stringify({ min_level }),
+    }),
+  revokeStarterPackClaim: (id: number) =>
+    request<{ ok: boolean; message: string }>(`/ops/api/starter-pack/claims/${id}`, {
+      method: 'DELETE',
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
   login: (username: string, password: string) =>

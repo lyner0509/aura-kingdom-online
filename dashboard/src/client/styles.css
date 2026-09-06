@@ -459,3 +459,108 @@ nav .chevron { margin-left: auto; width: 14px; color: var(--amber); }
 .vipsys-footer-actions .left-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .vipsys-footer-actions .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* Starter Pack Styles */
+.starterpack-editor { display: grid; gap: 24px; min-width: 0; }
+.starterpack-editor > .panel { min-width: 0; }
+.starterpack-header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+.starterpack-header p:last-child { color: var(--muted); line-height: 1.5; margin: 8px 0 0; font-size: 13px; }
+.starterpack-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.starterpack-actions button,
+.starterpack-footer-actions button,
+.starterpack-presets button.starterpack-btn-primary,
+.starterpack-grant-form button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; font-size: 12px; font-weight: 500; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.15; margin: 0; }
+.starterpack-actions button svg,
+.starterpack-footer-actions button svg,
+.starterpack-presets button svg,
+.starterpack-grant-form button svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.starterpack-btn-primary { border: 1px solid rgba(200, 157, 86, 0.4); background: var(--amber); color: #1b1a14; font-weight: 600; }
+.starterpack-btn-primary:hover:not(:disabled) { background: #d8aa63; }
+.starterpack-btn-mail { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; font-size: 12px; font-weight: 600; border-radius: 3px; cursor: pointer; white-space: nowrap; line-height: 1.15; border: 1px solid rgba(120, 182, 140, 0.5); background: #1c2b20; color: var(--jade-bright); }
+.starterpack-btn-mail:hover:not(:disabled) { background: #263c2c; color: #ffffff; border-color: var(--jade-bright); }
+.starterpack-btn-secondary { border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); }
+.starterpack-btn-secondary:hover:not(:disabled) { border-color: #69705f; color: #ffffff; }
+.starterpack-actions button:disabled,
+.starterpack-footer-actions button:disabled,
+.starterpack-grant-form button:disabled,
+.starterpack-btn-mail:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.starterpack-stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 24px; }
+.starterpack-stat-card { padding: 18px 20px; background: #161914; border: 1px solid var(--line); border-radius: 4px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+.starterpack-stat-card .card-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.starterpack-stat-card .card-value { font-size: 26px; font-weight: 700; color: var(--parchment); font-family: var(--display); line-height: 1; display: flex; align-items: baseline; gap: 6px; }
+.starterpack-stat-card .card-value span { font-size: 14px; font-weight: normal; color: var(--jade-bright); }
+.starterpack-stat-card .card-tag { font-size: 11px; color: var(--muted); }
+
+.starterpack-tab-bar { display: flex; gap: 8px; padding: 0 24px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.starterpack-tab-btn { padding: 8px 14px; font-size: 13px; font-weight: 500; border-radius: 4px; border: 1px solid var(--line); background: var(--ink); color: var(--muted); cursor: pointer; transition: all 0.15s ease; }
+.starterpack-tab-btn:hover { border-color: #69705f; color: var(--parchment); }
+.starterpack-tab-btn.active { border-color: var(--amber); background: #222018; color: var(--amber); font-weight: 600; }
+
+.starterpack-tab-content { padding: 20px 24px 24px; }
+.starterpack-subhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.starterpack-subhead h4 { margin: 0 0 4px; font-size: 16px; color: var(--parchment); }
+.starterpack-subhead p { margin: 0; font-size: 12px; color: var(--muted); }
+.starterpack-presets { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.starterpack-presets button { padding: 5px 10px; font-size: 11px; border: 1px solid var(--line); border-radius: 3px; background: var(--stone-2); color: var(--parchment); cursor: pointer; }
+.starterpack-presets button:hover { border-color: var(--amber); color: #ffffff; }
+
+/* Table */
+.starterpack-table { width: 100%; border-collapse: collapse; }
+.starterpack-table th { white-space: nowrap; padding: 10px 8px; text-align: left; }
+.starterpack-table td { padding: 6px 8px; vertical-align: middle; }
+.starterpack-input-cell { background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; padding: 5px 8px; font-size: 12px; }
+.starterpack-input-cell:focus { border-color: var(--amber); outline: none; }
+.starterpack-input-cell.text { width: 100%; min-width: 100px; }
+.starterpack-input-cell.number { width: 80px; text-align: right; }
+.starterpack-item-desc { display: flex; flex-direction: column; gap: 2px; }
+.starterpack-item-desc strong { font-size: 12px; color: var(--parchment); }
+.starterpack-bound-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--parchment); cursor: pointer; }
+.starterpack-bound-toggle input[type=checkbox] { accent-color: var(--amber); cursor: pointer; }
+.starterpack-btn-sm { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11px; border-radius: 3px; border: 1px solid var(--line); background: var(--stone-2); color: var(--parchment); cursor: pointer; }
+.starterpack-btn-sm:hover:not(:disabled) { border-color: var(--amber); color: #ffffff; }
+.starterpack-btn-sm.danger { color: #ff7b72; border-color: rgba(248, 81, 73, 0.4); }
+.starterpack-btn-sm.danger:hover:not(:disabled) { background: #351a1a; border-color: #f85149; }
+.starterpack-btn-sm svg { width: 12px; height: 12px; }
+
+/* Distribution Tab */
+.starterpack-distribution-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .starterpack-distribution-grid { grid-template-columns: 1fr; } }
+.starterpack-box { padding: 20px; background: #171a14; border: 1px solid var(--line); border-radius: 4px; display: grid; gap: 14px; }
+.starterpack-box h4 { margin: 0; font-size: 16px; color: var(--parchment); font-family: var(--display); }
+.starterpack-grant-form { display: grid; gap: 12px; }
+.grant-preview-box { padding: 12px 14px; background: #131611; border: 1px dashed var(--line); border-radius: 3px; }
+.starterpack-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.starterpack-checkbox-row input { accent-color: var(--amber); }
+.batch-options { display: grid; gap: 14px; }
+.batch-status-box { padding: 12px 14px; background: #131611; border: 1px dashed var(--line); border-radius: 3px; }
+
+/* Settings Tab */
+.starterpack-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .starterpack-settings-grid { grid-template-columns: 1fr; } }
+.starterpack-field-list { display: grid; gap: 14px; }
+.starterpack-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #131611; border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
+.starterpack-toggle strong { display: block; font-size: 13px; color: var(--parchment); }
+.starterpack-toggle small { font-size: 11px; color: var(--muted); }
+.starterpack-toggle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--amber); cursor: pointer; flex-shrink: 0; }
+.starterpack-input-field { display: grid; gap: 6px; }
+.starterpack-input-field label { font-size: 12px; color: var(--muted); }
+.starterpack-input-field input, .starterpack-input-field textarea { padding: 8px 10px; background: var(--ink); border: 1px solid var(--line); color: var(--parchment); border-radius: 3px; font-size: 12px; }
+.starterpack-input-field textarea { resize: vertical; line-height: 1.4; }
+.starterpack-input-field input:focus, .starterpack-input-field textarea:focus { border-color: var(--amber); outline: none; }
+.mail-preview-container { margin-top: 4px; }
+.mail-preview-box { margin-top: 6px; padding: 14px 16px; background: #12140f; border: 1px solid rgba(200, 157, 86, 0.3); border-radius: 4px; }
+.mail-preview-box strong { font-size: 12px; color: var(--amber); display: block; margin-bottom: 6px; }
+.mail-title-sample { font-size: 13px; font-weight: 600; color: var(--parchment); margin: 0 0 6px; }
+.mail-body-sample { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+/* History & Claims */
+.starterpack-member-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.starterpack-member-toolbar .search-box { margin-top: 6px; }
+
+/* Footer */
+.starterpack-footer-actions { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.starterpack-footer-actions .left-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.starterpack-footer-actions .right-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+

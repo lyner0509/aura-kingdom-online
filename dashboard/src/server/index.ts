@@ -52,6 +52,14 @@ import {
   dispatchDailyVipMail,
 } from './vip.js';
 import {
+  StarterPackError,
+  readStarterPackData,
+  saveStarterPackSettings,
+  grantStarterPack,
+  batchDispatchStarterPack,
+  revokeStarterPackClaim,
+} from './starter-pack.js';
+import {
   controlService,
   readServiceLog,
   SERVICE_NAMES,
@@ -272,6 +280,27 @@ app.post('/ops/api/vip/dispatch-mail', async (_req, res, next) => {
   catch (error) { next(error); }
 });
 
+app.get('/ops/api/starter-pack', async (_req, res, next) => {
+  try { res.set('Cache-Control', 'no-store').json(await readStarterPackData()); }
+  catch (error) { next(error); }
+});
+app.put('/ops/api/starter-pack/settings', async (req, res, next) => {
+  try { res.json(await saveStarterPackSettings(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/starter-pack/grant', async (req, res, next) => {
+  try { res.status(201).json(await grantStarterPack(req.body, res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+app.post('/ops/api/starter-pack/batch-dispatch', async (req, res, next) => {
+  try { res.json(await batchDispatchStarterPack(res.locals.session.user, Number(req.body?.min_level || 1))); }
+  catch (error) { next(error); }
+});
+app.delete('/ops/api/starter-pack/claims/:id', async (req, res, next) => {
+  try { res.json(await revokeStarterPackClaim(Number(req.params.id), res.locals.session.user)); }
+  catch (error) { next(error); }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (
     error instanceof ParagonError ||
@@ -281,7 +310,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     error instanceof RedeemCodeError ||
     error instanceof ExpBonusError ||
     error instanceof DropLootError ||
-    error instanceof VipError
+    error instanceof VipError ||
+    error instanceof StarterPackError
   ) return res.status(error.status).json({ error: error.message });
   console.error(error);
   if (error instanceof z.ZodError) return res.status(400).json({ error: 'Parameter permintaan tidak valid.' });
