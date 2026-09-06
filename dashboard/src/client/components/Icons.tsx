@@ -37,5 +37,13 @@ export const GiftIcon = (props: Props) => (
     <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
   </Base>
 );
+export const CartIcon = (props: Props) => (
+  <Base {...props}>
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+  </Base>
+);
+
 
 

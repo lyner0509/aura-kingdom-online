@@ -71,6 +71,15 @@ export type BonusData = {
   readOnly: boolean;
 };
 
+export type { ItemMallItem } from '../../server/itemmall-model';
+export type ItemMallData = {
+  rows: import('../../server/itemmall-model').ItemMallItem[];
+  itemNames: Record<string, string>;
+  revision: string;
+  history: { id: string; actor: string; createdAt: string }[];
+  readOnly: boolean;
+};
+
 export const api = {
   itemNames: (ids: number[]) => request<{ itemNames: Record<string, string> }>(`/ops/api/item-names?ids=${encodeURIComponent(ids.join(','))}`, { cache: 'no-store' }),
   paragon: () => request<ParagonData>('/ops/api/paragon', { cache: 'no-store' }),
@@ -86,6 +95,11 @@ export const api = {
   bonus: () => request<BonusData>('/ops/api/bonus-mall', { cache: 'no-store' }),
   saveBonus: (revision: string, rows: BonusData['rows']) =>
     request<{ changed: boolean; revision: string }>('/ops/api/bonus-mall', {
+      method: 'PUT', body: JSON.stringify({ revision, rows }),
+    }),
+  itemMall: () => request<ItemMallData>('/ops/api/item-mall', { cache: 'no-store' }),
+  saveItemMall: (revision: string, rows: ItemMallData['rows']) =>
+    request<{ changed: boolean; revision: string }>('/ops/api/item-mall', {
       method: 'PUT', body: JSON.stringify({ revision, rows }),
     }),
   session: () => request<{ authenticated: boolean; user: string; expiresAt: number }>('/ops/api/auth/session'),
