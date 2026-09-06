@@ -119,6 +119,38 @@ export type PlayerRow = {
   lastSeen: string | null;
 };
 
+export type PlayerDetail = {
+  exp: number; lastLevelUp: string | null; family: { name: string; level: number; contribution: number } | null;
+  currencies: Record<string, number>; equipment: { equipped: number; maxEnhance: number; avgEnhance: number };
+  inventory: { items: number; locked: number; expandedStorage: number }; unreadMail: number; friends: number;
+  achievement: { points: number; coins: number }; classes: { classId: number; level: number; point: number; aaPoint: number }[];
+  skyTower: { highest: number; attempts: number } | null; weaponExpert: { type: number; level: number } | null;
+  potential: { atk: number; def: number; total: number } | null; accountCharacters: { id: string; name: string; level: number }[];
+};
+
+export async function getPlayerDetail(id: number): Promise<PlayerDetail | null> {
+  if (!Number.isSafeInteger(id) || id < 1) return null;
+  const db = pool(config.GAME_DB);
+  const exists = await db.query<{ id: number }>('select id from player_characters where id = $1 and deleted_time = 0', [id]);
+  if (!exists.rowCount) return null;
+  const [core, coins, gear, bag, mail, friends, achievement, classes, tower, expert, potential, accountChars] = await Promise.all([
+    db.query<{ exp: string; lastLevelUp: string | null; familyName: string | null; familyLevel: number | null; contribution: number }>(`select c.exp::text as exp, to_timestamp(nullif(c.last_level_up_time,0))::text as "lastLevelUp", f.name as "familyName", f.lv as "familyLevel", coalesce(c.family_donate,0) as contribution from player_characters c left join family f on f.id=c.family_id and f.delete_time=0 where c.id=$1`, [id]),
+    db.query<{ type: number; amount: number }>('select coin_type as type, amount from player_coins where player_id=$1', [id]),
+    db.query<{ equipped: number; maxEnhance: number; avgEnhance: number }>(`select count(*)::int as equipped, coalesce(max(strengthen),0)::int as "maxEnhance", coalesce(round(avg(strengthen)),0)::int as "avgEnhance" from (select strengthen from equipment1 where player_id=$1 union all select strengthen from equipment2 where player_id=$1) e`, [id]),
+    db.query<{ items: number; locked: number; expandedStorage: number }>(`select (select count(*)::int from bags where player_id=$1) as items, (select count(*)::int from bags where player_id=$1 and locked<>0) as locked, (select expand_storage_cnt from player_characters where id=$1) as "expandedStorage"`, [id]),
+    db.query<{ count: number }>('select count(*)::int as count from player_mail where receiver_id=$1 and opened=0', [id]),
+    db.query<{ count: number }>('select count(*)::int as count from friends where player_id=$1', [id]),
+    db.query<{ points: number; coins: number }>(`select coalesce((select total_point from player_achievement_rank where player_id=$1),0)::int as points, coalesce((select achievement_coins from player_achievement_coins where account_id=(select account_id from player_characters where id=$1)),0)::int as coins`, [id]),
+    db.query<{ classId: number; level: number; point: number; aaPoint: number }>('select class as "classId", level, point, aa_point as "aaPoint" from player_classlist where player_id=$1 order by level desc', [id]),
+    db.query<{ highest: number; attempts: number }>('select high_tower_id as highest, play_times as attempts from player_sky_tower where player_id=$1 limit 1', [id]),
+    db.query<{ type: number; level: number }>('select type, level from player_weapon_expert where player_id=$1 order by level desc limit 1', [id]),
+    db.query<{ atk: number; def: number; total: number }>('select atk, def, (point1+point2+point3+point4+point5+point6)::int as total from player_potential_point where player_id=$1 limit 1', [id]),
+    db.query<{ id: string; name: string; level: number }>('select id::text as id, given_name as name, level from player_characters where account_id=(select account_id from player_characters where id=$1) and deleted_time=0 order by level desc', [id]),
+  ]);
+  const c = core.rows[0]!;
+  return { exp: Number(c.exp), lastLevelUp: c.lastLevelUp, family: c.familyName ? { name: c.familyName, level: c.familyLevel ?? 0, contribution: c.contribution } : null, currencies: Object.fromEntries(coins.rows.map(x => [String(x.type), x.amount])), equipment: gear.rows[0] ?? { equipped: 0, maxEnhance: 0, avgEnhance: 0 }, inventory: bag.rows[0] ?? { items: 0, locked: 0, expandedStorage: 0 }, unreadMail: mail.rows[0]?.count ?? 0, friends: friends.rows[0]?.count ?? 0, achievement: achievement.rows[0] ?? { points: 0, coins: 0 }, classes: classes.rows, skyTower: tower.rows[0] ?? null, weaponExpert: expert.rows[0] ?? null, potential: potential.rows[0] ?? null, accountCharacters: accountChars.rows };
+}
+
 export async function databaseHealth(): Promise<{ available: boolean; latencyMs: number }> {
   if (config.NODE_ENV === 'development') return { available: true, latencyMs: 7 };
   const started = performance.now();

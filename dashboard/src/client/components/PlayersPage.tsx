@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { api, type Player } from '../lib/api';
+import { api, type Player, type PlayerDetail } from '../lib/api';
 
 function SearchIcon() {
   return (
@@ -63,6 +63,14 @@ export function PlayersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [detail, setDetail] = useState<PlayerDetail | null>(null);
+  const [detailError, setDetailError] = useState('');
+
+  const openDetail = async (player: Player) => {
+    setSelectedPlayer(player); setDetail(null); setDetailError('');
+    try { setDetail((await api.playerDetail(player.id)).detail); }
+    catch (e) { setDetailError(e instanceof Error ? e.message : 'Detail tambahan gagal dimuat.'); }
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -236,7 +244,7 @@ export function PlayersPage() {
                   <td style={{ textAlign: 'center' }}>
                     <button
                       className="detail-stat-btn"
-                      onClick={() => setSelectedPlayer(player)}
+                      onClick={() => void openDetail(player)}
                       title="Lihat Detail Statistik Karakter"
                     >
                       <StatIcon />
@@ -436,6 +444,22 @@ export function PlayersPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="stat-group-card player-extra-detail">
+                      <div className="stat-group-title"><span>📚</span> Progres & Akun</div>
+                      {!detail && !detailError && <div className="stat-label">Memuat detail karakter…</div>}
+                      {detailError && <div className="notice error">{detailError}</div>}
+                      {detail && <div className="stat-rows">
+                        <div className="stat-row-item"><span className="stat-label">EXP / terakhir level-up</span><span className="stat-val">{formatNumber(detail.exp)} · {formatDate(detail.lastLevelUp)}</span></div>
+                        <div className="stat-row-item"><span className="stat-label">Family</span><span className="stat-val">{detail.family ? `${detail.family.name} Lv.${detail.family.level} · Kontribusi ${formatNumber(detail.family.contribution)}` : 'Tidak bergabung'}</span></div>
+                        <div className="stat-row-item"><span className="stat-label">Achievement</span><span className="stat-val">{formatNumber(detail.achievement.points)} poin · {formatNumber(detail.achievement.coins)} coin</span></div>
+                        <div className="stat-row-item"><span className="stat-label">Sosial</span><span className="stat-val">{detail.friends} teman · {detail.unreadMail} mail belum dibuka</span></div>
+                        <div className="stat-row-item"><span className="stat-label">Karakter pada akun</span><span className="stat-val">{detail.accountCharacters.map(c => `${c.name} (Lv.${c.level})`).join(', ') || '—'}</span></div>
+                      </div>}
+                    </div>
+                    {detail && <div className="stat-cards-grid player-extra-detail">
+                      <div className="stat-group-card"><div className="stat-group-title"><span>🛡️</span> Equipment & Inventori</div><div className="stat-rows"><div className="stat-row-item"><span className="stat-label">Equipment terpasang</span><span className="stat-val">{detail.equipment.equipped} item · +{detail.equipment.avgEnhance} rata-rata · +{detail.equipment.maxEnhance} tertinggi</span></div><div className="stat-row-item"><span className="stat-label">Inventory</span><span className="stat-val">{detail.inventory.items} item · {detail.inventory.locked} terkunci · Storage +{detail.inventory.expandedStorage}</span></div></div></div>
+                      <div className="stat-group-card"><div className="stat-group-title"><span>✨</span> Progres Lanjutan</div><div className="stat-rows"><div className="stat-row-item"><span className="stat-label">Class terlatih</span><span className="stat-val">{detail.classes.map(c => `#${c.classId} Lv.${c.level}`).join(', ') || '—'}</span></div><div className="stat-row-item"><span className="stat-label">Sky Tower / Weapon Expert</span><span className="stat-val">{detail.skyTower ? `${detail.skyTower.highest} (percobaan ${detail.skyTower.attempts})` : '—'} · {detail.weaponExpert ? `Tipe ${detail.weaponExpert.type} Lv.${detail.weaponExpert.level}` : '—'}</span></div><div className="stat-row-item"><span className="stat-label">Potential</span><span className="stat-val">{detail.potential ? `ATK ${detail.potential.atk} · DEF ${detail.potential.def} · Total ${detail.potential.total}` : '—'}</span></div></div></div>
+                    </div>}
                   </div>
 
                   <div className="modal-footer">

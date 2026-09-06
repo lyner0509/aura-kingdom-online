@@ -58,6 +58,7 @@ export type Player = {
   createTime?: string | null;
   lastSeen: string | null;
 };
+export type PlayerDetail = { exp: number; lastLevelUp: string | null; family: { name: string; level: number; contribution: number } | null; currencies: Record<string, number>; equipment: { equipped: number; maxEnhance: number; avgEnhance: number }; inventory: { items: number; locked: number; expandedStorage: number }; unreadMail: number; friends: number; achievement: { points: number; coins: number }; classes: { classId: number; level: number; point: number; aaPoint: number }[]; skyTower: { highest: number; attempts: number } | null; weaponExpert: { type: number; level: number } | null; potential: { atk: number; def: number; total: number } | null; accountCharacters: { id: string; name: string; level: number }[] };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -660,4 +661,5 @@ export const api = {
     request<{ service: string; content: string }>(`/ops/api/logs?service=${encodeURIComponent(service)}&lines=${lines}`),
   players: (search = '', signal?: AbortSignal) =>
     request<{ players: Player[] }>(`/ops/api/players?search=${encodeURIComponent(search)}&limit=60`, { signal, cache: 'no-store' }),
+  playerDetail: (id: string) => request<{ detail: PlayerDetail }>(`/ops/api/players/${encodeURIComponent(id)}/detail`, { cache: 'no-store' }),
 };

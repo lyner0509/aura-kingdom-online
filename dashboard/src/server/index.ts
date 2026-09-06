@@ -17,7 +17,7 @@ import {
   verifyPassword,
 } from './auth.js';
 import { config } from './config.js';
-import { databaseHealth, listPlayers, playerSummary } from './database.js';
+import { databaseHealth, getPlayerDetail, listPlayers, playerSummary } from './database.js';
 import { BonusError, readBonus, saveBonus } from './bonus.js';
 import { ItemMallError, readItemMall, saveItemMall } from './itemmall.js';
 import { LoyaltyError, readLoyalty, saveLoyalty } from './loyalty.js';
@@ -179,6 +179,13 @@ app.get('/ops/api/players', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+app.get('/ops/api/players/:id/detail', async (req, res, next) => {
+  try {
+    const detail = await getPlayerDetail(Number(req.params.id));
+    if (!detail) return res.status(404).json({ error: 'Karakter tidak ditemukan.' });
+    res.json({ detail });
+  } catch (error) { next(error); }
 });
 
 app.get('/ops/api/paragon', async (_req, res, next) => {
