@@ -21,25 +21,25 @@ export function pool(database: string): pg.Pool {
   return value;
 }
 
-export const WEAPON_INFO: Record<number, { name: string; icon: string; maleAvatar: string; femaleAvatar: string }> = {
-  1:      { name: 'Guardian',     icon: 'wp0101', maleAvatar: 'p00001', femaleAvatar: 'p00112' },
-  2:      { name: 'Duelist',      icon: 'wp0201', maleAvatar: 'p00104', femaleAvatar: 'p00004' },
-  4:      { name: 'Ravager',      icon: 'wp0301', maleAvatar: 'p00003', femaleAvatar: 'p00118' },
-  8:      { name: 'Wizard',       icon: 'wp0401', maleAvatar: 'p00102', femaleAvatar: 'p00110' },
-  16:     { name: 'Gunslinger',   icon: 'wp0501', maleAvatar: 'p00105', femaleAvatar: 'p00007' },
-  32:     { name: 'Grenadier',    icon: 'wp0601', maleAvatar: 'p00101', femaleAvatar: 'p00006' },
-  64:     { name: 'Bard',         icon: 'wp0701', maleAvatar: 'p00107', femaleAvatar: 'p00002' },
-  128:    { name: 'Brawler',      icon: 'wp0801', maleAvatar: 'p00103', femaleAvatar: 'p00108' },
-  256:    { name: 'Sorcerer',     icon: 'wp0901', maleAvatar: 'p00106', femaleAvatar: 'p00004' },
-  512:    { name: 'Greatsword',   icon: 'wp1001', maleAvatar: 'p00104', femaleAvatar: 'p00111' },
-  1024:   { name: 'Warbow',       icon: 'wp1101', maleAvatar: 'p00107', femaleAvatar: 'p00003' },
-  2048:   { name: 'Tachi',        icon: 'wp1201', maleAvatar: 'p00105', femaleAvatar: 'p00112' },
-  4096:   { name: 'Necromancer',  icon: 'wp1301', maleAvatar: 'p00106', femaleAvatar: 'p00004' },
-  8192:   { name: 'Crusader',     icon: 'wp1401', maleAvatar: 'p00001', femaleAvatar: 'p00109' },
-  16384:  { name: 'Shinobi',      icon: 'wp1501', maleAvatar: 'p00105', femaleAvatar: 'p00007' },
-  32768:  { name: 'Lancer',       icon: 'wp1601', maleAvatar: 'p00102', femaleAvatar: 'p00110' },
-  65536:  { name: 'Whip',         icon: 'wp1701', maleAvatar: 'p00104', femaleAvatar: 'p00112' },
-  131072: { name: 'Chime',        icon: 'wp1801', maleAvatar: 'p00107', femaleAvatar: 'p00002' },
+export const WEAPON_INFO: Record<number, { name: string; icon: string; color: string; bg: string }> = {
+  1:      { name: 'Guardian',     icon: 'wp0101', color: '#3b82f6', bg: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)' },
+  2:      { name: 'Duelist',      icon: 'wp0201', color: '#f59e0b', bg: 'linear-gradient(135deg, #78350f 0%, #0f172a 100%)' },
+  4:      { name: 'Ravager',      icon: 'wp0301', color: '#ef4444', bg: 'linear-gradient(135deg, #7f1d1d 0%, #0f172a 100%)' },
+  8:      { name: 'Wizard',       icon: 'wp0401', color: '#6366f1', bg: 'linear-gradient(135deg, #312e81 0%, #0f172a 100%)' },
+  16:     { name: 'Gunslinger',   icon: 'wp0501', color: '#06b6d4', bg: 'linear-gradient(135deg, #164e63 0%, #0f172a 100%)' },
+  32:     { name: 'Grenadier',    icon: 'wp0601', color: '#f97316', bg: 'linear-gradient(135deg, #7c2d12 0%, #0f172a 100%)' },
+  64:     { name: 'Bard',         icon: 'wp0701', color: '#10b981', bg: 'linear-gradient(135deg, #064e3b 0%, #0f172a 100%)' },
+  128:    { name: 'Brawler',      icon: 'wp0801', color: '#ea580c', bg: 'linear-gradient(135deg, #7c2d12 0%, #0f172a 100%)' },
+  256:    { name: 'Sorcerer',     icon: 'wp0901', color: '#8b5cf6', bg: 'linear-gradient(135deg, #4c1d95 0%, #0f172a 100%)' },
+  512:    { name: 'Greatsword',   icon: 'wp1001', color: '#94a3b8', bg: 'linear-gradient(135deg, #334155 0%, #020617 100%)' },
+  1024:   { name: 'Warbow',       icon: 'wp1101', color: '#14b8a6', bg: 'linear-gradient(135deg, #134e4a 0%, #042f2e 100%)' },
+  2048:   { name: 'Tachi',        icon: 'wp1201', color: '#e11d48', bg: 'linear-gradient(135deg, #881337 0%, #020617 100%)' },
+  4096:   { name: 'Necromancer',  icon: 'wp1301', color: '#a855f7', bg: 'linear-gradient(135deg, #581c87 0%, #020617 100%)' },
+  8192:   { name: 'Crusader',     icon: 'wp1401', color: '#eab308', bg: 'linear-gradient(135deg, #713f12 0%, #020617 100%)' },
+  16384:  { name: 'Shinobi',      icon: 'wp1501', color: '#64748b', bg: 'linear-gradient(135deg, #1e293b 0%, #020617 100%)' },
+  32768:  { name: 'Lancer',       icon: 'wp1601', color: '#0ea5e9', bg: 'linear-gradient(135deg, #075985 0%, #020617 100%)' },
+  65536:  { name: 'Whip',         icon: 'wp1701', color: '#ec4899', bg: 'linear-gradient(135deg, #831843 0%, #2e0819 100%)' },
+  131072: { name: 'Chime',        icon: 'wp1801', color: '#2dd4bf', bg: 'linear-gradient(135deg, #115e59 0%, #022c22 100%)' },
 };
 
 export const MAP_NAMES: Record<number, string> = {
@@ -78,7 +78,7 @@ export function resolveWeapon(weaponId: number) {
     const bit = Number(key);
     if ((weaponId & bit) === bit) return val;
   }
-  return { name: 'Adventurer', icon: 'wp0101', maleAvatar: 'p00001', femaleAvatar: 'p00002' };
+  return { name: 'Adventurer', icon: 'wp0101', color: '#64748b', bg: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' };
 }
 
 export type PlayerRow = {
@@ -94,6 +94,8 @@ export type PlayerRow = {
   className: string;
   subClassName: string | null;
   classIcon: string;
+  classColor?: string;
+  classBg?: string;
   avatarIcon: string;
   online: boolean;
   hp: number;
@@ -142,7 +144,8 @@ const demoPlayers: PlayerRow[] = [
     className: 'Warbow',
     subClassName: 'Gunslinger',
     classIcon: 'wp1101',
-    avatarIcon: 'p00003',
+    classColor: '#14b8a6',
+    avatarIcon: 'wp1101',
     online: true,
     hp: 45000,
     maxHp: 45000,
@@ -177,7 +180,8 @@ const demoPlayers: PlayerRow[] = [
     className: 'Guardian',
     subClassName: 'Ravager',
     classIcon: 'wp0101',
-    avatarIcon: 'p00001',
+    classColor: '#3b82f6',
+    avatarIcon: 'wp0101',
     online: true,
     hp: 38000,
     maxHp: 38000,
@@ -212,7 +216,8 @@ const demoPlayers: PlayerRow[] = [
     className: 'Whip',
     subClassName: 'Bard',
     classIcon: 'wp1701',
-    avatarIcon: 'p00112',
+    classColor: '#ec4899',
+    avatarIcon: 'wp1701',
     online: false,
     hp: 29000,
     maxHp: 29000,
@@ -247,7 +252,8 @@ const demoPlayers: PlayerRow[] = [
     className: 'Shinobi',
     subClassName: 'Duelist',
     classIcon: 'wp1501',
-    avatarIcon: 'p00105',
+    classColor: '#64748b',
+    avatarIcon: 'wp1501',
     online: false,
     hp: 22000,
     maxHp: 22000,
@@ -373,7 +379,6 @@ export async function listPlayers(search: string, limit: number): Promise<Player
     const gender: 'Male' | 'Female' = genderId === 2 ? 'Female' : 'Male';
     const primaryWp = resolveWeapon(Number(row.weapon1));
     const secondaryWp = Number(row.weapon2) > 0 ? resolveWeapon(Number(row.weapon2)).name : null;
-    const avatar = genderId === 2 ? primaryWp.femaleAvatar : primaryWp.maleAvatar;
     const mapName = MAP_NAMES[Number(row.nodeId)] ?? `Zone #${row.nodeId}`;
 
     return {
@@ -389,7 +394,9 @@ export async function listPlayers(search: string, limit: number): Promise<Player
       className: primaryWp.name,
       subClassName: secondaryWp,
       classIcon: primaryWp.icon,
-      avatarIcon: avatar,
+      classColor: primaryWp.color,
+      classBg: primaryWp.bg,
+      avatarIcon: primaryWp.icon,
       online,
       hp: Number(row.hp),
       maxHp: Number(row.maxHp),

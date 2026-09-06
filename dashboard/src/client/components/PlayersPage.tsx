@@ -20,6 +20,43 @@ function StatIcon() {
   );
 }
 
+function ClassCrestAvatar({
+  classIcon,
+  className,
+  isFemale,
+  size = 'md',
+  bgColor,
+}: {
+  classIcon?: string;
+  className?: string;
+  isFemale: boolean;
+  size?: 'md' | 'lg';
+  bgColor?: string;
+}) {
+  const iconFile = classIcon ? `${classIcon.toLowerCase()}.webp` : 'wp0101.webp';
+  return (
+    <div
+      className={`char-crest-avatar ${size} ${isFemale ? 'female' : 'male'}`}
+      title={`${className || 'Adventurer'} (${isFemale ? 'Wanita ♀' : 'Pria ♂'})`}
+    >
+      <div className="crest-shield" style={bgColor ? { background: bgColor } : undefined}>
+        <img
+          src={`/ops/class-icons/${iconFile}`}
+          alt={className || 'Class Crest'}
+          className="crest-symbol-img"
+          loading="lazy"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = '/ops/class-icons/wp0101.webp';
+          }}
+        />
+      </div>
+      <span className={`crest-gender-tag ${isFemale ? 'female' : 'male'}`} title={isFemale ? 'Wanita' : 'Pria'}>
+        {isFemale ? '♀' : '♂'}
+      </span>
+    </div>
+  );
+}
+
 export function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [search, setSearch] = useState('');
@@ -122,35 +159,19 @@ export function PlayersPage() {
           <tbody>
             {players.map((player) => {
               const isFemale = player.genderId === 2 || player.gender === 'Female';
-              const avatarFile = player.avatarIcon ? `${player.avatarIcon}.webp` : (isFemale ? 'p00002.webp' : 'p00001.webp');
               const weaponFile = player.classIcon ? `${player.classIcon}.webp` : 'wp0101.webp';
 
               return (
                 <tr key={player.id}>
                   <td>
                     <div className="char-cell">
-                      <div className={`char-avatar-box ${isFemale ? 'female' : 'male'}`}>
-                        <img
-                          src={`/ops/avatars/${avatarFile}`}
-                          alt={player.name}
-                          className="char-avatar-img"
-                          loading="lazy"
-                          onError={(e) => {
-                            // Fallback to default avatar
-                            (e.currentTarget as HTMLImageElement).src = isFemale ? '/ops/avatars/p00002.webp' : '/ops/avatars/p00001.webp';
-                          }}
-                        />
-                        <div className="char-weapon-badge" title={player.className || 'Class'}>
-                          <img
-                            src={`/ops/class-icons/${weaponFile}`}
-                            alt={player.className || 'Class'}
-                            loading="lazy"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      </div>
+                      <ClassCrestAvatar
+                        classIcon={player.classIcon}
+                        className={player.className}
+                        isFemale={isFemale}
+                        size="md"
+                        bgColor={player.classBg}
+                      />
                       <div className="char-info-col">
                         <div className="char-name-row">
                           <strong>{player.name}</strong>
@@ -246,8 +267,6 @@ export function PlayersPage() {
             {/* Hero Header */}
             {(() => {
               const isFemale = selectedPlayer.genderId === 2 || selectedPlayer.gender === 'Female';
-              const avatarFile = selectedPlayer.avatarIcon ? `${selectedPlayer.avatarIcon}.webp` : (isFemale ? 'p00002.webp' : 'p00001.webp');
-              const weaponFile = selectedPlayer.classIcon ? `${selectedPlayer.classIcon}.webp` : 'wp0101.webp';
               const hpPercent = selectedPlayer.maxHp && selectedPlayer.maxHp > 0
                 ? Math.min(100, Math.round(((selectedPlayer.hp ?? 0) / selectedPlayer.maxHp) * 100))
                 : 100;
@@ -258,22 +277,13 @@ export function PlayersPage() {
               return (
                 <>
                   <div className="modal-header-hero">
-                    <div className={`modal-hero-avatar-box ${isFemale ? 'female' : 'male'}`}>
-                      <img
-                        src={`/ops/avatars/${avatarFile}`}
-                        alt={selectedPlayer.name}
-                        className="hero-avatar-img"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = isFemale ? '/ops/avatars/p00002.webp' : '/ops/avatars/p00001.webp';
-                        }}
-                      />
-                      <div className="modal-hero-weapon-badge" title={selectedPlayer.className || 'Class'}>
-                        <img
-                          src={`/ops/class-icons/${weaponFile}`}
-                          alt={selectedPlayer.className || 'Class'}
-                        />
-                      </div>
-                    </div>
+                    <ClassCrestAvatar
+                      classIcon={selectedPlayer.classIcon}
+                      className={selectedPlayer.className}
+                      isFemale={isFemale}
+                      size="lg"
+                      bgColor={selectedPlayer.classBg}
+                    />
 
                     <div className="modal-hero-details">
                       <div className="modal-hero-title-row">

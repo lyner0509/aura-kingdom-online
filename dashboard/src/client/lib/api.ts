@@ -34,6 +34,8 @@ export type Player = {
   className?: string;
   subClassName?: string | null;
   classIcon?: string;
+  classColor?: string;
+  classBg?: string;
   avatarIcon?: string;
   online: boolean;
   hp?: number;
