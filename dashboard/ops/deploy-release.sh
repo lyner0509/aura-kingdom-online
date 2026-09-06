@@ -18,8 +18,12 @@ if [[ -f /root/hxsy/Data/db/T_ItemMall.ini ]]; then
     node ops/build-item-catalog.mjs /root/hxsy/Data/db/T_ItemMall.ini data/item-names.json
   fi
 fi
-if [[ -f /root/hxsy/Data/db/S_Item.ini ]]; then
-  node ops/build-item-icons.mjs /root/hxsy/Data/db/S_Item.ini data/item-icons.json
+icon_sources=()
+for src in /root/hxsy/Data/db/S_Item.ini /root/hxsy/Data/db/S_ItemMall.ini /root/hxsy/Data/db/S_Enchant.ini /root/hxsy/Data/db/S_Spell.ini /root/hxsy/Data/db/S_Combine.ini; do
+  [[ -f "$src" ]] && icon_sources+=("$src")
+done
+if (( ${#icon_sources[@]} > 0 )); then
+  node ops/build-item-icons.mjs "${icon_sources[@]}" data/item-icons.json
 fi
 account_db=$(node --env-file=/etc/aura-dashboard.env -p 'process.env.ACCOUNT_DB || "FFAccount"')
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$account_db" -f ops/paragon.sql

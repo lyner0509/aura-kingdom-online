@@ -9,6 +9,8 @@ export interface ItemIconProps {
   style?: React.CSSProperties;
 }
 
+const DEFAULT_ICON = '/ops/item-icons/i80914.webp';
+
 export const ItemIcon: React.FC<ItemIconProps> = ({
   itemId,
   icon,
@@ -17,6 +19,7 @@ export const ItemIcon: React.FC<ItemIconProps> = ({
   className = '',
   style = {},
 }) => {
+  const [useFallback, setUseFallback] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   // Clean and parse itemId
@@ -24,13 +27,15 @@ export const ItemIcon: React.FC<ItemIconProps> = ({
   const validId = typeof numId === 'number' && Number.isSafeInteger(numId) && numId > 0;
 
   // Determine icon source
-  let src: string | undefined;
+  let primarySrc: string | undefined;
   if (icon && typeof icon === 'string' && icon.trim() !== '') {
     const cleanIcon = icon.trim().toLowerCase().replace(/\.webp$/, '');
-    src = `/ops/item-icons/${cleanIcon}.webp`;
+    primarySrc = `/ops/item-icons/${cleanIcon}.webp`;
   } else if (validId) {
-    src = `/ops/api/item-icon/${numId}`;
+    primarySrc = `/ops/api/item-icon/${numId}`;
   }
+
+  const src = useFallback ? DEFAULT_ICON : (primarySrc || DEFAULT_ICON);
 
   const boxStyle: React.CSSProperties = {
     width: `${size}px`,
@@ -46,16 +51,18 @@ export const ItemIcon: React.FC<ItemIconProps> = ({
     ? `Item #${numId}`
     : 'Item';
 
-  if (!src || hasError) {
+  if (hasError) {
     return (
       <div
         className={`ak-item-icon ak-item-icon-empty ${className}`}
         style={boxStyle}
         title={titleText}
       >
-        <span className="ak-item-icon-fallback-char">
-          {validId ? '?' : '—'}
-        </span>
+        <svg viewBox="0 0 24 24" width={size * 0.6} height={size * 0.6} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
       </div>
     );
   }
@@ -73,7 +80,13 @@ export const ItemIcon: React.FC<ItemIconProps> = ({
         height={size}
         loading="lazy"
         decoding="async"
-        onError={() => setHasError(true)}
+        onError={() => {
+          if (!useFallback && src !== DEFAULT_ICON) {
+            setUseFallback(true);
+          } else {
+            setHasError(true);
+          }
+        }}
       />
     </div>
   );
